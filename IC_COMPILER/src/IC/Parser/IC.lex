@@ -190,7 +190,7 @@ EndOfLineComment   = "//" {InputCharacter}* {LineTerminator}?
   // in case we got the char " again, then the string is finished, and we go back to the initial state
   \"    { yybegin(YYINITIAL); return new Token(sym.QUOTE, yyline,qstring.toString()); }
   
-  // in case we got any sequence of string charachters, append it to qstring
+  // in case we got any sequence of string characters, append it to qstring
   {StringCharacter}+    { qstring.append( yytext()); }
   
   /* ---- escape sequences ---- */
@@ -208,7 +208,7 @@ EndOfLineComment   = "//" {InputCharacter}* {LineTerminator}?
 
 
 
-/* handle traditional comment state TBD: finish state (comment with new line does not work) */
+/* handle traditional comment state */
  <TRADCOM> 
 {
    /* the comment is finished, and we must return to initial state */
@@ -227,11 +227,11 @@ EndOfLineComment   = "//" {InputCharacter}* {LineTerminator}?
 /* handle zero appearance */
 <INTEGER>
 {
-	[;+-/* \t\f\]\}\)]		{ 	
-							yypushback(1); //Push the last letter back into the input stream to be read again
-							yybegin(YYINITIAL); 
-							return new Token(sym.INTEGER, yyline, 0); 
-						}
+   ([0])*[;+-/* \t\f\]\}\)]		{ 	
+							      yypushback(1); //Push the last letter back into the input stream to be read again
+							      yybegin(YYINITIAL); 
+							      return new Token(sym.INTEGER, yyline, 0); 
+						       }
 	<<EOF>>             {	yybegin(YYINITIAL); return new Token(sym.INTEGER, yyline, 0);  } 	
 	/* error cases */
 	.					{   throw new LexicalError("unexpected character (\'" + yytext().charAt(0) + "\') following a zero", yyline); }
