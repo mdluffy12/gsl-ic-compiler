@@ -2,18 +2,24 @@
  * Compilation course, University of Tel Aviv 2012 ©   
  */
 
-package IC.Test;
+package Test;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+
+import IC.Parser.FileUtils;
+import IC.Parser.GenLexer;
+import IC.Parser.GenParser;
 import IC.Parser.Lexer;
 import IC.Parser.LexicalError;
 import IC.Parser.Token;
@@ -23,9 +29,10 @@ public class MainTester {
 	private static String tempFilePath = "C:\\files\\temp.txt";
 	private static String outputFileFolder = "C:\\files\\";
 	private static File outputFile;
+	private static String outputFileName;
 	private static String LexicalTestSuffix = ".tokens";
+	private static String ParsingTestSuffix = ".ast";
 	private static File tempFile;
-
 	public static ArrayList<String> IC_Keyword_List;
 	public static ArrayList<String> Legal_ASCII;
 	public static ArrayList<String> Illegal_ASCII;
@@ -35,7 +42,7 @@ public class MainTester {
 	};
 
 	public enum TestType {
-		lexical, all;
+		lexical, syntax, all;
 	};
 
 	public enum LexicalTestType {
@@ -44,10 +51,10 @@ public class MainTester {
 
 	public static OutputType ot = OutputType.standart_and_file;
 	public static LexicalTestType lexicaltt = LexicalTestType.files;
-	public static TestType tt = TestType.lexical;
+	public static TestType tt = TestType.syntax;
 
 	public static void main(String[] args) {
-		
+
 		initializeTestVars();
 
 		switch (tt) {
@@ -55,13 +62,19 @@ public class MainTester {
 			RunLexicalMainTester(args);
 			break;
 		}
+		case syntax: {
+			RunSyntaxMainTester(args);
+			break;
+		}
+
 		case all: {
 			RunLexicalMainTester(args);
+			RunSyntaxMainTester(args);
 			break;
 		}
 		}
 
-		dumpResources(); 
+		dumpResources();
 
 	}
 
@@ -77,15 +90,33 @@ public class MainTester {
 			break;
 		}
 		case files: {
-			TestFiles(args);
+			LexicalTestFiles(args);
 			break;
 		}
 		case all: {
 			TestKeywords();
 			TestAscii();
-			TestFiles(args);
+			LexicalTestFiles(args);
 		}
 		}
+
+	}
+
+	private static void RunSyntaxMainTester(String[] args) {
+		File file = new File(args[0]);
+		if (!file.exists()) {
+			System.out.println("file + " + args[0]
+					+ " does not exist, aborting syntax tester..");
+			return;
+		}
+
+		else if (!file.isDirectory()) {
+			System.out.println("file + " + args[0]
+					+ " is not a directory, aborting syntax tester..");
+			return;
+		}
+
+		ParseAllFilesInFolder(args[0]);
 
 	}
 
@@ -93,7 +124,15 @@ public class MainTester {
 		String dateStr = new Date().toString(), dayStr = dateStr
 				.substring(0, 3), MonthStr = dateStr.substring(4, 7), MonthDayStr = dateStr
 				.substring(8, 10);
-		return "TEST_" + dayStr + "_" + MonthStr + "_" + MonthDayStr;
+
+		StringBuilder sb = new StringBuilder();
+		String partialName = "TEST_" + dayStr + "_" + MonthStr + "_"
+				+ MonthDayStr;
+		sb.append(partialName);
+		sb.append(".txt");
+		outputFileName = sb.toString();
+
+		return partialName;
 
 	}
 
@@ -116,7 +155,7 @@ public class MainTester {
 				"%", "(", ")", "{", "}", "[", "]", ";", ".", ",", "class",
 				"extends", "static", "void", "if", "else", "while", "break",
 				"boolean", "int", "length", "new", "return", "this", "string",
-				"false", "true", "null","continue"));
+				"false", "true", "null", "continue"));
 
 		// build ASCII characters list
 		Legal_ASCII = new ArrayList<String>();
@@ -125,11 +164,11 @@ public class MainTester {
 		for (int c = 1; c < 128; c++) {
 			char ch = (char) c;
 			if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
-					|| (ch >= '0' && ch <= '9'   )  || (ch == '=') || (ch == '>')
-					|| (ch == '<')  || (ch == '!')  || (ch == '-') || (ch == '*')
-					|| (ch == '/')  || (ch == '%')  || (ch == '(') || (ch == ')')
-					|| (ch == '[')  || (ch == ']')  || (ch == '{') || (ch == '}')
-					|| (ch == ';')  || (ch == ',')  || (ch == '.') || (ch == ' ')
+					|| (ch >= '0' && ch <= '9') || (ch == '=') || (ch == '>')
+					|| (ch == '<') || (ch == '!') || (ch == '-') || (ch == '*')
+					|| (ch == '/') || (ch == '%') || (ch == '(') || (ch == ')')
+					|| (ch == '[') || (ch == ']') || (ch == '{') || (ch == '}')
+					|| (ch == ';') || (ch == ',') || (ch == '.') || (ch == ' ')
 					|| (ch == '\t') || (ch == '\n') || (ch == '\f')
 					|| (ch == '\r') || (ch == '+')) {
 				Legal_ASCII.add(String.valueOf(ch));
@@ -155,7 +194,7 @@ public class MainTester {
 			CreateFileFromString(AsciiStr);
 
 			Tprint("testing charachter : '" + AsciiStr + "'", ot);
-			
+
 			if (RunLexicalTest(tempFilePath) == false) {
 				Tprint("----- fail! wrong output on char '" + AsciiStr + "'",
 						ot);
@@ -176,7 +215,7 @@ public class MainTester {
 			CreateFileFromString(AsciiStr);
 
 			Tprint("testing charachter : '" + AsciiStr + "'", ot);
-			
+
 			if (RunLexicalTest(tempFilePath) == true) {
 				Tprint("----- fail! wrong output on char '" + AsciiStr + "'",
 						ot);
@@ -198,7 +237,7 @@ public class MainTester {
 			CreateFileFromString(keywordStr);
 
 			Tprint("testing keyword: \"" + keywordStr + "\"", ot);
-			
+
 			if (RunLexicalTest(tempFilePath) == false)
 				return;
 			else {
@@ -210,7 +249,7 @@ public class MainTester {
 
 	}
 
-	private static void TestFiles(String[] paths) {
+	private static void LexicalTestFiles(String[] paths) {
 
 		int counter = 1, success_counter = 0;
 		ArrayList<String> incorrectFiles = new ArrayList<String>();
@@ -219,12 +258,12 @@ public class MainTester {
 			File file = new File(path);
 			Tprint("--------- testing " + file.getName() + " ---------" + "("
 					+ counter + "/" + paths.length + ")", ot);
-			if (TestFile(file) == false) {
-				incorrectFiles.add(Integer.toString(counter));		
-			}else {
+			if (LexicalTestFile(file) == false) {
+				incorrectFiles.add(Integer.toString(counter));
+			} else {
 				success_counter++;
 			}
-			
+
 			counter++;
 
 			Tprint("\n\n", ot);
@@ -233,19 +272,19 @@ public class MainTester {
 		if (paths.length > 0 && success_counter == paths.length) {
 			Tprint("All files tested successfully!!", ot);
 		} else {
-			Tprint(success_counter + "/" + paths.length + " files tested successfully",
-					ot);
-			
-			if(incorrectFiles.size() == 1){
-				Tprint("check file number : " + incorrectFiles.get(0),ot);
-			}else{
-			Tprint("check files number : " + incorrectFiles.toString(),ot);
+			Tprint(success_counter + "/" + paths.length
+					+ " files tested successfully", ot);
+
+			if (incorrectFiles.size() == 1) {
+				Tprint("check file number : " + incorrectFiles.get(0), ot);
+			} else {
+				Tprint("check files number : " + incorrectFiles.toString(), ot);
 			}
 		}
 
 	}
 
-	private static boolean TestFile(File inputfile) {
+	private static boolean LexicalTestFile(File inputfile) {
 
 		String fileDirectory = inputfile.getParent();
 		String fileName = inputfile.getName().substring(0,
@@ -322,18 +361,7 @@ public class MainTester {
 	}
 
 	private static boolean RunLexicalTest(String file_path) {
-		return IC.Compiler.ExecuteLexicalAnalysis(file_path);
-	}
-
-	private static void AppendStringToFile(File file, String data) {
-		try {
-			PrintWriter out = new PrintWriter(new BufferedWriter(
-					new FileWriter(file, true)));
-			out.println(data);
-			out.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		return IC.Compiler.ExecuteLexicalAnalysis(file_path, null);
 	}
 
 	private static void Tprint(String str, OutputType output_type) {
@@ -342,11 +370,11 @@ public class MainTester {
 			System.out.println(str);
 		}
 		case file: {
-			AppendStringToFile(outputFile, str);
+			FileUtils.AppendStringToFile(outputFile, str);
 		}
 		case standart_and_file: {
 			System.out.println(str);
-			AppendStringToFile(outputFile, str);
+			FileUtils.AppendStringToFile(outputFile, str);
 		}
 		}
 	}
@@ -382,12 +410,12 @@ public class MainTester {
 
 				/* get next token from file */
 				token = lexer.next_token();
-				AppendStringToFile(tokenFile, token.toString());
+				FileUtils.AppendStringToFile(tokenFile, token.toString());
 
 			} while (!token.isEOF());
 
 		} catch (LexicalError e) {
-			AppendStringToFile(tokenFile, e.toString());
+			FileUtils.AppendStringToFile(tokenFile, e.toString());
 			return tokenFile;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -395,6 +423,136 @@ public class MainTester {
 		}
 
 		return tokenFile;
+
+	}
+
+	public static void ParseAllFilesInFolder(String folderPath) {
+
+		List<File> files = new ArrayList<File>();
+		int success_counter = 0;
+		Map<String, String> compareResults = new HashMap<String, String>();
+
+		CreateFileList(new File(folderPath), files);
+
+		for (File file : files) {
+			ParseFile(file);
+		}
+
+		Tprint("-------- executing AST file comperator ----------", ot);
+
+		int counter = 1;
+		for (File file : files) {
+
+			Tprint("--------- testing " + file.getName() + " ---------" + "("
+					+ counter + "/" + files.size() + ")", ot);
+
+			if (TestFileSyntax(file) == true) {
+				success_counter++;
+			}
+
+			counter++;
+
+			Tprint("\n\n", ot);
+		}
+
+		if (files.size() > 0 && success_counter == files.size()) {
+			Tprint("All files tested successfully!!", ot);
+		} else {
+			Tprint(success_counter + "/" + files.size()
+					+ " files tested successfully", ot);
+
+		}
+
+	}
+
+	private static boolean TestFileSyntax(File inputfile) {
+		String fileDirectory = null, myASTfilePath = null;
+		try {
+			fileDirectory = inputfile.getCanonicalPath();
+			myASTfilePath = fileDirectory + ".myast.txt";
+		} catch (IOException e) {
+		}
+
+		String ASTfilePath = fileDirectory + ParsingTestSuffix;
+
+		File ASTfile = new File(ASTfilePath);
+		if (!ASTfile.exists()) {
+			Tprint("no comperable file found for file at " + ASTfilePath
+					+ "\nskipping file..", ot);
+		} else {
+			return CompareFiles(new File(myASTfilePath), ASTfile);
+		}
+
+		return false;
+	}
+
+	// creates the file list data structure, a map enumerating all the files in
+	// the folder, and their folder path
+	public static void CreateFileList(File path, List<File> fileList) {
+
+		File files[];
+
+		// get all files listed in current folder
+		files = path.listFiles();
+
+		Arrays.sort(files);
+		for (int i = 0, n = files.length; i < n; i++) {
+
+			if (isLegalForParcing(files[i]) && !files[i].isDirectory())
+				fileList.add(files[i]);
+			if (files[i].isDirectory()) {
+				CreateFileList(files[i], fileList);
+			}
+		}
+	}
+
+	private static boolean isLegalForParcing(File file) {
+		String fileName = file.getName();
+		if (Contains(".tokens", fileName) || Contains(".mytokens", fileName)
+				|| Contains("TEST_", fileName) || Contains(".myast", fileName)
+				|| Contains(".ast", fileName) || Contains("DEBUG_", fileName))
+			return false;
+
+		return true;
+	}
+
+	private static boolean Contains(String pattern, String str) {
+
+		if (pattern.length() > str.length())
+			return false;
+		try {
+			for (int i = 0; i <= str.length() - pattern.length(); i++) {
+
+				if (str.startsWith(pattern, i))
+					return true;
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		return false;
+	}
+
+	private static void ParseFile(File file) {
+		String outputFilePath = null, inputFilePath = file.getAbsolutePath();
+
+		GenLexer lexer = null;
+		try {
+			outputFilePath = file.getCanonicalPath() + ".myast.txt";
+			lexer = new GenLexer(inputFilePath);
+		} catch (Exception e) {
+			// will not happen, but it's here just for generic reasons
+			System.out.println("file not found at : " + inputFilePath);
+			return;
+		}
+
+		System.out.println("parsing " + file.getName() + "...");
+		GenParser parser = new GenParser(lexer.getLexer(), inputFilePath, null);
+		if (parser.ExecuteParser() == false) {
+			System.out.println("parsing failed :( !");
+			return;
+		}
+
+		parser.PrintAST(outputFilePath);
 
 	}
 
