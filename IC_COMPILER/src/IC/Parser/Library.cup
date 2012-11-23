@@ -1,0 +1,265 @@
+/* Created By Micha Sherman,Tzvika Geft and Rani Lichtman 
+ * Compilation course, University of Tel Aviv 2012 ©   
+ */
+ 
+package IC.Parser;
+
+import IC.*;
+import IC.AST.*;
+import IC.Parser.*;
+import java.util.*;
+import IC.Parser.LibraryParser.Global;
+import IC.Parser.Debugger.*;
+import java_cup.runtime.*;
+
+
+/************************************************************************
+*************************************************************************
+    ------------ high level IC library grammar specification ------------
+
+library   ::= CLASS Library '{' methods '}'
+method    ::= STATIC ( type | VOID ) ID '(' [ funcParams ] ')'
+methods   ::= method*
+formal    ::= type ID
+funcParams   ::= formal (',' formal)*
+type      ::= INT | BOOLEAN | STRING | type ('['']')*
+
+*************************************************************************
+*************************************************************************/
+
+/* Parser code to change the way the parser reports errors (include
+   line and column number of the error). */
+parser code {:
+
+	/* global veriables */
+	private Lexer lexer;
+	private boolean printTokens = false;
+	
+	public static class Global{
+	
+    	public static Debugger debugger = null;
+    }
+    
+
+	private String debugFilePath = "C:\\files\\libParserDebug.txt";
+	public LibraryParser(Lexer lexer) {
+		super(lexer);
+		this.lexer = lexer;
+		Global.debugger = Debugger.getDebuggerInstance();
+		Global.debugger.Print("---------- library parser section ----------\n");
+	}
+	
+	   /* called by the parser as soon as a syntax error
+	      is detected (but before error recovery is attempted) */
+       public void syntax_error(Symbol currentToken){
+        System.out.println("called syntax_error() with " + (Token) currentToken " , skipping error..");
+      }
+      
+      /* called by the parser if it is unable to recover
+         from a syntax error */
+      public void unrecovered_syntax_error(Symbol currentToken){
+        System.out.println("called unrecovered_syntax_error() " );
+      }
+	
+:};
+
+scan with {:
+		Token t = lexer.next_token();
+		if(!t.isEOF()){
+			if(printTokens){
+			Global.debugger.Print(t.toString());
+			}
+		return t; 
+		}
+		
+		return t;
+:};
+
+
+/* ------------Declaration of Terminals and Non Terminals Section----------- */
+
+/* Terminals (tokens returned by the scanner) */
+
+terminal  ASSIGN   ;  // '=' 
+terminal  GT       ;  // '>'
+terminal  LT       ;  // '<'
+terminal  LNEG     ;  // '!'
+terminal  EQUAL    ;  // '=='
+terminal  LTE      ;  // '<='
+terminal  GTE      ;  // '>='
+terminal  NEQUAL   ;  // '!='
+terminal  LAND     ;  // '&&'
+terminal  LOR      ;  // '||'
+terminal  PLUS     ;  // '+'
+terminal  MINUS    ;  // '-'
+terminal  UMINUS   ;  // unary '-'
+terminal  MULTIPLY ;  // '*'
+terminal  DIVIDE   ;  // '/' 
+terminal  MOD      ;  // '%'
+
+  
+/* ---- separators ---- */
+ 
+terminal  LP       ;  // '('
+terminal  RP       ;  // ')'
+terminal  LCBR     ;  // '{'
+terminal  RCBR     ;  // '}'
+terminal  LB       ;  // '['
+terminal  RB       ;  // ']'
+terminal  SEMI     ;  // ';'
+terminal  COMMA    ;  // ','
+terminal  DOT      ;  // '.'
+
+
+/* ---- IC keywords ---- */
+  
+terminal  CLASS    ;  // 'class'
+terminal  EXTENDS  ;  // 'extends'
+terminal  STATIC   ;  // 'static'
+terminal  VOID     ;  // 'void'
+terminal  IF       ;  // 'if'
+terminal  ELSE     ;  // 'else'
+terminal  WHILE    ;  // 'while'
+terminal  CONTINUE ;  // 'continue'
+terminal  BREAK    ;  // 'break'
+terminal  BOOLEAN  ;  // 'boolean'
+terminal  INT      ;  // 'int'
+terminal  LENGTH   ;  // 'length'
+terminal  NEW      ;  // 'new'
+terminal  RETURN   ;  // 'return'
+terminal  THIS     ;  // 'this'
+terminal  STRING   ;  // 'string(keyword)'
+
+
+/* boolean literals */
+  
+terminal  FALSE    ;  // 'false'
+terminal  TRUE     ;  // 'true'
+  
+  
+/* ---- null literal ---- */
+  
+terminal  NULL     ;  // 'null'
+
+
+/* ---- terminal with types ---- */
+terminal String  ID        ;  // 'identifier'  
+terminal String  CLASS_ID  ;  // 'class identifier'
+terminal String  QUOTE     ;  // 'quoted string'
+terminal Integer INTEGER   ;  // 'integer'
+
+
+/* Non terminals used in the grammar section */
+/* for example if we define non terminal classname then classname
+ is the class for the AST node associated with the non-terminal */
+
+non terminal ICClass library;
+non terminal LibraryMethod method;
+non terminal ArrayList<Method> methods;
+non terminal Formal formal;
+non terminal FunctionParameters funcParams;
+non terminal Type type;
+
+/* -------------Precedence and Associatively of Terminals Section----------- */
+
+precedence left LP, RP, LB, RB;
+
+
+
+/* ----------------------------Grammar Section-------------------- */
+
+// start with library;
+
+library ::= CLASS CLASS_ID : class_id LCBR methods : methodList RCBR
+            {: RESULT = new ICClass(class_idleft, class_id,new ArrayList<Field>(),methodList); 
+               Global.debugger.Print("reduced library : " + RESULT); 
+            :}
+            
+           | CLASS CLASS_ID : class_id LCBR RCBR
+            {: RESULT = new ICClass(class_idleft, class_id,new ArrayList<Field>(),new ArrayList<Method>()); 
+               Global.debugger.Print("reduced library : " + RESULT); 
+            :}
+;
+
+
+methods   ::= method : m 
+            {: ArrayList<Method> methodList = new ArrayList<Method>();
+               methodList.add(m);
+               RESULT = methodList ;
+               Global.debugger.Print("reduced method list : " + RESULT); 
+            :}
+            
+           |  methods : methodList method : new_method
+            {: methodList.add(new_method);
+			   RESULT = methodList;
+               Global.debugger.Print("reduced method list : " + RESULT); 
+            :}
+;
+
+
+
+method    ::= STATIC type : t ID : ident LP funcParams : params RP SEMI       // static function (of type t) decleration *with* parameters                             
+            {: RESULT = new LibraryMethod(t, ident, params.getParameters());
+               Global.debugger.Print("reduced static method: " + RESULT);         
+            :}
+            
+         |    STATIC VOID ID : ident LP funcParams : params RP SEMI			// static function (of type void) decleration *with* parameters 
+            {: RESULT = new LibraryMethod(new PrimitiveType(identleft, DataTypes.VOID), ident, params.getParameters()); 
+               Global.debugger.Print("reduced static method: " + RESULT);         
+            :}
+            
+         |     STATIC type : t ID : ident LP RP SEMI				    	// static function (of type t) decleration *without* parameters
+            {: RESULT = new LibraryMethod(t, ident, new ArrayList<Formal>()); 
+               Global.debugger.Print("reduced static method: " + RESULT);         
+            :}
+            
+         |     STATIC VOID ID : ident LP RP SEMI						    // static function (of type void) decleration *without* parameter
+            {: RESULT = new LibraryMethod(new PrimitiveType(identleft, DataTypes.VOID), ident, new ArrayList<Formal>()); 
+               Global.debugger.Print("reduced static method: " + RESULT);         
+            :}
+;
+
+funcParams  ::= formal : parameter
+            {: RESULT = new FunctionParameters(parameter) ;
+               Global.debugger.Print("reduced function parameters : " + RESULT); 
+            :}
+            
+           |    funcParams : params COMMA formal : new_param
+            {: params.addParameter(new_param);
+			   RESULT = params;
+               Global.debugger.Print("reduced function parameters : " + RESULT); 
+            :}
+;
+
+formal     ::= type : t ID : identifier 
+            {: RESULT = new Formal(t,identifier); 
+               Global.debugger.Print("reduced formal : " + RESULT);    
+            :} 
+;
+
+type      ::=  INT : int_type     
+            {: RESULT = new PrimitiveType(int_typeleft, DataTypes.INT);   
+               Global.debugger.Print("reduced primitive type " + RESULT);        
+            :}
+            
+	     |     BOOLEAN : bool 
+	        {: RESULT = new PrimitiveType(boolleft, DataTypes.BOOLEAN); 
+	           Global.debugger.Print("reduced primitive type " + RESULT);          
+	        :}
+	        
+	     |     STRING : str
+	        {: RESULT = new PrimitiveType(strleft, DataTypes.STRING); 
+	           Global.debugger.Print("reduced primitive type " + RESULT);          
+	        :}
+	        
+	     |     type : t LB RB
+	        {: t.incrementDimension(); //increment number of dimensions by 1
+	           RESULT = t;
+	           Global.debugger.Print("reduced primitive type " + RESULT);          
+	        :}
+	        
+	     |     CLASS_ID : class_id 
+	        {: RESULT = new UserType(class_idleft, class_id); // new user-defined class
+	           Global.debugger.Print("reduced primitive type class " + RESULT); 
+	        :}	        
+;

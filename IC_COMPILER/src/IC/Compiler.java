@@ -5,95 +5,136 @@
 package IC;
 
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import IC.Parser.*;
+
+import IC.AST.ICClass;
+import IC.Parser.Debugger;
+import IC.Parser.GenLexer;
+import IC.Parser.GenParser;
+import IC.Parser.LibraryUtils;
 
 /**
- * This class takes a single filename as an argument, it reads that file breaks
- * it into tokens, and successively calls the 'next token' method of the
+ * This class takes a filename as an argument (.ic file) , it reads that file
+ * breaks it into tokens, and successively calls the 'next token' method of the
  * generated scanner to print a representation of the file as a series of tokens
- * to the standard output, one token per line
+ * to the standard output, one token per line. the function also receives a
+ * library path name as an argument, which
  */
 
 public class Compiler {
-	
+
+	/* global variables */
+	private static String debugFilePathDirectory = "C:\\files\\";
+	public static GenLexer fileLexer = null;
+	public static GenLexer libLexer = null;
+	public static GenParser parser = null;
+	public static GenParser libParser = null;
 
 	/* this is the main function of our compiler */
 	public static void main(String[] args) {
 
 		/* check argument input */
 		if (args.length == 0) {
-			System.out.println("error - no file paths were given as input");
-		} else if (args.length > 1) {
-			System.out
-					.println("error - too many file paths were given as input");
+			System.out.println("error - no argument given as input");
+		} else if (args.length > 2) {
+			System.out.println("error - too many arguments given as input");
 		} else {
-			ExecuteLexicalAnalysis(args[0]);
-		}
 
+			String libFile_path = null;
+
+			// initial debugger instance
+			initDebugger();
+
+			if (args.length == 2) {
+
+				// get library path from input
+				libFile_path = LibraryUtils.GetLibraryPath(args[1]);
+			}
+
+			if (ExecuteLexicalAnalysis(args[0], libFile_path) == true) {
+				// run syntax analyze
+				ExecuteSyntaxAnalyzer(args[0], libFile_path);
+			}
+		}
+	}
+
+	/**
+	 * Creates an instance of debugger to be used later
+	 * 
+	 */
+	private static void initDebugger() {
+		Debugger.initDebugger(debugFilePathDirectory,
+				Debugger.DebugPrintPref.none);
 	}
 
 	/**
 	 * Executes Full Lexical Analysis of the file
 	 * 
-	 * We break the file into predefined tokens appropriately to IC language.
-	 * The function uses the JFlex tool for lexical analysis. Each token will be
-	 * printed in the following format: "LINE: ID(VALUE)"
+	 * @param file_path
+	 *            the path of the file which will be analyzed
+	 * @param libFile_path
+	 *            (optional) the path of the library file which will be analyzed
+	 * 
+	 *            returns true iff there are no lexical errors in the file(s)
+	 */
+	public static boolean ExecuteLexicalAnalysis(String file_path,
+			String libFile_path) {
+
+		try {
+			fileLexer = new GenLexer(file_path);
+		} catch (FileNotFoundException e) {
+			System.out.println("file not found at : " + file_path);
+			return false;
+		}
+
+		if (libFile_path != null) {
+			try {
+				libLexer = new GenLexer(libFile_path);
+			} catch (FileNotFoundException e) {
+				System.out.println("file not found at : " + file_path);
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Executes syntax Analysis of the file
+	 * 
+	 * the function takes a CUP program - basically an LALR(1) parsable grammar,
+	 * and generates a Java program that will parse input that satisfies that
+	 * grammar.
 	 * 
 	 * 
 	 * @param file_path
 	 *            the path of the file which will be analyzed
-	 *            
-	 * returns true iff there are no lexical errors in the file
+	 * 
+	 * @param library_path
+	 *            (optional) the path of the library path to be parsed (null if
+	 *            does not exist)
+	 * 
+	 *            returns true iff there are no syntax errors in the file(s)
 	 */
-	public static boolean ExecuteLexicalAnalysis(String file_path) {
+	public static boolean ExecuteSyntaxAnalyzer(String file_path,
+			String library_path) {
 
-		// define lexer object
-		Lexer lexer = null;
-		Token token = null;
-		try {
+		ICClass libRoot = null;
 
-			// create input stream for reading character files
-			FileReader reader = new FileReader(file_path);
+		if (library_path != null) {
+			libRoot = LibraryUtils.ParseLibrary(libLexer.getLexer());
+			if (libRoot == null)
+				return false;
 
-			/* create a new lexer object with our file_path from argument list */
-			lexer = new Lexer(reader);
-			do {
-
-				/* get next token from file */
-				token = lexer.next_token();
-
-				if (token != null) {
-					System.out.println(token);
-				}
-
-			} while (!token.isEOF());
-
+			// LibraryUtils.PrintLibraryAST(libroot, library_path); // for debug
 		}
 
-		catch (FileNotFoundException e) {
-			System.out.println("File not found : \"" + file_path + "\"");
+		parser = new GenParser(fileLexer.getLexer(), file_path, libRoot);
+		if (parser.ExecuteParser() == false)
 			return false;
-		}
 
-		catch (IOException e) {
-			System.out.println("IO error scanning file \"" + file_path + "\"");
-			System.out.println(e);
-			return false;
-		}
-
-		catch (LexicalError e) {
-			System.out.println(e.getMessage());
-			return false;
-		}
-
-		catch (Exception e) {
-			System.out.println("Unexpected exception:");
-			e.printStackTrace();
-			return false;
-		}
-		
+		parser.AddLibraryAsClass();
+		parser.PrintAST();
+		parser.PrintAST("C:\\files\\Quicksort.ic.myast.txt");
 		return true;
 
 	}

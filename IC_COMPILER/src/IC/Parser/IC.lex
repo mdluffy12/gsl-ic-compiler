@@ -17,7 +17,12 @@ package IC.Parser;
 //%scanerror LexicalError  // throw an instance 'LexicalError' in case of an internal error
 %yylexthrow{
 LexicalError
-%yylexthrow}                // add throws LexicalError to next_token function
+%yylexthrow}               // add throws LexicalError to next_token function
+
+//%cupsym Parser        // Customizes the name of the CUP generated class/interface containing the names of
+                           // terminal tokens
+%cup                       // enables the CUP compatibility mode
+
 
 %{
   StringBuilder qstring = new StringBuilder();
@@ -34,6 +39,10 @@ LexicalError
 		 return true;
 	}
 	
+%}
+
+%{
+	public int getLineNumber() { return yyline+1; }
 %}
 
 
@@ -178,7 +187,7 @@ EndOfLineComment   = "//" {InputCharacter}* {LineTerminator}?
 .        { throw new LexicalError("illegal character \'"+ yytext() + "\'" ,yyline);}
 
 
- <<EOF>> { return new Token(sym.EOF,yyline); } 
+ <<EOF>> { return new Token(sym.EOF,yyline,"EOF"); } 
  
 }
  
