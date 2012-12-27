@@ -1,5 +1,7 @@
 package IC.AST;
 
+import IC.Parser.SemanticError;
+
 /**
  * AST node for expression in parentheses.
  * 
@@ -7,9 +9,10 @@ package IC.AST;
  */
 public class ExpressionBlock extends Expression {
 
-	private Expression expression;
+	private final Expression expression;
 
-	public Object accept(Visitor visitor) {
+	@Override
+	public Object accept(Visitor visitor) throws SemanticError {
 		return visitor.visit(this);
 	}
 

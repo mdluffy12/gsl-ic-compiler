@@ -11,6 +11,8 @@ import IC.Parser.Debugger;
 import IC.Parser.GenLexer;
 import IC.Parser.GenParser;
 import IC.Parser.LibraryUtils;
+import IC.Parser.SemanticError;
+import Visitors.SymTableConstructor;
 
 /**
  * This class takes a filename as an argument (.ic file) , it reads that file
@@ -23,11 +25,12 @@ import IC.Parser.LibraryUtils;
 public class Compiler {
 
 	/* global variables */
-	private static String debugFilePathDirectory = "C:\\files\\";
+	private static String debugFilePathDirectory = "C:\\filesdd\\";
 	public static GenLexer fileLexer = null;
 	public static GenLexer libLexer = null;
 	public static GenParser parser = null;
 	public static GenParser libParser = null;
+	public static boolean printAST = false;
 
 	/* this is the main function of our compiler */
 	public static void main(String[] args) {
@@ -35,35 +38,48 @@ public class Compiler {
 		/* check argument input */
 		if (args.length == 0) {
 			System.out.println("error - no argument given as input");
-		} else if (args.length > 2) {
-			System.out.println("error - too many arguments given as input");
 		} else {
 
-			String libFile_path = null;
+			String libraryPath = null;
 
 			// initial debugger instance
-			initDebugger();
+			// initDebugger();
 
-			if (args.length == 2) {
+			if (args.length >= 2) {
 
-				// get library path from input
-				libFile_path = LibraryUtils.GetLibraryPath(args[1]);
+				for (String arg : args) {
+					if (arg.startsWith("-L")) {
+						libraryPath = arg;
+					}
+
+					if (arg.equals("-print-ast")) {
+						printAST = true;
+					}
+				}
+
+				// get library path from input libraryPath
+				if (libraryPath != null) {
+					libraryPath = LibraryUtils.GetLibraryPath(libraryPath);
+				}
 			}
 
-			if (ExecuteLexicalAnalysis(args[0], libFile_path) == true) {
+			if (ExecuteLexicalAnalysis(args[0], libraryPath) == true) {
 				// run syntax analyze
-				ExecuteSyntaxAnalyzer(args[0], libFile_path);
+				ExecuteSyntaxAnalyzer(args[0], libraryPath);
 			}
+
+			ExecuteSemanticAnalyzer(args[0]);
+
 		}
 	}
 
 	/**
-	 * Creates an instance of debugger to be used later
+	 * Initializes debug preferences
 	 * 
 	 */
 	private static void initDebugger() {
-		Debugger.initDebugger(debugFilePathDirectory,
-				Debugger.DebugPrintPref.none);
+		Debugger.initDebugger(true, Debugger.DebugPrintPref.all,
+				debugFilePathDirectory);
 	}
 
 	/**
@@ -120,6 +136,7 @@ public class Compiler {
 
 		ICClass libRoot = null;
 
+		// parse library and get library root
 		if (library_path != null) {
 			libRoot = LibraryUtils.ParseLibrary(libLexer.getLexer());
 			if (libRoot == null)
@@ -128,13 +145,37 @@ public class Compiler {
 			// LibraryUtils.PrintLibraryAST(libroot, library_path); // for debug
 		}
 
+		// parse .ic file
 		parser = new GenParser(fileLexer.getLexer(), file_path, libRoot);
 		if (parser.ExecuteParser() == false)
 			return false;
 
-		parser.AddLibraryAsClass();
-		parser.PrintAST();
-		parser.PrintAST("C:\\files\\Quicksort.ic.myast.txt");
+		// add library as a ligit class of the .ic file to be parsed
+		parser.AddLibraryAsClass(); // TBD: needed for print or not?
+
+		// print AST representation
+		if (printAST)
+			parser.PrintAST();
+
+		return true;
+
+	}
+
+	/**
+	 * Executes semantic Analysis of the file
+	 * 
+	 */
+	public static boolean ExecuteSemanticAnalyzer(String file_path) {
+
+		SymTableConstructor symBuilder = new SymTableConstructor(file_path);
+
+		try {
+			parser.getRoot().accept(symBuilder);
+		} catch (SemanticError e) {
+			System.out.println(e);
+			return false;
+		}
+
 		return true;
 
 	}

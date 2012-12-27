@@ -15,14 +15,13 @@ public enum LiteralTypes {
 			for (int i = 0; i < string.length(); ++i) {
 				String replacement = String.valueOf(string.charAt(i));
 
-				if (string.charAt(i) == '\"')
-					replacement = "\\\"";
-				else if (string.charAt(i) == '\\')
-					replacement = "\\\\";
-				else if (string.charAt(i) == '\n')
-					replacement = "\\n";
-				else if (string.charAt(i) == '\t')
-					replacement = "\\t";
+				/*
+				 * if (string.charAt(i) == '\"') replacement = "\\\""; else if
+				 * (string.charAt(i) == '\\') replacement = "\\\\"; else if
+				 * (string.charAt(i) == '\n') replacement = "\\n"; else if
+				 * (string.charAt(i) == '\t') replacement = "\\t";
+				 */
+
 				string.replace(i, i + 1, replacement);
 				i += replacement.length() - 1;
 			}

@@ -1,5 +1,7 @@
 package IC.AST;
 
+import IC.Parser.SemanticError;
+
 /**
  * While statement AST node.
  * 
@@ -7,11 +9,12 @@ package IC.AST;
  */
 public class While extends Statement {
 
-	private Expression condition;
+	private final Expression condition;
 
-	private Statement operation;
+	private final Statement operation;
 
-	public Object accept(Visitor visitor) {
+	@Override
+	public Object accept(Visitor visitor) throws SemanticError {
 		return visitor.visit(this);
 	}
 
@@ -28,7 +31,7 @@ public class While extends Statement {
 		this.condition = condition;
 		this.operation = operation;
 	}
-	
+
 	public Expression getCondition() {
 		return condition;
 	}

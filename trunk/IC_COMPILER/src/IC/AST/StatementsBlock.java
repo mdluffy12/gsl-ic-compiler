@@ -3,6 +3,8 @@ package IC.AST;
 import java.util.ArrayList;
 import java.util.List;
 
+import IC.Parser.SemanticError;
+
 /**
  * Statements block AST node.
  * 
@@ -13,7 +15,7 @@ public class StatementsBlock extends Statement {
 	private final List<Statement> statements;
 
 	@Override
-	public Object accept(Visitor visitor) {
+	public Object accept(Visitor visitor) throws SemanticError {
 		return visitor.visit(this);
 	}
 

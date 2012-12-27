@@ -1,5 +1,7 @@
 package IC.AST;
 
+import IC.Parser.SemanticError;
+
 /**
  * Break statement AST node.
  * 
@@ -8,7 +10,7 @@ package IC.AST;
 public class Break extends Statement {
 
 	@Override
-	public Object accept(Visitor visitor) {
+	public Object accept(Visitor visitor) throws SemanticError {
 		return visitor.visit(this);
 	}
 

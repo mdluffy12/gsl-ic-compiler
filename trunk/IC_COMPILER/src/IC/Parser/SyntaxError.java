@@ -90,6 +90,11 @@ public class SyntaxError extends Exception {
 	@Override
 	public String getMessage() {
 		StringBuilder sb = new StringBuilder();
+
+		if (token == null) {
+			return ""; // dont print error
+		}
+
 		if (this.error_line >= 0) {
 			sb.append(this.error_line + ": Syntax error: ");
 
@@ -97,7 +102,10 @@ public class SyntaxError extends Exception {
 				sb.append("unexpected " + token.getName());
 			}
 		}
-		return sb.append(this.err_msg).toString();
+		if (this.err_msg.length() > 0)
+			return sb.append("( " + this.err_msg + " )").toString();
+
+		return sb.toString();
 	}
 
 	/**
@@ -109,6 +117,10 @@ public class SyntaxError extends Exception {
 	@Override
 	public String toString() {
 		return this.getMessage();
+	}
+
+	public Token getToken() {
+		return this.token;
 	}
 
 }

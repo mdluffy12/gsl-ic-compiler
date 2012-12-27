@@ -1,5 +1,7 @@
 package IC.AST;
 
+import IC.Parser.SemanticError;
+
 /**
  * 'This' expression AST node.
  * 
@@ -7,7 +9,8 @@ package IC.AST;
  */
 public class This extends Expression {
 
-	public Object accept(Visitor visitor) {
+	@Override
+	public Object accept(Visitor visitor) throws SemanticError {
 		return visitor.visit(this);
 	}
 

@@ -1,5 +1,7 @@
 package IC.AST;
 
+import IC.Parser.SemanticError;
+
 /**
  * Assignment statement AST node.
  * 
@@ -7,11 +9,12 @@ package IC.AST;
  */
 public class Assignment extends Statement {
 
-	private Location variable;
+	private final Location variable;
 
-	private Expression assignment;
+	private final Expression assignment;
 
-	public Object accept(Visitor visitor) {
+	@Override
+	public Object accept(Visitor visitor) throws SemanticError {
 		return visitor.visit(this);
 	}
 

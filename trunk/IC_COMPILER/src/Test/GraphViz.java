@@ -261,6 +261,7 @@ public class GraphViz {
 		} catch (Exception e) {
 			System.err
 					.println("Error: I/O error while writing the dot source to temp file!");
+			System.out.println(e);
 			return null;
 		}
 		return temp;
@@ -307,6 +308,14 @@ public class GraphViz {
 		}
 
 		this.graph = sb;
+	}
+
+	public static void setTmpDir(String tmpDir) {
+		GraphViz.TEMP_DIR = tmpDir;
+	}
+
+	public static void setDotPath(String dotPath) {
+		GraphViz.DOT = dotPath;
 	}
 
 } // end of class GraphViz

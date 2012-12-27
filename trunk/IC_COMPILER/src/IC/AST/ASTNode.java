@@ -1,5 +1,8 @@
 package IC.AST;
 
+import IC.Parser.SemanticError;
+import SymbolTable.SymbolTable;
+
 /**
  * Abstract AST node base class.
  * 
@@ -7,7 +10,12 @@ package IC.AST;
  */
 public abstract class ASTNode {
 
-	private int line;
+	protected int line;
+
+	/**
+	 * reference to symbol table of enclosing scope
+	 */
+	private SymbolTable enclosingScope;
 
 	/**
 	 * Double dispatch method, to allow a visitor to visit a specific subclass.
@@ -15,8 +23,9 @@ public abstract class ASTNode {
 	 * @param visitor
 	 *            The visitor.
 	 * @return A value propagated by the visitor.
+	 * @throws SemanticError
 	 */
-	public abstract Object accept(Visitor visitor);
+	public abstract Object accept(Visitor visitor) throws SemanticError;
 
 	/**
 	 * Constructs an AST node corresponding to a line number in the original
@@ -36,4 +45,13 @@ public abstract class ASTNode {
 	public void setLine(int line) {
 		this.line = line;
 	}
+
+	public SymbolTable getEnclosingScope() {
+		return enclosingScope;
+	}
+
+	public void setEnclosingScope(SymbolTable enclosingScope) {
+		this.enclosingScope = enclosingScope;
+	}
+
 }

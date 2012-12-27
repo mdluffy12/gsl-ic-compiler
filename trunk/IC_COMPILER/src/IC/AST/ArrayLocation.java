@@ -1,5 +1,7 @@
 package IC.AST;
 
+import IC.Parser.SemanticError;
+
 /**
  * Array reference AST node.
  * 
@@ -7,11 +9,12 @@ package IC.AST;
  */
 public class ArrayLocation extends Location {
 
-	private Expression array;
+	private final Expression array;
 
-	private Expression index;
+	private final Expression index;
 
-	public Object accept(Visitor visitor) {
+	@Override
+	public Object accept(Visitor visitor) throws SemanticError {
 		return visitor.visit(this);
 	}
 
