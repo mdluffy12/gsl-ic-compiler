@@ -1,5 +1,7 @@
 package IC.AST;
 
+import IC.Parser.SemanticError;
+
 /**
  * Array length expression AST node.
  * 
@@ -7,9 +9,10 @@ package IC.AST;
  */
 public class Length extends Expression {
 
-	private Expression array;
+	private final Expression array;
 
-	public Object accept(Visitor visitor) {
+	@Override
+	public Object accept(Visitor visitor) throws SemanticError {
 		return visitor.visit(this);
 	}
 

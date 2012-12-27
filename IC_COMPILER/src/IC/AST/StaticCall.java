@@ -2,6 +2,8 @@ package IC.AST;
 
 import java.util.List;
 
+import IC.Parser.SemanticError;
+
 /**
  * Static method call AST node.
  * 
@@ -9,9 +11,10 @@ import java.util.List;
  */
 public class StaticCall extends Call {
 
-	private String className;
+	private final String className;
 
-	public Object accept(Visitor visitor) {
+	@Override
+	public Object accept(Visitor visitor) throws SemanticError {
 		return visitor.visit(this);
 	}
 

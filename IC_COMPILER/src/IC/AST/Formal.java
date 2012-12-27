@@ -1,5 +1,7 @@
 package IC.AST;
 
+import IC.Parser.SemanticError;
+
 /**
  * Method parameter AST node.
  * 
@@ -12,7 +14,7 @@ public class Formal extends ASTNode {
 	private final String name;
 
 	@Override
-	public Object accept(Visitor visitor) {
+	public Object accept(Visitor visitor) throws SemanticError {
 		return visitor.visit(this);
 	}
 

@@ -1,6 +1,7 @@
 package IC.AST;
 
 import IC.BinaryOps;
+import IC.Parser.SemanticError;
 
 /**
  * Mathematical binary operation AST node.
@@ -9,7 +10,8 @@ import IC.BinaryOps;
  */
 public class MathBinaryOp extends BinaryOp {
 
-	public Object accept(Visitor visitor) {
+	@Override
+	public Object accept(Visitor visitor) throws SemanticError {
 		return visitor.visit(this);
 	}
 
@@ -23,7 +25,8 @@ public class MathBinaryOp extends BinaryOp {
 	 * @param operand2
 	 *            The second operand.
 	 */
-	public MathBinaryOp(Expression operand1, BinaryOps operator, Expression operand2) {
+	public MathBinaryOp(Expression operand1, BinaryOps operator,
+			Expression operand2) {
 		super(operand1, operator, operand2);
 	}
 

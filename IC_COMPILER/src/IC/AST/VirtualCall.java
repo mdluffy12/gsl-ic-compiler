@@ -2,6 +2,8 @@ package IC.AST;
 
 import java.util.List;
 
+import IC.Parser.SemanticError;
+
 /**
  * Virtual method call AST node.
  * 
@@ -11,7 +13,8 @@ public class VirtualCall extends Call {
 
 	private Expression location = null;
 
-	public Object accept(Visitor visitor) {
+	@Override
+	public Object accept(Visitor visitor) throws SemanticError {
 		return visitor.visit(this);
 	}
 

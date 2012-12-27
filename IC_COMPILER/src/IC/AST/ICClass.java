@@ -3,6 +3,8 @@ package IC.AST;
 import java.util.ArrayList;
 import java.util.List;
 
+import IC.Parser.SemanticError;
+
 /**
  * Class declaration AST node.
  * 
@@ -19,7 +21,7 @@ public class ICClass extends ASTNode {
 	private final List<Method> methods;
 
 	@Override
-	public Object accept(Visitor visitor) {
+	public Object accept(Visitor visitor) throws SemanticError {
 		return visitor.visit(this);
 	}
 

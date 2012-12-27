@@ -27,6 +27,7 @@ public class Token extends Symbol {
 		super(id, line + 1, 0, value);
 		this.value = value;
 		this.line = line + 1;
+
 	}
 
 	public Token(int id, int line) {

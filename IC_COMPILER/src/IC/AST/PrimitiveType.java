@@ -1,6 +1,7 @@
 package IC.AST;
 
 import IC.DataTypes;
+import IC.Parser.SemanticError;
 
 /**
  * Primitive data type AST node.
@@ -12,7 +13,7 @@ public class PrimitiveType extends Type {
 	private final DataTypes type;
 
 	@Override
-	public Object accept(Visitor visitor) {
+	public Object accept(Visitor visitor) throws SemanticError {
 		return visitor.visit(this);
 	}
 
@@ -42,4 +43,5 @@ public class PrimitiveType extends Type {
 
 		return "<type = " + getName() + " , dimension = " + dim + ">";
 	}
+
 }

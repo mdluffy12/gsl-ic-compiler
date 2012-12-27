@@ -16,6 +16,7 @@ import IC.AST.Program;
 public class GenParser {
 
 	private final String file_path;
+	private File file;
 	private Symbol parseSymbol;
 	private final Parser parser;
 	private Program root;
@@ -51,9 +52,14 @@ public class GenParser {
 	 */
 	public void PrintAST() {
 
-		PrettyPrinter printer = new PrettyPrinter(file_path);
+		PrettyPrinter printer = new PrettyPrinter(file.getName());
 
-		System.out.println(root.accept(printer));
+		try {
+			System.out.println(root.accept(printer));
+		} catch (SemanticError e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -65,14 +71,15 @@ public class GenParser {
 	public void PrintAST(String ouputfilePath) {
 
 		File file = FileUtils.OverrideFile(ouputfilePath);
-		String fileName = new File(file_path).getName(); // TBD: name or full
-															// path???
-		PrettyPrinter printer = new PrettyPrinter(fileName);
 
-		FileUtils.AppendStringToFile(file, "Parsed " + fileName
-				+ " successfully!");
+		PrettyPrinter printer = new PrettyPrinter(file.getName());
 
-		FileUtils.AppendStringToFile(file, (String) root.accept(printer));
+		/*
+		 * FileUtils.AppendStringToFile(file, "Parsed " + file.getName() +
+		 * " successfully!");
+		 * 
+		 * FileUtils.AppendStringToFile(file, (String) root.accept(printer));
+		 */
 	}
 
 	/**
@@ -84,15 +91,21 @@ public class GenParser {
 	 */
 	public boolean ExecuteParser() {
 
+		file = new File(file_path);
+
 		try {
 			parseSymbol = parser.parse();
-			System.out.println("Parsed " + file_path + " successfully!");
+
+			System.out.println("Parsed " + file.getName() + " successfully!");
 			root = (Program) parseSymbol.value;
+		} catch (LexicalError e) {
+			System.out.println(e);
+			return false;
 		} catch (SyntaxError e) {
 			System.out.println(e);
 			return false;
 		} catch (Exception e) {
-			System.out.println(e);
+			System.out.println("unexpected exception : " + e);
 			return false;
 		}
 		return true;

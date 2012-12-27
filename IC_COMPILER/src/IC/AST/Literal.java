@@ -1,6 +1,7 @@
 package IC.AST;
 
 import IC.LiteralTypes;
+import IC.Parser.SemanticError;
 
 /**
  * Literal value AST node.
@@ -9,11 +10,12 @@ import IC.LiteralTypes;
  */
 public class Literal extends Expression {
 
-	private LiteralTypes type;
+	private final LiteralTypes type;
 
 	private Object value;
 
-	public Object accept(Visitor visitor) {
+	@Override
+	public Object accept(Visitor visitor) throws SemanticError {
 		return visitor.visit(this);
 	}
 

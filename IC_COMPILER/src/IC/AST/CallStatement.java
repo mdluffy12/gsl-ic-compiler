@@ -1,5 +1,7 @@
 package IC.AST;
 
+import IC.Parser.SemanticError;
+
 /**
  * Method call statement AST node.
  * 
@@ -7,9 +9,10 @@ package IC.AST;
  */
 public class CallStatement extends Statement {
 
-	private Call call;
+	private final Call call;
 
-	public Object accept(Visitor visitor) {
+	@Override
+	public Object accept(Visitor visitor) throws SemanticError {
 		return visitor.visit(this);
 	}
 

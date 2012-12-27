@@ -1,5 +1,7 @@
 package IC.AST;
 
+import IC.Parser.SemanticError;
+
 /**
  * Class instance creation AST node.
  * 
@@ -7,9 +9,10 @@ package IC.AST;
  */
 public class NewClass extends New {
 
-	private String name;
+	private final String name;
 
-	public Object accept(Visitor visitor) {
+	@Override
+	public Object accept(Visitor visitor) throws SemanticError {
 		return visitor.visit(this);
 	}
 

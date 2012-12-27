@@ -1,5 +1,7 @@
 package IC.AST;
 
+import IC.Parser.SemanticError;
+
 /**
  * Array creation AST node.
  * 
@@ -7,11 +9,12 @@ package IC.AST;
  */
 public class NewArray extends New {
 
-	private Type type;
+	private final Type type;
 
-	private Expression size;
+	private final Expression size;
 
-	public Object accept(Visitor visitor) {
+	@Override
+	public Object accept(Visitor visitor) throws SemanticError {
 		return visitor.visit(this);
 	}
 

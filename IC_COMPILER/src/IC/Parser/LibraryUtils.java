@@ -15,17 +15,10 @@ import IC.AST.PrettyPrinter;
 public class LibraryUtils {
 
 	/* global variables */
-	public static String libPrefix = "-L<";
-	public static String libSuffix = ".sig>";
+	public static String libPrefix = "-L";
 
 	public static boolean isLibraryPathLegal(String LibraryPath) {
-
-		String libPref = LibraryPath.substring(0, libPrefix.length()), libSuff = LibraryPath
-				.substring(LibraryPath.length() - libSuffix.length(),
-						LibraryPath.length());
-
-		return libPref.equals(libPrefix) && libSuff.equals(libSuffix);
-
+		return LibraryPath.startsWith(libPrefix);
 	}
 
 	public static ICClass ParseLibrary(Lexer lexer) {
@@ -35,8 +28,15 @@ public class LibraryUtils {
 		Symbol libParseSym = null;
 		try {
 			libParseSym = libParser.parse();
+		} catch (LexicalError e) {
+			System.out.println(e);
+			return null;
+		} catch (SyntaxError e) {
+			System.out.println(e);
+			return null;
 		} catch (Exception e) {
 			System.out.println(e);
+			return null;
 		}
 
 		return (ICClass) libParseSym.value;
@@ -44,19 +44,22 @@ public class LibraryUtils {
 	}
 
 	public static String GetLibraryPath(String library_path) {
-		if (isLibraryPathLegal(library_path)) {
-			return library_path.substring(3, library_path.length() - 1);
-		} else {
-			System.out.println("library path is illagel");
-		}
 
-		return null;
+		String fixedLibPath = library_path;
+		fixedLibPath = fixedLibPath.replace(libPrefix, "");
+		return fixedLibPath;
+
 	}
 
 	public static void PrintLibraryAST(ICClass libroot, String libFilePath) {
 
 		PrettyPrinter printer = new PrettyPrinter(libFilePath);
-		System.out.println(libroot.accept(printer));
+		try {
+			System.out.println(libroot.accept(printer));
+		} catch (SemanticError e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 }

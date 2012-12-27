@@ -56,4 +56,5 @@ public abstract class Method extends ASTNode {
 
 	@Override
 	public abstract String toString();
+
 }

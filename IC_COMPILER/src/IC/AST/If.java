@@ -1,5 +1,7 @@
 package IC.AST;
 
+import IC.Parser.SemanticError;
+
 /**
  * If statement AST node.
  * 
@@ -7,13 +9,14 @@ package IC.AST;
  */
 public class If extends Statement {
 
-	private Expression condition;
+	private final Expression condition;
 
-	private Statement operation;
+	private final Statement operation;
 
 	private Statement elseOperation = null;
 
-	public Object accept(Visitor visitor) {
+	@Override
+	public Object accept(Visitor visitor) throws SemanticError {
 		return visitor.visit(this);
 	}
 

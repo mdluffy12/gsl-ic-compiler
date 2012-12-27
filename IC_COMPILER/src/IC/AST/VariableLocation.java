@@ -1,5 +1,7 @@
 package IC.AST;
 
+import IC.Parser.SemanticError;
+
 /**
  * Variable reference AST node.
  * 
@@ -9,9 +11,10 @@ public class VariableLocation extends Location {
 
 	private Expression location = null;
 
-	private String name;
+	private final String name;
 
-	public Object accept(Visitor visitor) {
+	@Override
+	public Object accept(Visitor visitor) throws SemanticError {
 		return visitor.visit(this);
 	}
 

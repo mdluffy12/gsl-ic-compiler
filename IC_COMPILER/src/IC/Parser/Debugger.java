@@ -16,95 +16,103 @@ import java.util.Date;
 
 public class Debugger {
 
-	private static Debugger debugger = null;
-	private final static String debugDefaultDirectory = "C:\\files\\";
-	private final String debugFileDirectory;
-	private final File debugFile;
-	private final DebugPrintPref printPref;
+	private static String debugDefaultDirectory = "C:\\files\\";
+	private static String debugFileDirectory;
+	private static File debugFile;
+	private static DebugPrintPref printPref;
+	public static boolean debugMode;
 
 	public enum DebugPrintPref {
 		none, out, file, all
 	}
 
 	/**
-	 * default Singleton Debugger initiation
+	 * default Debugger initiation
 	 * 
 	 * @param debugFileDirectory
 	 *            the directory where the debug file will be created in
 	 * 
 	 */
-	public static void initDebugger() {
+	public static void initDebugger(boolean debugModeValue) {
 
-		if (debugger == null) {
-			debugger = new Debugger(debugDefaultDirectory);
+		debugMode = debugModeValue;
+		debugFileDirectory = debugDefaultDirectory;
+
+		if (debugMode) {
+			printPref = DebugPrintPref.all;
+			Debugger.debugFile = CreateNewDebugFile();
+		} else {
+			printPref = DebugPrintPref.none;
 		}
 
 	}
 
 	/**
-	 * Singleton Debugger initiation
+	 * default Debugger initiation
 	 * 
 	 * @param debugFileDirectory
 	 *            the directory where the debug file will be created in
 	 * 
 	 */
-	public static void initDebugger(String debugFileDirectory) {
+	public static void initDebugger(boolean debugModeValue,
+			DebugPrintPref printPreference) {
 
-		if (debugger == null)
-			debugger = new Debugger(debugFileDirectory);
+		debugMode = debugModeValue;
+		debugFileDirectory = debugDefaultDirectory;
+
+		if (debugMode) {
+			printPref = printPreference;
+			Debugger.debugFile = CreateNewDebugFile();
+		} else {
+			printPref = DebugPrintPref.none;
+		}
 
 	}
 
 	/**
-	 * Singleton Debugger initiation
+	 * default Debugger initiation
 	 * 
 	 * @param debugFileDirectory
 	 *            the directory where the debug file will be created in
-	 * @param printPref
-	 *            debugger print preference
+	 * 
 	 */
-	public static void initDebugger(String debugFileDirectory,
-			DebugPrintPref printPref) {
+	public static void initDebugger(boolean debugModeValue,
+			DebugPrintPref printPreference, String folder) {
 
-		if (debugger == null)
-			debugger = new Debugger(debugFileDirectory, printPref);
-
+		initDebugger(debugModeValue, printPreference);
+		setDebuggerFolder(folder);
 	}
 
-	public static Debugger getDebuggerInstance() {
-		if (debugger == null) {
-			initDebugger();
+	/**
+	 * Debugger initiation
+	 * 
+	 * @param debugFileDirectory
+	 *            the directory where the debug file will be created in
+	 * 
+	 */
+	public static void setDebuggerFolder(String folder) {
+
+		debugFileDirectory = folder;
+	}
+
+	public static void Print(String data) {
+
+		switch (Debugger.printPref) {
+		case none: {
+			break;
 		}
 
-		return debugger;
-	}
-
-	protected Debugger(String debugFileDirectory) {
-		this.debugFileDirectory = debugFileDirectory;
-		this.debugFile = CreateNewDebugFile();
-		this.printPref = DebugPrintPref.out; // default
-	}
-
-	protected Debugger(String debugFileDirectory, DebugPrintPref printPref) {
-		this.debugFileDirectory = debugFileDirectory;
-		this.debugFile = CreateNewDebugFile();
-		this.printPref = printPref;
-	}
-
-	public void Print(String data) {
-
-		switch (this.printPref) {
 		case out: {
 			System.out.println(data);
 			break;
 		}
 		case file: {
-			FileUtils.AppendStringToFile(this.debugFile, data);
+			FileUtils.AppendStringToFile(Debugger.debugFile, data);
 			break;
 		}
 		case all: {
 			System.out.println(data);
-			FileUtils.AppendStringToFile(this.debugFile, data);
+			FileUtils.AppendStringToFile(Debugger.debugFile, data);
 			break;
 		}
 		default:
@@ -112,14 +120,14 @@ public class Debugger {
 		}
 	}
 
-	private File CreateNewDebugFile() {
+	private static File CreateNewDebugFile() {
 
 		String file_path;
 		String dateStr = new Date().toString(), dayStr = dateStr
 				.substring(0, 3), MonthStr = dateStr.substring(4, 7), MonthDayStr = dateStr
 				.substring(8, 10);
-		file_path = this.debugFileDirectory + "\\" + "DEBUG_" + dayStr + "_"
-				+ MonthStr + "_" + MonthDayStr + ".txt";
+		file_path = Debugger.debugFileDirectory + "\\" + "DEBUG_" + dayStr
+				+ "_" + MonthStr + "_" + MonthDayStr + ".txt";
 		File f = FileUtils.OverrideFile(file_path);
 
 		return f;
