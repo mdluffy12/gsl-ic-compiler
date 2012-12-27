@@ -147,7 +147,8 @@ public class SymTableConstructor implements Visitor {
 			// check if class is defined twice
 			if (SymTableUtils.isClassDefined(icClass, global_table)) {
 				// TODO throw exception "class already defined"
-				System.out.println("class already defined");
+				System.out.println("The class " + icClass.getName()
+						+ " is already defined");
 				return null;
 			}
 
@@ -160,13 +161,13 @@ public class SymTableConstructor implements Visitor {
 				// check if class extends itself
 				if (icClass.getName().equals(super_class_name)) {
 					// TODO throw exception "class can not extend itself"
-					System.out.println("class can not extend itself");
+					System.out.println("Cycle detected: the type "
+							+ icClass.getName() + " cannot extend itself");
 					return null;
 				}
 
 				// lookup super class in global table
-				super_class_symbol = global_table.lookup(super_class_name,
-						icClass);
+				super_class_symbol = global_table.localLookup(super_class_name);
 
 				if (super_class_symbol == null) {
 					// throw error if super class was not found in global table
@@ -174,7 +175,8 @@ public class SymTableConstructor implements Visitor {
 
 					// TODO throw exception ("super class undefined",
 
-					System.out.println("super class undefined");
+					System.out.println("class " + super_class_name
+							+ " is undefined");
 					return null;
 				}
 
@@ -204,7 +206,7 @@ public class SymTableConstructor implements Visitor {
 
 		// check if has main method
 		if (mainCounter == 0) {
-			// TODO throw exceptin "no main method"
+			// TODO throw exception "no main method"
 			System.out.println("no main method");
 			return null;
 		}

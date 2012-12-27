@@ -12,6 +12,7 @@ import IC.AST.ASTNode;
 /**
  * TODO add info
  */
+
 public class SymbolTable {
 
 	/*
@@ -322,9 +323,6 @@ public class SymbolTable {
 	 * 
 	 */
 	public Symbol localLookup(String idName) {
-		// check if class extends itself
-		// check if class extends itself
-		// check if class extends itself
 		return entries.get(idName);
 	}
 

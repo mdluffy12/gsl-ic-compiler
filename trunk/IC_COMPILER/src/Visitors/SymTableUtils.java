@@ -2,6 +2,7 @@ package Visitors;
 
 import java.util.List;
 
+import IC.AST.ASTNode;
 import IC.AST.Field;
 import IC.AST.Formal;
 import IC.AST.ICClass;
@@ -9,6 +10,8 @@ import IC.AST.LocalVariable;
 import IC.AST.Method;
 import IC.AST.Type;
 import IC.Parser.SemanticError;
+import SymbolTable.ISymbolTable;
+import SymbolTable.ISymbolTableOperations;
 import SymbolTable.Symbol;
 import SymbolTable.Symbol.SymbolKind;
 import SymbolTable.SymbolTable;
@@ -18,7 +21,7 @@ import SymbolTable.SymbolTable;
  * 
  * @author micha
  */
-public class SymTableUtils {
+public class SymTableUtils implements ISymbolTableOperations {
 
 	/*
 	 * -------------------------------------------------------------------
@@ -177,6 +180,12 @@ public class SymTableUtils {
 		String variableName = localVariable.getName();
 		Symbol localVarSymbol = scope.localLookup(variableName);
 		return localVarSymbol != null;
+	}
+
+	@Override
+	public ISymbolTable findSymbolTable(ASTNode node) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
