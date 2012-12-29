@@ -138,4 +138,11 @@ public class ICClass extends ASTNode {
 
 	}
 
+	/**
+	 * @return true iff class represents a library class
+	 */
+	public boolean isLibrary() {
+		return this.getName().equals("Library");
+	}
+
 }

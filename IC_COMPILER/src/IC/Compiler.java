@@ -13,6 +13,7 @@ import IC.Parser.GenParser;
 import IC.Parser.LibraryUtils;
 import IC.Parser.SemanticError;
 import SymbolTable.SymbolTable;
+import Visitors.SemanticChecks;
 import Visitors.SymTableConstructor;
 
 /**
@@ -66,10 +67,10 @@ public class Compiler {
 
 			if (ExecuteLexicalAnalysis(args[0], libraryPath) == true) {
 				// run syntax analyze
-				ExecuteSyntaxAnalyzer(args[0], libraryPath);
+				if (ExecuteSyntaxAnalyzer(args[0], libraryPath) == true) {
+					ExecuteSemanticAnalyzer(args[0]);
+				}
 			}
-
-			ExecuteSemanticAnalyzer(args[0]);
 
 		}
 	}
@@ -169,10 +170,14 @@ public class Compiler {
 	public static boolean ExecuteSemanticAnalyzer(String file_path) {
 
 		SymTableConstructor symBuilder = new SymTableConstructor(file_path);
+		SemanticChecks semanticChecks = new SemanticChecks();
 		try {
 			SymbolTable globalTable = (SymbolTable) parser.getRoot().accept(
 					symBuilder);
-			System.out.println(globalTable.toString());
+
+			parser.getRoot().accept(semanticChecks);
+
+			System.out.println("\n" + globalTable.toString());
 		} catch (SemanticError e) {
 			System.out.println(e);
 			return false;

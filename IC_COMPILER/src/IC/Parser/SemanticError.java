@@ -15,12 +15,6 @@ public class SemanticError extends Exception {
 	private final int error_line;
 	private final ASTNode ast_node;
 
-	public SemanticError() {
-		this.err_msg = "";
-		this.error_line = -1;
-		this.ast_node = null;
-	}
-
 	/**
 	 * SyntaxError constructor
 	 * 
@@ -28,38 +22,8 @@ public class SemanticError extends Exception {
 	 * 
 	 * @param err_msg
 	 *            error message to be returned when called getMessage()
-	 */
-	public SemanticError(String err_msg) {
-		this.err_msg = err_msg;
-		this.error_line = -1;
-		this.ast_node = null;
-	}
-
-	/**
-	 * SyntaxError constructor
-	 * 
-	 * builds a Syntax error out of an error message
-	 * 
-	 * @param err_msg
-	 *            error message to be returned when called getMessage()
-	 * @param error_line
-	 *            the line in the IC file where the error has occured
-	 */
-	public SemanticError(String err_msg, int error_line) {
-		this.err_msg = err_msg;
-		this.error_line = error_line;
-		this.ast_node = null;
-	}
-
-	/**
-	 * SyntaxError constructor
-	 * 
-	 * builds a Syntax error out of an error message
-	 * 
-	 * @param err_msg
-	 *            error message to be returned when called getMessage()
-	 * @param error_line
-	 *            the line in the IC file where the error has occurred
+	 * @param ast_node
+	 *            ASTnode representing the current node where error occured
 	 */
 	public SemanticError(String err_msg, ASTNode ast_node) {
 		this.err_msg = err_msg;
@@ -67,10 +31,10 @@ public class SemanticError extends Exception {
 		this.ast_node = ast_node;
 	}
 
-	public SemanticError(ASTNode ast_node) {
-		this.err_msg = "";
-		this.error_line = ast_node.getLine();
-		this.ast_node = ast_node;
+	public SemanticError(String err_msg) {
+		this.err_msg = err_msg;
+		this.error_line = 0;
+		this.ast_node = null;
 	}
 
 	/**
@@ -83,16 +47,13 @@ public class SemanticError extends Exception {
 	public String getMessage() {
 		StringBuilder sb = new StringBuilder();
 
-		if (ast_node == null) {
-			return ""; // dont print error
-		}
-
-		if (this.error_line >= 0) {
+		if (this.error_line > 0) {
 			sb.append(this.error_line + ": Semantic error: ");
 
 		}
+
 		if (this.err_msg.length() > 0)
-			return sb.append("( " + this.err_msg + " )").toString();
+			sb.append(this.err_msg);
 
 		return sb.toString();
 	}

@@ -1,7 +1,11 @@
 package Visitors;
 
+import java.io.File;
+
+import IC.AST.ASTNode;
 import IC.AST.ArrayLocation;
 import IC.AST.Assignment;
+import IC.AST.BinaryOp;
 import IC.AST.Break;
 import IC.AST.Call;
 import IC.AST.CallStatement;
@@ -32,6 +36,7 @@ import IC.AST.StatementsBlock;
 import IC.AST.StaticCall;
 import IC.AST.StaticMethod;
 import IC.AST.This;
+import IC.AST.UnaryOp;
 import IC.AST.UserType;
 import IC.AST.VariableLocation;
 import IC.AST.VirtualCall;
@@ -46,7 +51,25 @@ import SymbolTable.SymbolTable;
 import SymbolTable.SymbolTable.TableType;
 
 /**
- * TODO add info
+ * SymTableConstructor constructs an hierarchy of symbol tables where the
+ * hierarchy root is the global symbol table which consists of all the program
+ * classes. In addition the symbol table constructor performs some basic
+ * semantic checks in order to maintain the correctness of the symbol table
+ * 
+ * ----------- semantic checks while constructing -----------
+ * 
+ * 1) class is defined only once
+ * 
+ * 2) class extends an already defined class
+ * 
+ * 3) class does not extends itself
+ * 
+ * 4) program consists of exactly one main method, and the main method is not
+ * defined in the Library class
+ * 
+ * 5) no field-method name collisions (method overloading is not allowed)
+ * 
+ * 6) Parameters and variables are defined only once
  * 
  * @author micha
  */
@@ -81,7 +104,8 @@ public class SymTableConstructor implements Visitor {
 	 */
 
 	public SymTableConstructor(String file_name) {
-		this.setFile_name(file_name);
+		File file = new File(file_name);
+		this.setFile_name(file.getName());
 	}
 
 	/*
@@ -104,6 +128,23 @@ public class SymTableConstructor implements Visitor {
 
 	private void setMethodKind(SymbolKind methodKind) {
 		this.methodKind = methodKind;
+	}
+
+	/*
+	 * -------------------------------------------------------------------
+	 * --------------------- error handling functions --------------------
+	 * -------------------------------------------------------------------
+	 */
+
+	/**
+	 * handles invoked error while constructing the symbol table
+	 */
+	public void HandleError(String err_msg, ASTNode node) throws SemanticError {
+		if (node != null) {
+			throw new SemanticError(err_msg, node);
+		} else {
+			throw new SemanticError(err_msg);
+		}
 	}
 
 	/*
@@ -138,22 +179,20 @@ public class SymTableConstructor implements Visitor {
 
 		Symbol super_class_symbol = null;
 		ClassSymbol classSymbol = null;
-		boolean addedClassSymbol = false;
+
 		// create global symbol table
 		SymbolTable global_table = new SymbolTable(file_name, TableType._global);
-
-		// initialize super symbol type with current global table
-		SymbolTable superSymbolTable = global_table;
 
 		// iterate all classes and add them to global symbol table
 		for (ICClass icClass : program.getClasses()) {
 
 			// check if class is defined twice
 			if (SymTableUtils.isClassDefined(icClass, global_table)) {
-				// TODO throw exception "class already defined"
-				System.out.println("The class " + icClass.getName()
-						+ " is already defined");
-				return null;
+
+				String err_msg = "Class " + icClass.getName()
+						+ " is already defined";
+				HandleError(err_msg, icClass);
+
 			}
 
 			// visit class and get class symbol table
@@ -167,10 +206,10 @@ public class SymTableConstructor implements Visitor {
 
 				// check if class extends itself
 				if (icClass.getName().equals(super_class_name)) {
-					// TODO throw exception "class can not extend itself"
-					System.out.println("Cycle detected: the type "
-							+ icClass.getName() + " cannot extend itself");
-					return null;
+
+					String err_msg = "Cycle detected: the type "
+							+ icClass.getName() + " cannot extend itself";
+					HandleError(err_msg, icClass);
 				}
 
 				// lookup super class in global table
@@ -180,49 +219,42 @@ public class SymTableConstructor implements Visitor {
 					// throw error if super class was not found in global table
 					// because it cannot be defined later in the program
 
-					// TODO throw exception ("super class undefined",
-
-					System.out.println("class " + super_class_name
-							+ " is undefined");
-					return null;
+					String err_msg = "Super class " + super_class_name
+							+ " is undefined";
+					HandleError(err_msg, icClass);
 				}
 
-				addedClassSymbol = true;
 			}
 
 			classSymbol = new ClassSymbol(icClass.getName(), SymbolKind._class,
 					null, icClass, classSymTable);
 
+			// add class symbol to global table
 			global_table.addSymbol(classSymbol);
 
+			// set class scope as the global table
 			icClass.setEnclosingScope(global_table);
 
-			// add class to global table
-			// TODO change symbol type
-			if (!addedClassSymbol) {
+			if (icClass.hasSuperClass()) {
 
-				// add superSymbolTable (or global_table if class does not
-				// extend
-				// another class) as a parent to the current class table
-				classSymTable.setParentSymbolTable(global_table);
-
-			} else {
-
-				// add superSymbolTable (or global_table if class does not
-				// extend
-				// another class) as a parent to the current class table
+				// set class symbol table parent to be the class parent symbol
+				// table in case it inherits a class
 				classSymTable
 						.setParentSymbolTable(((ClassSymbol) super_class_symbol)
 								.getClassTable());
+
+			} else {
+				// set class symbol table parent to be the global parent
+				classSymTable.setParentSymbolTable(global_table);
+
 			}
 
 		}
 
 		// check if has main method
 		if (mainCounter == 0) {
-			// TODO throw exception "no main method"
-			System.out.println("no main method");
-			return null;
+			String err_msg = "A program must have exactly one method main";
+			HandleError(err_msg, null);
 		}
 
 		return global_table;
@@ -251,6 +283,8 @@ public class SymTableConstructor implements Visitor {
 		 * 
 		 * 5) methods CAN be overridden in subclasses
 		 */
+
+		int mainCounterDiff = 0;
 
 		// create class symbol table
 		SymbolTable class_symbol_table = new SymbolTable(icClass.getName(),
@@ -282,8 +316,17 @@ public class SymTableConstructor implements Visitor {
 			// set method scope as its class's scope
 			method.setEnclosingScope(class_symbol_table);
 
+			// store current main counter
+			mainCounterDiff = mainCounter;
+
 			// get method symbol table
 			SymbolTable method_symbol_table = (SymbolTable) method.accept(this);
+
+			// check if at least one main method is defined in library class
+			if (icClass.isLibrary() && mainCounterDiff < mainCounter) {
+				String err_msg = "A program must not have any method main in Library class";
+				HandleError(err_msg, icClass);
+			}
 
 			// add class symbol table as parent for current method symbol table
 			method_symbol_table.setParentSymbolTable(class_symbol_table);
@@ -302,22 +345,24 @@ public class SymTableConstructor implements Visitor {
 		return class_symbol_table;
 	}
 
+	/**
+	 * returns method symbol table
+	 */
 	private SymbolTable HandleMethod(Method method) throws SemanticError {
-		// create method table
-		SymbolTable methodlTable = new SymbolTable(method.getName(),
+
+		// create method symbol table
+		SymbolTable method_symbol_table = new SymbolTable(method.getName(),
 				TableType._method);
 
 		// set method, TODO check if needed
-		method.setEnclosingScope(methodlTable);
+		method.setEnclosingScope(method_symbol_table);
 
 		// check single main
 		if (SymTableUtils.isMainMethod(method, getMethodKind())) {
 			mainCounter++;
 			if (mainCounter >= 2) {
-				// TODO throw exception
-
-				System.out.println("can not define more then one main");
-				return null;
+				String err_msg = "A program must have exactly one method main";
+				HandleError(err_msg, method);
 			}
 		}
 
@@ -325,11 +370,12 @@ public class SymTableConstructor implements Visitor {
 		for (Formal param : method.getFormals()) {
 
 			// scan for parameter in local scope
-			if (SymTableUtils.isParameterDefinedInScope(param, methodlTable)) {
-				// TODO throw exception
-
-				System.out.println("parameter is already declared");
-				return null;
+			if (SymTableUtils.isParameterDefinedInScope(param,
+					method_symbol_table)) {
+				String err_msg = "Parameter " + param.getName()
+						+ " is defined multiple times in method "
+						+ method.getName();
+				HandleError(err_msg, method);
 			}
 
 			// TODO handle type
@@ -337,30 +383,31 @@ public class SymTableConstructor implements Visitor {
 					SymbolKind._param, null, param);
 
 			// add parameter to method symbol table
-			methodlTable.addSymbol(param_symbol);
+			method_symbol_table.addSymbol(param_symbol);
 
 			// set parameter scope as its method's scope
-			param.setEnclosingScope(methodlTable);
+			param.setEnclosingScope(method_symbol_table);
 
 		}
 
 		// iterate all method statements
-		for (Statement stmt : method.getStatements()) {
+		for (Statement statement : method.getStatements()) {
 			// set statement scope as its method's scope
-			stmt.setEnclosingScope(methodlTable);
+			statement.setEnclosingScope(method_symbol_table);
 
-			// visit stmt
-			Object stmtRet = stmt.accept(this);
+			// visit statement
+			Object stmtRet = statement.accept(this);
 
-			if (stmtRet != null && stmt instanceof StatementsBlock) {
-				// in case stmt is StatementsBlock add method table as its
-				// parent
+			if (stmtRet != null && statement instanceof StatementsBlock) {
+				// in case statement is StatementsBlock add method table as it's
+				// parent symbol table
 				SymbolTable stmt_block_symbol_table = (SymbolTable) stmtRet;
-				stmt_block_symbol_table.setParentSymbolTable(methodlTable);
+				stmt_block_symbol_table
+						.setParentSymbolTable(method_symbol_table);
 			}
 		}
 
-		return methodlTable;
+		return method_symbol_table;
 	}
 
 	@Override
@@ -385,16 +432,18 @@ public class SymTableConstructor implements Visitor {
 	@Override
 	public Object visit(StatementsBlock statementsBlock) throws SemanticError {
 
-		// TODO : change block table name later
-		// build block symbol table
-		SymbolTable blockSymbolTable = new SymbolTable("block",
+		// create block id
+		String blockID = "statement block";
+
+		// create block symbol table
+		SymbolTable block_symbol_table = new SymbolTable(blockID,
 				TableType._block);
 
 		// iterate all block statements
 		for (Statement statement : statementsBlock.getStatements()) {
 
 			// set statement scope to be block symbol table scope
-			statement.setEnclosingScope(blockSymbolTable);
+			statement.setEnclosingScope(block_symbol_table);
 
 			Object stmtSymTable = statement.accept(this);
 			if (stmtSymTable != null) {
@@ -402,23 +451,23 @@ public class SymTableConstructor implements Visitor {
 				// in case of nested blocks, set the nested block parent to be
 				// the current block symbol table
 				((SymbolTable) stmtSymTable)
-						.setParentSymbolTable(blockSymbolTable);
+						.setParentSymbolTable(block_symbol_table);
 			}
 		}
-		return blockSymbolTable;
+		return block_symbol_table;
 	}
 
 	@Override
 	public Object visit(LocalVariable localVariable) throws SemanticError {
 
+		// get variable scope
 		SymbolTable localVarScope = localVariable.getEnclosingScope();
 
 		if (SymTableUtils
 				.isVariableDefinedInScope(localVariable, localVarScope)) {
-			// "Duplicate local variable"
-			// TODO throw exception
-
-			System.out.println("variable is already declared");
+			String err_msg = "Variable " + localVariable.getName()
+					+ " is already declared in scope";
+			HandleError(err_msg, localVariable);
 			return null;
 		}
 
@@ -494,27 +543,14 @@ public class SymTableConstructor implements Visitor {
 			// get returned expression value
 			Expression returnedExpr = returnStatement.getValue();
 
-			// set returned expressions scopse the same returnStatement scope
+			// set returned expressions scope the same as returnStatement's
+			// scope
 			returnedExpr.setEnclosingScope(returnStatement.getEnclosingScope());
 
 			// visit returned expression
 			return returnedExpr.accept(this);
 		}
 
-		return null;
-	}
-
-	/* -------- > continue from here */
-
-	@Override
-	public Object visit(If ifStatement) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(While whileStatement) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -535,12 +571,6 @@ public class SymTableConstructor implements Visitor {
 
 		return null;
 
-	}
-
-	@Override
-	public Object visit(ArrayLocation location) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -594,45 +624,167 @@ public class SymTableConstructor implements Visitor {
 	}
 
 	@Override
-	public Object visit(NewArray newArray) {
-		// TODO Auto-generated method stub
+	public Object visit(If ifStatement) throws SemanticError {
+
+		// get if scope
+		SymbolTable ifScope = ifStatement.getEnclosingScope();
+
+		// handle if condition
+		Expression ifCondition = ifStatement.getCondition();
+		ifCondition.setEnclosingScope(ifScope);
+		ifCondition.accept(this);
+
+		// handle if operation
+		Statement ifOperation = ifStatement.getOperation();
+		ifOperation.setEnclosingScope(ifScope);
+		Object ifOpVal = ifOperation.accept(this);
+
+		// only in case if operation is a block statement
+		if (ifOpVal != null && ((SymbolTable) ifOpVal).isBlockTable()) {
+			SymbolTable ifBlockSymbolTable = (SymbolTable) ifOpVal;
+			ifBlockSymbolTable.setParentSymbolTable(ifScope);
+
+		}
+
+		// handle else statement (if exists)
+		if (ifStatement.hasElse()) {
+
+			// handle else operation
+			Statement elseOperation = ifStatement.getElseOperation();
+			elseOperation.setEnclosingScope(ifScope);
+			Object elseOpVal = elseOperation.accept(this);
+
+			// only in case else operation is a block statement
+			if (elseOpVal != null && ((SymbolTable) ifOpVal).isBlockTable()) {
+				SymbolTable elseBlockSymbolTable = (SymbolTable) elseOpVal;
+				elseBlockSymbolTable.setParentSymbolTable(ifScope);
+
+			}
+
+		}
+
 		return null;
 	}
 
 	@Override
-	public Object visit(Length length) {
-		// TODO Auto-generated method stub
+	public Object visit(While whileStatement) throws SemanticError {
+
+		// get while scope
+		SymbolTable whileScope = whileStatement.getEnclosingScope();
+
+		// handle while condition
+		Expression whileCondition = whileStatement.getCondition();
+		whileCondition.setEnclosingScope(whileScope);
+		whileCondition.accept(this);
+
+		// handle while operation
+		Statement whileOperation = whileStatement.getOperation();
+		whileOperation.setEnclosingScope(whileScope);
+		Object whileOpVal = whileOperation.accept(this);
+
+		// only in case while operation is a block statement
+		if (whileOpVal != null && ((SymbolTable) whileOpVal).isBlockTable()) {
+			SymbolTable whileBlockSymbolTable = (SymbolTable) whileOpVal;
+			whileBlockSymbolTable.setParentSymbolTable(whileScope);
+
+			// indicates that this block symbol tables is in a loop
+			whileBlockSymbolTable.setLoop();
+		}
 		return null;
 	}
 
 	@Override
-	public Object visit(MathBinaryOp binaryOp) {
-		// TODO Auto-generated method stub
+	public Object visit(ArrayLocation arrLocation) throws SemanticError {
+
+		// handle array expression (left side)
+		Expression arrayExpression = arrLocation.getArray();
+		arrayExpression.setEnclosingScope(arrLocation.getEnclosingScope());
+		arrayExpression.accept(this);
+
+		// handle array index (value in brackets)
+		Expression arrayIndex = arrLocation.getIndex();
+		arrayIndex.setEnclosingScope(arrLocation.getEnclosingScope());
+		arrayIndex.accept(this);
+
 		return null;
 	}
 
 	@Override
-	public Object visit(LogicalBinaryOp binaryOp) {
-		// TODO Auto-generated method stub
+	public Object visit(NewArray newArray) throws SemanticError {
+
+		// get array size
+		Expression exp = newArray.getSize();
+
+		// set expression scope
+		exp.setEnclosingScope(newArray.getEnclosingScope());
+
+		// visit expression
+		exp.accept(this);
+
 		return null;
+
 	}
 
 	@Override
-	public Object visit(MathUnaryOp unaryOp) {
-		// TODO Auto-generated method stub
+	public Object visit(Length length) throws SemanticError {
+
+		// get arr from "arr.length"
+		Expression exp = length.getArray();
+
+		// set expression scope
+		exp.setEnclosingScope(length.getEnclosingScope());
+
+		// visit expression
+		exp.accept(this);
+
 		return null;
 	}
 
-	@Override
-	public Object visit(LogicalUnaryOp unaryOp) {
-		// TODO Auto-generated method stub
+	private Object HandleBinaryOp(BinaryOp binaryOp) throws SemanticError {
+
+		// handle first operand
+		Expression firstExpr = binaryOp.getFirstOperand();
+		firstExpr.setEnclosingScope(binaryOp.getEnclosingScope());
+		firstExpr.accept(this);
+
+		// handle second operand
+		Expression secondExpr = binaryOp.getSecondOperand();
+		secondExpr.setEnclosingScope(binaryOp.getEnclosingScope());
+		secondExpr.accept(this);
+
 		return null;
+
+	}
+
+	private Object HandleUnaryOp(UnaryOp unaryOp) throws SemanticError {
+
+		// get operand
+		Expression exp = unaryOp.getOperand();
+		exp.setEnclosingScope(unaryOp.getEnclosingScope());
+		exp.accept(this);
+
+		return null;
+
 	}
 
 	@Override
-	public Object visit(ExpressionBlock expressionBlock) {
-		// TODO Auto-generated method stub
-		return null;
+	public Object visit(MathBinaryOp binaryOp) throws SemanticError {
+		return HandleBinaryOp(binaryOp);
+	}
+
+	@Override
+	public Object visit(LogicalBinaryOp binaryOp) throws SemanticError {
+		return HandleBinaryOp(binaryOp);
+	}
+
+	@Override
+	public Object visit(MathUnaryOp unaryOp) throws SemanticError {
+		return HandleUnaryOp(unaryOp);
+	}
+
+	@Override
+	public Object visit(LogicalUnaryOp unaryOp) throws SemanticError {
+		return HandleUnaryOp(unaryOp);
 	}
 
 	/*
@@ -685,4 +837,10 @@ public class SymTableConstructor implements Visitor {
 	public Object visit(Literal literal) {
 		return null;
 	}
+
+	@Override
+	public Object visit(ExpressionBlock expressionBlock) {
+		return null;
+	}
+
 }

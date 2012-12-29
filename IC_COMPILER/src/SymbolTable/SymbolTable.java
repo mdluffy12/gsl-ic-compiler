@@ -2,10 +2,8 @@ package SymbolTable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import IC.AST.ASTNode;
 
@@ -13,7 +11,7 @@ import IC.AST.ASTNode;
  * TODO add info
  */
 
-public class SymbolTable {
+public class SymbolTable implements ISymbolTable {
 
 	/*
 	 * -------------------------------------------------------------------
@@ -60,9 +58,7 @@ public class SymbolTable {
 				return null;
 
 			}
-
 		}
-
 	}
 
 	/**
@@ -265,63 +261,52 @@ public class SymbolTable {
 		return this.table_type == TableType._block;
 	}
 
-	private static StringBuilder tableStr;
+	/**
+	 * handles statement block string representation
+	 * 
+	 */
+	public String getStatemtentBlockRep(SymbolTable stmtBlockTable,
+			boolean AsChild) {
+		StringBuilder stmtBlockStr = new StringBuilder();
+		SymbolTable parent = stmtBlockTable.getParentSymbolTable();
 
-	// temporary definition - just for debug
-	private static void getTableRepresentation(SymbolTable symTable) {
+		if (AsChild) {
+			stmtBlockStr.append(stmtBlockTable.getId().toString());
 
-		tableStr.append("table id : " + symTable.getId() + "\n");
+		} else {
+			stmtBlockStr.append(stmtBlockTable.getTable_type().toString());
+			stmtBlockStr.append(": ");
 
-		tableStr.append("table type : " + symTable.getTable_type().toString()
-				+ "\n");
-
-		Iterator<Entry<String, Symbol>> it = symTable.getEntries().entrySet()
-				.iterator();
-
-		if (symTable.hasSymbols()) {
-			tableStr.append(" ---- symbols ---- \n");
+			stmtBlockStr.append("( " + "located");
 		}
 
-		while (it.hasNext()) {
-
-			// get next entry
-			Map.Entry<String, Symbol> entry = it.next();
-
-			// get symbol tag name
-			tableStr.append("symbol name: " + entry.getKey() + "\n");
-
-			// get symbol content
-			tableStr.append("symbol value: \n" + entry.getValue().toString()
-					+ "\n");
-		}
-
-		if (symTable.hasChildTables()) {
-
-			tableStr.append(" ---- children tables ---- \n");
-			StringBuilder childrenSb = new StringBuilder();
-			for (SymbolTable childTable : symTable.getChildrenTables()) {
-				childrenSb.append(childTable.getId());
-				childrenSb.append(",");
+		while (parent != null) {
+			if (parent.isMethodTable()) {
+				stmtBlockStr.append(" in " + parent.getId());
+				break;
 			}
-
-			tableStr.append("children names: "
-					+ childrenSb.toString().substring(0,
-							childrenSb.toString().length() - 1) + "\n");
-
-			for (SymbolTable childTable : symTable.getChildrenTables()) {
-				tableStr.append("child table : \n");
-				getTableRepresentation(childTable);
-			}
+			stmtBlockStr.append(" in " + parent.getId());
+			parent = parent.getParentSymbolTable();
 		}
 
+		if (!AsChild) {
+			stmtBlockStr.append(" )");
+		}
+		return stmtBlockStr.toString();
 	}
 
-	// temporary definition - just for debug
 	@Override
 	public String toString() {
 
 		StringBuilder resStr = new StringBuilder();
-		resStr.append(this.table_type.toString() + ": " + this.id.toString());
+
+		if (this.isBlockTable()) {
+			resStr.append(getStatemtentBlockRep(this, false));
+		} else {
+			resStr.append(this.table_type.toString() + ": "
+					+ this.id.toString());
+		}
+
 		if (this.entries != null && this.entries.values() != null) {
 			for (Symbol symbol : this.entries.values())
 				resStr.append("\n\t" + symbol.toString());
@@ -331,7 +316,10 @@ public class SymbolTable {
 			resStr.append("\nChildren tables: ");
 			boolean first = true;
 			for (SymbolTable childSymTable : this.childrenTables) {
-				resStr.append(((!first) ? ", " : "") + childSymTable.id);
+				resStr.append(((!first) ? ", " : "")
+						+ ((!childSymTable.isBlockTable()) ? childSymTable.id
+								: getStatemtentBlockRep(childSymTable, true)));
+
 				first = false;
 			}
 
@@ -393,17 +381,28 @@ public class SymbolTable {
 
 		if (local_symbol != null) {
 
-			// in case id name found in local table
-
-			if (idNode.getLine() >= local_symbol.getIdNode().getLine()
-					|| local_symbol.isMethod() || local_symbol.isField()) {
-				return local_symbol;
-			}
-
+			return local_symbol;
 		}
 
 		return lookupParent(idName, idNode);
+	}
 
+	@Override
+	public Symbol lookup(String symbolName) {
+		Symbol local_symbol = null;
+		SymbolTable currentSymbolTable = this;
+
+		while (currentSymbolTable != null) {
+			local_symbol = currentSymbolTable.localLookup(symbolName);
+			if (local_symbol != null) {
+				// in case symbol was found in local scope
+				return local_symbol;
+			}
+
+			currentSymbolTable = currentSymbolTable.getParentSymbolTable();
+		}
+
+		return null;
 	}
 
 }
