@@ -34,18 +34,34 @@ import IC.AST.VirtualMethod;
 import IC.AST.Visitor;
 import IC.AST.While;
 import IC.Parser.SemanticError;
+import SymbolTable.SymbolTable;
 
 public class SemanticChecks implements Visitor {
 
+	private static SymTableUtils symTableUtils;
+
+	public SemanticChecks() {
+		symTableUtils = new SymTableUtils();
+	}
+
 	@Override
 	public Object visit(Program program) throws SemanticError {
-		// TODO Auto-generated method stub
+		for (ICClass icClass : program.getClasses()) {
+			icClass.accept(this);
+		}
 		return null;
 	}
 
 	@Override
 	public Object visit(ICClass icClass) throws SemanticError {
-		// TODO Auto-generated method stub
+
+		// just an example of findSymbolTable usage
+		SymbolTable classScope = symTableUtils.findSymbolTable(icClass);
+
+		if (classScope.lookup(icClass.getName()) == null) {
+			System.out.println("something is wrong");
+		}
+
 		return null;
 	}
 

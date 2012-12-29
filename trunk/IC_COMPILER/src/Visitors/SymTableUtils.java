@@ -10,14 +10,14 @@ import IC.AST.LocalVariable;
 import IC.AST.Method;
 import IC.AST.Type;
 import IC.Parser.SemanticError;
-import SymbolTable.ISymbolTable;
 import SymbolTable.ISymbolTableOperations;
 import SymbolTable.Symbol;
 import SymbolTable.Symbol.SymbolKind;
 import SymbolTable.SymbolTable;
 
 /**
- * TODO add info
+ * SymTableUtils handles all functional utilities regarding the symbol table
+ * construction and usage
  * 
  * @author micha
  */
@@ -36,7 +36,7 @@ public class SymTableUtils implements ISymbolTableOperations {
 	}
 
 	/**
-	 * TODO add info
+	 * @return true iff fields are equal (according to the IC rules)
 	 */
 	private static boolean compareFields(Field f1, Field f2) {
 
@@ -45,18 +45,7 @@ public class SymTableUtils implements ISymbolTableOperations {
 	}
 
 	/**
-	 * necessary?
-	 */
-	private static boolean compareFormals(Formal param1, Formal param2) {
-
-		// check if this is the type we need to check
-		return compareTypes(param1.getType(), param2.getType())
-				&& param1.getName().equals(param2.getName());
-
-	}
-
-	/**
-	 * TODO add info
+	 * @return true iff methods are equal (according to the IC rules)
 	 */
 	private static boolean compareMethods(Method m1, Method m2) {
 
@@ -66,7 +55,7 @@ public class SymTableUtils implements ISymbolTableOperations {
 	}
 
 	/**
-	 * TODO add info
+	 * @return true iff all fields are declared legally
 	 */
 	private static boolean CheckFieldCollisions(List<Field> fields) {
 
@@ -83,7 +72,7 @@ public class SymTableUtils implements ISymbolTableOperations {
 	}
 
 	/**
-	 * TODO add info
+	 * @return true iff all methods are declared legally
 	 */
 	private static boolean CheckMethodCollisions(List<Method> methods) {
 		for (Method method : methods) {
@@ -151,12 +140,12 @@ public class SymTableUtils implements ISymbolTableOperations {
 
 	/*
 	 * -------------------------------------------------------------------
-	 * -------------------------- variable Utils -------------------------
+	 * ---------------------------- scope Utils --------------------------
 	 * -------------------------------------------------------------------
 	 */
 
 	/**
-	 * TODO add info
+	 * @return true iff class is defined in scope
 	 */
 	public static boolean isClassDefined(ICClass icClass, SymbolTable scope) {
 		Symbol classSymbol = scope.localLookup(icClass.getName());
@@ -164,7 +153,7 @@ public class SymTableUtils implements ISymbolTableOperations {
 	}
 
 	/**
-	 * TODO add info
+	 * @return true iff function parameter is declared in scope
 	 */
 	public static boolean isParameterDefinedInScope(Formal param,
 			SymbolTable scope) {
@@ -173,7 +162,7 @@ public class SymTableUtils implements ISymbolTableOperations {
 	}
 
 	/**
-	 * TODO add info
+	 * @return true iff local variable is declared in scope
 	 */
 	public static boolean isVariableDefinedInScope(LocalVariable localVariable,
 			SymbolTable scope) {
@@ -183,9 +172,8 @@ public class SymTableUtils implements ISymbolTableOperations {
 	}
 
 	@Override
-	public ISymbolTable findSymbolTable(ASTNode node) {
-		// TODO Auto-generated method stub
-		return null;
+	public SymbolTable findSymbolTable(ASTNode node) {
+		return node.getEnclosingScope();
 	}
 
 }
