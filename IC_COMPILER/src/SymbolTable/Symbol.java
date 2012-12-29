@@ -163,12 +163,7 @@ public class Symbol {
 	@Override
 	public String toString() {
 
-		StringBuilder sb = new StringBuilder();
-
-		sb.append("name: " + getIdName() + "\n");
-		sb.append("kind: " + getIdKind().toString() + "\n");
-
-		return sb.toString();
+		return this.idKind.toString() + ": " + this.idName;
 	}
 
 	/*
