@@ -39,6 +39,7 @@ import IC.AST.VirtualMethod;
 import IC.AST.Visitor;
 import IC.AST.While;
 import IC.Parser.SemanticError;
+import SymbolTable.ClassSymbol;
 import SymbolTable.Symbol;
 import SymbolTable.Symbol.SymbolKind;
 import SymbolTable.SymbolTable;
@@ -136,10 +137,13 @@ public class SymTableConstructor implements Visitor {
 		 */
 
 		Symbol super_class_symbol = null;
-		SymbolTable superSymbolTable = null;
-
+		ClassSymbol classSymbol = null;
+		boolean addedClassSymbol = false;
 		// create global symbol table
 		SymbolTable global_table = new SymbolTable(file_name, TableType._global);
+
+		// initialize super symbol type with current global table
+		SymbolTable superSymbolTable = global_table;
 
 		// iterate all classes and add them to global symbol table
 		for (ICClass icClass : program.getClasses()) {
@@ -151,6 +155,9 @@ public class SymTableConstructor implements Visitor {
 						+ " is already defined");
 				return null;
 			}
+
+			// visit class and get class symbol table
+			SymbolTable classSymTable = (SymbolTable) icClass.accept(this);
 
 			if (icClass.hasSuperClass()) {
 				// in case super class exists
@@ -180,27 +187,34 @@ public class SymTableConstructor implements Visitor {
 					return null;
 				}
 
-				// get super symbol table in case super class is in global table
-				superSymbolTable = super_class_symbol.getSymbolTable();
-
-			} else {
-				superSymbolTable = global_table;
+				addedClassSymbol = true;
 			}
 
-			// visit class and get class symbol table
-			SymbolTable classSymTable = (SymbolTable) icClass.accept(this);
+			classSymbol = new ClassSymbol(icClass.getName(), SymbolKind._class,
+					null, icClass, classSymTable);
 
-			icClass.setEnclosingScope(superSymbolTable);
+			global_table.addSymbol(classSymbol);
 
-			// add superSymbolTable (or global_table if class does not extend
-			// another class) as
-			// a parent to the current class table
-			classSymTable.setParentSymbolTable(superSymbolTable);
+			icClass.setEnclosingScope(global_table);
 
 			// add class to global table
 			// TODO change symbol type
-			global_table.addSymbol(new Symbol(icClass.getName(),
-					SymbolKind._class, null, icClass));
+			if (!addedClassSymbol) {
+
+				// add superSymbolTable (or global_table if class does not
+				// extend
+				// another class) as a parent to the current class table
+				classSymTable.setParentSymbolTable(global_table);
+
+			} else {
+
+				// add superSymbolTable (or global_table if class does not
+				// extend
+				// another class) as a parent to the current class table
+				classSymTable
+						.setParentSymbolTable(((ClassSymbol) super_class_symbol)
+								.getClassTable());
+			}
 
 		}
 

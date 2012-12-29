@@ -90,6 +90,11 @@ public class SymbolTable {
 	 */
 	private List<SymbolTable> childrenTables;
 
+	/**
+	 * TODO add info
+	 */
+	private boolean isLoop;
+
 	/*
 	 * -------------------------------------------------------------------
 	 * --------------------------- Constructors --------------------------
@@ -100,6 +105,7 @@ public class SymbolTable {
 		this.setId(id);
 		setEntries(new HashMap<String, Symbol>());
 		setChildrenTables(new ArrayList<SymbolTable>());
+		isLoop = false;
 
 	}
 
@@ -108,6 +114,7 @@ public class SymbolTable {
 		this.setTable_type(table_type);
 		setEntries(new HashMap<String, Symbol>());
 		setChildrenTables(new ArrayList<SymbolTable>());
+		isLoop = false;
 	}
 
 	/*
@@ -160,6 +167,14 @@ public class SymbolTable {
 
 	public void setChildrenTables(List<SymbolTable> childrenTables) {
 		this.childrenTables = childrenTables;
+	}
+
+	public boolean isLoop() {
+		return this.isLoop;
+	}
+
+	public void setLoop() {
+		this.isLoop = true;
 	}
 
 	/*
@@ -305,9 +320,34 @@ public class SymbolTable {
 	@Override
 	public String toString() {
 
-		tableStr = new StringBuilder();
-		getTableRepresentation(this);
-		return tableStr.toString();
+		StringBuilder resStr = new StringBuilder();
+		resStr.append(this.table_type.toString() + ": " + this.id.toString());
+		if (this.entries != null && this.entries.values() != null) {
+			for (Symbol symbol : this.entries.values())
+				resStr.append("\n\t" + symbol.toString());
+		}
+
+		if (this.childrenTables != null && this.childrenTables.size() > 0) {
+			resStr.append("\nChildren tables: ");
+			boolean first = true;
+			for (SymbolTable childSymTable : this.childrenTables) {
+				resStr.append(((!first) ? ", " : "") + childSymTable.id);
+				first = false;
+			}
+
+			resStr.append("\n\n");
+			for (SymbolTable childSymTable : this.childrenTables) {
+				resStr.append(childSymTable.toString());
+
+			}
+
+		}
+
+		else
+			resStr.append("\n\n");
+
+		return resStr.toString();
+
 	}
 
 	/*

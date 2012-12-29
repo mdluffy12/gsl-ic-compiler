@@ -12,6 +12,7 @@ import IC.Parser.GenLexer;
 import IC.Parser.GenParser;
 import IC.Parser.LibraryUtils;
 import IC.Parser.SemanticError;
+import SymbolTable.SymbolTable;
 import Visitors.SymTableConstructor;
 
 /**
@@ -168,9 +169,10 @@ public class Compiler {
 	public static boolean ExecuteSemanticAnalyzer(String file_path) {
 
 		SymTableConstructor symBuilder = new SymTableConstructor(file_path);
-
 		try {
-			parser.getRoot().accept(symBuilder);
+			SymbolTable globalTable = (SymbolTable) parser.getRoot().accept(
+					symBuilder);
+			System.out.println(globalTable.toString());
 		} catch (SemanticError e) {
 			System.out.println(e);
 			return false;
