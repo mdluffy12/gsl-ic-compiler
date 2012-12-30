@@ -1,10 +1,18 @@
 package Types;
 
-public class ArrayType {
-	private final Type valueType;
+/**
+ * 
+ * @author Roni Lichtman
+ * 
+ *         A type that can be used in an array
+ */
+public class ArrayType extends Type {
 
-	public ArrayType(Type valueType) {
+	private final int dimension;
+
+	public ArrayType(int dimension) {
 		super();
-		this.valueType = valueType;
+		this.dimension = dimension;
 	}
+
 }

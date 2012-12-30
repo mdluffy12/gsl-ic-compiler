@@ -14,6 +14,8 @@ public class RoniTest {
 		System.out.println("Comparing " + file1.getName() + " and "
 				+ file2.getName());
 		Scanner s1, s2;
+		int[][] asdf = new int[2][2];
+		int[] asdf2 = asdf[1];
 		try {
 			s1 = new Scanner(file1);
 			s2 = new Scanner(file2);
