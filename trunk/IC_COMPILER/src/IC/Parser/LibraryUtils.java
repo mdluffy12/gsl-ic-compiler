@@ -4,6 +4,8 @@
 
 package IC.Parser;
 
+import java.io.File;
+
 import java_cup.runtime.Symbol;
 import IC.AST.ICClass;
 import IC.AST.PrettyPrinter;
@@ -16,6 +18,11 @@ public class LibraryUtils {
 
 	/* global variables */
 	public static String libPrefix = "-L";
+	public static File libraryFile = null;
+
+	public void setLibraryFile(File file) {
+		libraryFile = file;
+	}
 
 	public static boolean isLibraryPathLegal(String LibraryPath) {
 		return LibraryPath.startsWith(libPrefix);
@@ -27,7 +34,10 @@ public class LibraryUtils {
 
 		Symbol libParseSym = null;
 		try {
+
 			libParseSym = libParser.parse();
+			System.out.println("Parsed " + libraryFile.getName()
+					+ " successfully!");
 		} catch (LexicalError e) {
 			System.out.println(e);
 			return null;
@@ -35,7 +45,7 @@ public class LibraryUtils {
 			System.out.println(e);
 			return null;
 		} catch (Exception e) {
-			System.out.println(e);
+			System.out.println("unexpected exception: " + e);
 			return null;
 		}
 
@@ -47,6 +57,8 @@ public class LibraryUtils {
 
 		String fixedLibPath = library_path;
 		fixedLibPath = fixedLibPath.replace(libPrefix, "");
+		libraryFile = new File(fixedLibPath);
+
 		return fixedLibPath;
 
 	}

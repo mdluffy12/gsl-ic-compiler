@@ -14,6 +14,7 @@ import SymbolTable.ISymbolTableOperations;
 import SymbolTable.Symbol;
 import SymbolTable.Symbol.SymbolKind;
 import SymbolTable.SymbolTable;
+import Types.TypeAdapter;
 
 /**
  * SymTableUtils handles all functional utilities regarding the symbol table
@@ -22,6 +23,16 @@ import SymbolTable.SymbolTable;
  * @author micha
  */
 public class SymTableUtils implements ISymbolTableOperations {
+
+	private static TypeAdapter typeAdapter;
+
+	public SymTableUtils() {
+		typeAdapter = new TypeAdapter();
+	}
+
+	public static void initUtils() {
+		typeAdapter = new TypeAdapter();
+	}
 
 	/*
 	 * -------------------------------------------------------------------
@@ -174,6 +185,26 @@ public class SymTableUtils implements ISymbolTableOperations {
 	@Override
 	public SymbolTable findSymbolTable(ASTNode node) {
 		return node.getEnclosingScope();
+	}
+
+	/*
+	 * -------------------------------------------------------------------
+	 * ---------------------------- type Utils --------------------------
+	 * -------------------------------------------------------------------
+	 */
+
+	public static Types.Type getNodeType(ASTNode node) {
+		return typeAdapter.adaptType(node);
+	}
+
+	/*
+	 * -------------------------------------------------------------------
+	 * -------------------------- table Utils -------------------------
+	 * -------------------------------------------------------------------
+	 */
+
+	public static void printTable(SymbolTable symbolTable) {
+		System.out.println("\n" + symbolTable.toString());
 	}
 
 }

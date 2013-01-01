@@ -1,7 +1,9 @@
 package SymbolTable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -99,7 +101,7 @@ public class SymbolTable implements ISymbolTable {
 
 	public SymbolTable(String id) {
 		this.setId(id);
-		setEntries(new HashMap<String, Symbol>());
+		setEntries(new LinkedHashMap<String, Symbol>());
 		setChildrenTables(new ArrayList<SymbolTable>());
 		isLoop = false;
 
@@ -108,7 +110,7 @@ public class SymbolTable implements ISymbolTable {
 	public SymbolTable(String id, TableType table_type) {
 		this.setId(id);
 		this.setTable_type(table_type);
-		setEntries(new HashMap<String, Symbol>());
+		setEntries(new LinkedHashMap<String, Symbol>());
 		setChildrenTables(new ArrayList<SymbolTable>());
 		isLoop = false;
 	}
@@ -204,6 +206,16 @@ public class SymbolTable implements ISymbolTable {
 	}
 
 	/**
+	 * removes symbol from current scope
+	 * 
+	 * @param idName
+	 *            idName of a symbol to remove from the table entries
+	 */
+	public void removeSymbol(String idName) {
+		this.entries.remove(idName);
+	}
+
+	/**
 	 * adds child table to current parent table
 	 * 
 	 * @param childTable
@@ -262,8 +274,40 @@ public class SymbolTable implements ISymbolTable {
 	}
 
 	/**
+	 * clones symbol table
+	 */
+	@Override
+	public SymbolTable clone() {
+		SymbolTable copiedSymbolTable = new SymbolTable(getId(),
+				getTable_type());
+		copiedSymbolTable.setChildrenTables(getChildrenTables());
+		copiedSymbolTable.setEntries(getEntries());
+		copiedSymbolTable.setParentSymbolTable(getParentSymbolTable());
+
+		if (isLoop()) {
+			copiedSymbolTable.setLoop();
+		}
+
+		return copiedSymbolTable;
+	}
+
+	public void sortEntries() {
+		List<Symbol> sortedSymbolList = new LinkedList<Symbol>(
+				this.entries.values());
+
+		Collections.sort(sortedSymbolList, new Symbol.SymbolComperator());
+
+		Map<String, Symbol> sortedEntries = new LinkedHashMap<String, Symbol>();
+
+		for (Symbol symbol : sortedSymbolList) {
+			sortedEntries.put(symbol.getIdName(), symbol);
+		}
+
+		this.setEntries(sortedEntries);
+	}
+
+	/**
 	 * handles statement block string representation
-	 * 
 	 */
 	public String getStatemtentBlockRep(SymbolTable stmtBlockTable,
 			boolean AsChild) {
@@ -275,9 +319,8 @@ public class SymbolTable implements ISymbolTable {
 
 		} else {
 			stmtBlockStr.append(stmtBlockTable.getTable_type().toString());
-			stmtBlockStr.append(": ");
 
-			stmtBlockStr.append("( " + "located");
+			stmtBlockStr.append(" ( " + "located");
 		}
 
 		while (parent != null) {
@@ -309,7 +352,7 @@ public class SymbolTable implements ISymbolTable {
 
 		if (this.entries != null && this.entries.values() != null) {
 			for (Symbol symbol : this.entries.values())
-				resStr.append("\n\t" + symbol.toString());
+				resStr.append("\n    " + symbol.toString());
 		}
 
 		if (this.childrenTables != null && this.childrenTables.size() > 0) {
