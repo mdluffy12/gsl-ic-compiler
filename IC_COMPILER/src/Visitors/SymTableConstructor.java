@@ -106,6 +106,7 @@ public class SymTableConstructor implements Visitor {
 	public SymTableConstructor(String file_name) {
 		File file = new File(file_name);
 		this.setFile_name(file.getName());
+		SymTableUtils.initUtils();
 	}
 
 	/*
@@ -226,8 +227,11 @@ public class SymTableConstructor implements Visitor {
 
 			}
 
+			// resolve class type
+			Types.Type classType = SymTableUtils.getNodeType(icClass);
+
 			classSymbol = new ClassSymbol(icClass.getName(), SymbolKind._class,
-					null, icClass, classSymTable);
+					classType, icClass, classSymTable);
 
 			// add class symbol to global table
 			global_table.addSymbol(classSymbol);
@@ -304,9 +308,12 @@ public class SymTableConstructor implements Visitor {
 			// visit field
 			field.accept(this);
 
+			// resolve field type
+			Types.Type fieldType = SymTableUtils.getNodeType(field);
+
 			// add field to class table
 			class_symbol_table.addSymbol(new Symbol(field.getName(),
-					SymbolKind._field, field.getType(), field));
+					SymbolKind._field, fieldType, field));
 
 		}
 
@@ -331,14 +338,12 @@ public class SymTableConstructor implements Visitor {
 			// add class symbol table as parent for current method symbol table
 			method_symbol_table.setParentSymbolTable(class_symbol_table);
 
+			// resolve method type
+			Types.Type methodType = SymTableUtils.getNodeType(method);
+
 			// add method symbol to class symbol table
 			class_symbol_table.addSymbol(new Symbol(method.getName(),
-					getMethodKind(), method.getType(), method));
-
-			// add method to class table
-			// TODO change symbol type
-			class_symbol_table.addSymbol(new Symbol(method.getName(),
-					getMethodKind(), null, method));
+					getMethodKind(), methodType, method));
 
 		}
 
@@ -378,12 +383,12 @@ public class SymTableConstructor implements Visitor {
 				HandleError(err_msg, method);
 			}
 
-			// TODO handle type
-			Symbol param_symbol = new Symbol(param.getName(),
-					SymbolKind._param, null, param);
+			// resolve parameter type
+			Types.Type paramType = SymTableUtils.getNodeType(param);
 
 			// add parameter to method symbol table
-			method_symbol_table.addSymbol(param_symbol);
+			method_symbol_table.addSymbol(new Symbol(param.getName(),
+					SymbolKind._param, paramType, param));
 
 			// set parameter scope as its method's scope
 			param.setEnclosingScope(method_symbol_table);
@@ -398,7 +403,7 @@ public class SymTableConstructor implements Visitor {
 			// visit statement
 			Object stmtRet = statement.accept(this);
 
-			if (stmtRet != null && statement instanceof StatementsBlock) {
+			if (stmtRet != null && ((SymbolTable) stmtRet).isBlockTable()) {
 				// in case statement is StatementsBlock add method table as it's
 				// parent symbol table
 				SymbolTable stmt_block_symbol_table = (SymbolTable) stmtRet;
@@ -471,9 +476,12 @@ public class SymTableConstructor implements Visitor {
 			return null;
 		}
 
-		// TODO handle type
+		// resolve parameter type
+		Types.Type localVarType = SymTableUtils.getNodeType(localVariable);
+
+		// add local variable symbol to variable scope table
 		localVarScope.addSymbol(new Symbol(localVariable.getName(),
-				SymbolKind._variable, null, localVariable));
+				SymbolKind._variable, localVarType, localVariable));
 
 		// check if variable has init value (r-value)
 		if (localVariable.hasInitValue()) {

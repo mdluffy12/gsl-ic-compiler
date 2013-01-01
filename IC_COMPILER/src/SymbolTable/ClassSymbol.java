@@ -1,13 +1,12 @@
 package SymbolTable;
 
 import IC.AST.ASTNode;
-import IC.AST.Type;
 
 public class ClassSymbol extends Symbol {
 
 	private SymbolTable classTable;
 
-	public ClassSymbol(String idName, SymbolKind idKind, Type idType,
+	public ClassSymbol(String idName, SymbolKind idKind, Types.Type idType,
 			ASTNode idNode, SymbolTable classTable) {
 		super(idName, idKind, idType, idNode);
 		this.classTable = classTable;
@@ -19,6 +18,11 @@ public class ClassSymbol extends Symbol {
 
 	public SymbolTable getClassTable() {
 		return classTable;
+	}
+
+	@Override
+	public String toString() {
+		return getIdKind().toString() + ": " + getIdName();
 	}
 
 }

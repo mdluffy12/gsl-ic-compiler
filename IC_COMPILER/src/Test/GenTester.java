@@ -5,8 +5,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
@@ -161,6 +164,80 @@ public class GenTester {
 			out.close();
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	private static boolean isLegalForParcing(File file) {
+		String fileName = file.getName();
+		if (Contains(".tokens", fileName) || Contains(".mytokens", fileName)
+				|| Contains("TEST_", fileName) || Contains(".myast", fileName)
+				|| Contains(".ast", fileName) || Contains("DEBUG_", fileName)
+				|| Contains("graph_", fileName) || Contains(".png", fileName))
+			return false;
+
+		return true;
+	}
+
+	// creates the file list data structure, a map enumerating all the files in
+	// the folder, and their folder path
+	protected static void CreateFileList(File path, List<File> fileList) {
+
+		File files[];
+
+		// get all files listed in current folder
+		files = path.listFiles();
+
+		Arrays.sort(files);
+		for (int i = 0, n = files.length; i < n; i++) {
+
+			if (isLegalForParcing(files[i]) && !files[i].isDirectory())
+				fileList.add(files[i]);
+			if (files[i].isDirectory()) {
+				CreateFileList(files[i], fileList);
+			}
+		}
+	}
+
+	// creates the file list data structure, a map enumerating all the files in
+	// the folder, and their folder path
+	protected static void CreateFileList(File path, List<File> fileList,
+			String suffix) {
+
+		File files[];
+
+		// get all files listed in current folder
+		files = path.listFiles();
+
+		if (files == null)
+			return;
+
+		Arrays.sort(files);
+
+		for (int i = 0, n = files.length; i < n; i++) {
+
+			if (!files[i].isDirectory() && files[i].getName().endsWith(suffix)) {
+				fileList.add(files[i]);
+				if (files[i].isDirectory()) {
+					CreateFileList(files[i], fileList, suffix);
+				}
+			}
+		}
+	}
+
+	public static void DeleteAllFilesWithSuffix(String testedFolder,
+			String suffix) {
+		List<File> files = new ArrayList<File>();
+		CreateFileList(new File(testedFolder), files);
+
+		try {
+			for (File file : files) {
+				if (Contains(suffix, file.getAbsolutePath())) {
+					file.delete();
+				}
+			}
+
+		} catch (Exception e) {
+
 		}
 	}
 

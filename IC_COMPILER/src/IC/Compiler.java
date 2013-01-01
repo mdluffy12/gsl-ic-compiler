@@ -15,6 +15,7 @@ import IC.Parser.SemanticError;
 import SymbolTable.SymbolTable;
 import Visitors.SemanticChecks;
 import Visitors.SymTableConstructor;
+import Visitors.SymTableUtils;
 
 /**
  * This class takes a filename as an argument (.ic file) , it reads that file
@@ -177,7 +178,8 @@ public class Compiler {
 
 			parser.getRoot().accept(semanticChecks);
 
-			System.out.println("\n" + globalTable.toString());
+			SymTableUtils.printTable(globalTable);
+
 		} catch (SemanticError e) {
 			System.out.println(e);
 			return false;

@@ -1,7 +1,8 @@
 package SymbolTable;
 
+import java.util.Comparator;
+
 import IC.AST.ASTNode;
-import IC.AST.Type;
 
 /**
  * TODO add info
@@ -85,22 +86,22 @@ public class Symbol {
 	}
 
 	/**
-	 * TODO add info
+	 * symbol name
 	 */
 	private String idName;
 
 	/**
-	 * TODO add info
+	 * symbol kind (class/field/method..)
 	 */
 	private SymbolKind idKind;
 
 	/**
-	 * TODO add info
+	 * symbol type (int,string..)
 	 */
-	private Type idType;
+	private Types.Type idType;
 
 	/**
-	 * TODO add info
+	 * symbol AST node
 	 */
 	private ASTNode idNode;
 
@@ -110,7 +111,8 @@ public class Symbol {
 	 * -------------------------------------------------------------------
 	 */
 
-	public Symbol(String idName, SymbolKind idKind, Type idType, ASTNode idNode) {
+	public Symbol(String idName, SymbolKind idKind, Types.Type idType,
+			ASTNode idNode) {
 		this.setIdName(idName);
 		this.setIdKind(idKind);
 		this.setIdType(idType);
@@ -139,11 +141,11 @@ public class Symbol {
 		this.idKind = idKind;
 	}
 
-	public Type getIdType() {
+	public Types.Type getIdType() {
 		return idType;
 	}
 
-	public void setIdType(Type idType) {
+	public void setIdType(Types.Type idType) {
 		this.idType = idType;
 	}
 
@@ -159,11 +161,31 @@ public class Symbol {
 		return getIdNode().getEnclosingScope();
 	}
 
-	// TODO: change representation, meanwhile just for debug
+	/**
+	 * clones symbol table
+	 */
+	@Override
+	public Symbol clone() {
+
+		return new Symbol(idName, idKind, idType, idNode);
+
+	}
+
+	// TODO: finish type handling
 	@Override
 	public String toString() {
 
-		return this.idKind.toString() + ": " + this.idName;
+		if (this.isMethod()) {
+			return this.idKind.toString() + ": " + this.idName + " " + "{"
+					+ this.getIdType().toString() + "}";
+		}
+
+		if (this.getIdType() == null) {
+			return this.idKind.toString() + ": " + this.idName;
+		}
+
+		return this.idKind.toString() + ": " + this.getIdType().toString()
+				+ " " + this.idName;
 	}
 
 	/*
@@ -226,7 +248,7 @@ public class Symbol {
 	 */
 	public boolean isMethod() {
 		return this.isDefaultMethod() || this.isStaticMethod()
-				|| this.isVirtualMethod() || this.isVirtualMethod();
+				|| this.isVirtualMethod() || this.isLibraryMethod();
 	}
 
 	/**
@@ -234,6 +256,50 @@ public class Symbol {
 	 */
 	public boolean isVariable() {
 		return this.idKind == SymbolKind._variable;
+	}
+
+	public static class SymbolComperator implements Comparator<Symbol> {
+
+		@Override
+		public int compare(Symbol s1, Symbol s2) {
+
+			int s1Val = 0, s2Val = 0;
+
+			switch (s1.idKind) {
+
+			case _field:
+				s1Val = 5;
+			case _param:
+				s1Val = 4;
+			case _virtual_method:
+				s1Val = 3;
+			case _static_method:
+				s1Val = 2;
+			case _variable:
+				s1Val = 1;
+			default:
+				s1Val = 0;
+			}
+
+			switch (s2.idKind) {
+
+			case _field:
+				s2Val = 5;
+			case _param:
+				s2Val = 4;
+			case _virtual_method:
+				s2Val = 3;
+			case _static_method:
+				s2Val = 2;
+			case _variable:
+				s2Val = 1;
+			default:
+				s2Val = 0;
+			}
+
+			return s1Val - s2Val;
+		}
+
 	}
 
 }

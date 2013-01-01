@@ -7,11 +7,18 @@ package Test;
 public class MainTester {
 
 	public static void main(String[] args) {
-		SyntaxTester synTester = new SyntaxTester(args[0], ".ast.txt",
-				".ast.txt", true);
-		synTester.ExecuteSyntaxTest();
 
-		SyntaxTester.DeleteAllFilesWithSuffix(args[0], "_tree");
+		/*
+		 * SyntaxTester synTester = new SyntaxTester(args[0], ".ast.txt",
+		 * ".ast.txt", true); synTester.ExecuteSyntaxTest();
+		 * 
+		 * SyntaxTester.DeleteAllFilesWithSuffix(args[0], "_tree");
+		 */
+
+		SemanticTester semanticTester = new SemanticTester(args[0],
+				".table.txt", ".out.txt");
+
+		semanticTester.executeSemanticTester();
 	}
 
 }

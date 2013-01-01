@@ -12,4 +12,29 @@ public class MethodType extends Type {
 		this.returnType = returnType;
 	}
 
+	public List<Type> getParameterTypes() {
+		return parameterTypes;
+	}
+
+	public Type getReturnType() {
+		return returnType;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+
+		boolean first = true;
+		for (Type t : parameterTypes) {
+
+			sb.append(((!first) ? ", " : "") + t.toString());
+			first = false;
+		}
+
+		sb.append(" -> " + returnType.toString());
+
+		return sb.toString();
+
+	}
+
 }
