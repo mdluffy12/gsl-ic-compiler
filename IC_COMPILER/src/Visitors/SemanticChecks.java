@@ -109,8 +109,15 @@ public class SemanticChecks implements Visitor {
 
 	@Override
 	public Object visit(Assignment assignment) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
+		Location loc = assignment.getVariable();
+		Expression assgn = assignment.getAssignment();
+		
+		Types.Type locType = SymTableUtils.getNodeType(loc);
+		Types.Type assgnType = visit(assgn);
+		if(!locType.subTypeOf(assgnType))
+			return false;
+		else
+			return true;
 	}
 
 	@Override

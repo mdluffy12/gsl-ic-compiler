@@ -4,6 +4,7 @@ import IC.AST.UserType;
 
 public class TypeAdapter {
 	
+	//This class is responsible for adapting types from the AST package to types from the Types package
 	public static Types.Type adaptType(IC.AST.ASTNode astNode) throws UndefinedClassException
 	{
 		if(astNode instanceof IC.AST.ICClass)
