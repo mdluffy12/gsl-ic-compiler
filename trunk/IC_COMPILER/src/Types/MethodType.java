@@ -35,4 +35,10 @@ public class MethodType extends Type {
 				return false;
 		return true;
 	}
+	
+	@Override
+	public boolean subTypeOf(Type otherType)
+	{
+		return false;
+	}
 }
