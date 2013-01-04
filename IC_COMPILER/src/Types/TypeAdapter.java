@@ -1,76 +1,68 @@
 package Types;
 
-import java.util.ArrayList;
-import java.util.List;
+import IC.AST.UserType;
 
-import IC.AST.ASTNode;
-
-public class TypeAdapter implements ITypeAdapter {
-
-	@Override
-	public Types.Type adaptType(IC.AST.Type astType) {
-		if (astType instanceof IC.AST.UserType) {
-			IC.AST.UserType astUserType = (IC.AST.UserType) astType;
-			return new Types.UserType(astUserType.getName(),
-					astUserType.getDimension());
-		} else if (astType instanceof IC.AST.PrimitiveType) {
-			IC.AST.PrimitiveType astPrimitiveType = (IC.AST.PrimitiveType) astType;
-			if (astPrimitiveType.getName().equals("void")) {
-				return new VoidType();
-			} else {
-				return new Types.PrimitiveType(
-						adaptPrimitiveTypeSpecific(astPrimitiveType.getName()),
-						astPrimitiveType.getDimension());
+public class TypeAdapter {
+	
+	public static Types.Type adaptType(IC.AST.ASTNode astNode) throws UndefinedClassException
+	{
+		if(astNode instanceof IC.AST.ICClass)
+			return null; //No need for type checking for ICClass objects!
+		else if(astNode instanceof UserType)
+		{
+			IC.AST.UserType uType = (IC.AST.UserType) astNode;
+			
+			return handleDimension(Types.TypeTable.classType(uType.getName()), uType.getDimension());
+		}
+		else if(astNode instanceof IC.AST.PrimitiveType)
+		{
+			IC.AST.PrimitiveType pType = (IC.AST.PrimitiveType) astNode;
+			
+			Types.Type baseType = null;
+			switch (pType.getName()){
+			case "int":
+				baseType = Types.TypeTable.intType;
+				break;
+			case "boolean":
+				baseType = Types.TypeTable.boolType;
+				break;
+			case "string":
+				baseType = Types.TypeTable.stringType;
+				break;
+			case "void":
+				baseType = Types.TypeTable.voidType;
+				break;
+			default:
+				System.out.println("Unexpected primitive type in TypeAdapter!");
+				return null;
 			}
+			return handleDimension(baseType, pType.getDimension());
 		}
-
-		return null; // Dead code
-	}
-
-	private PrimitiveTypeSpecific adaptPrimitiveTypeSpecific(String name) {
-		switch (name) {
-		case "int":
-			return PrimitiveTypeSpecific.INTEGER;
-		case "boolean":
-			return PrimitiveTypeSpecific.BOOLEAN;
-		case "string":
-			return PrimitiveTypeSpecific.STRING;
-		default:
-			return null;
-		}
-	}
-
-	@Override
-	public Types.MethodType adaptFunctionType(IC.AST.Method method) {
-		List<Types.Type> parameterTypes = new ArrayList<Types.Type>();
-		for (IC.AST.Formal formal : method.getFormals())
-			parameterTypes.add(adaptType(formal.getType()));
-
-		return new Types.MethodType(parameterTypes, adaptType(method.getType()));
-	}
-
-	@Override
-	public Type adaptType(ASTNode node) {
-		if (node instanceof IC.AST.Method) {
-			return adaptFunctionType((IC.AST.Method) node);
-		}
-
-		if (node instanceof IC.AST.ICClass) {
-			return new Types.UserType(((IC.AST.ICClass) node).getName(), 0);
-		}
-
-		if (node instanceof IC.AST.Field) {
-			return adaptType(((IC.AST.Field) node).getType());
-		}
-
-		if (node instanceof IC.AST.LocalVariable) {
-			return adaptType(((IC.AST.LocalVariable) node).getType());
-		}
-
-		if (node instanceof IC.AST.Formal) {
-			return adaptType(((IC.AST.Formal) node).getType());
+		else if(astNode instanceof IC.AST.Method)
+		{
+			IC.AST.Method method = (IC.AST.Method) astNode;
+			return TypeTable.methodType(method);
 		}
 		return null;
 	}
-
+	
+	//This helper function deals with the translation of dimension in AST package to ArrayTypes in Types package
+	private static Types.Type handleDimension(Types.Type baseType, int dimension)
+	{
+		if(dimension>0)
+		{
+			Types.ArrayType resType = null;
+			boolean first = true;
+			for(int i=0; i<dimension; i++)
+			{
+				Type elemType = first ? baseType : resType;
+				resType = TypeTable.arrayType(elemType);
+				first = false;
+			}
+			
+			return resType;
+		}
+		else
+			return baseType;
+	}
 }

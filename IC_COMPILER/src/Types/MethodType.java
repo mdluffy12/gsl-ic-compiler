@@ -1,40 +1,38 @@
 package Types;
 
-import java.util.List;
-
 public class MethodType extends Type {
-	private final List<Type> parameterTypes;
-	private final Type returnType;
-
-	public MethodType(List<Type> parameterTypes, Type returnType) {
-		super();
-		this.parameterTypes = parameterTypes;
+	Type[] paramTypes;
+	Type returnType;
+	
+	public MethodType(Type[] paramTypes, Type returnType)
+	{
+		super(buildName(paramTypes, returnType));
+		this.paramTypes = paramTypes;
 		this.returnType = returnType;
 	}
-
-	public List<Type> getParameterTypes() {
-		return parameterTypes;
-	}
-
-	public Type getReturnType() {
-		return returnType;
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-
+	
+	private static String buildName(Type[] paramTypes, Type returnType)
+	{
+		String name = "Function with parameters: ";
 		boolean first = true;
-		for (Type t : parameterTypes) {
-
-			sb.append(((!first) ? ", " : "") + t.toString());
+		for(Type paramType : paramTypes)
+		{
+			name += (!first ? ", " : "") + paramType.getName();
 			first = false;
 		}
-
-		sb.append(" -> " + returnType.toString());
-
-		return sb.toString();
-
+		name += "; return " + returnType.getName();
+		return name;
 	}
-
+	
+	public boolean equals(IC.AST.Method method) throws UndefinedClassException
+	{
+		if(method.getFormals().size() != this.paramTypes.length)
+			return false;
+		if(!TypeAdapter.adaptType(method.getType()).equals(this.returnType))
+			return false;
+		for(int i=0; i<this.paramTypes.length; i++)
+			if(!TypeAdapter.adaptType(method.getFormals().get(i)).equals(this.paramTypes[i]))
+				return false;
+		return true;
+	}
 }
