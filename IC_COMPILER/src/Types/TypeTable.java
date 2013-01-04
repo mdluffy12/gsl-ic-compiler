@@ -25,7 +25,7 @@ public class TypeTable {
 		// top of AST
 
 		for(ICClass icClass : program.getClasses())
-			addClassType(icClass);			
+			addClassType(icClass);		
 	}
 
 	public static ArrayType arrayType(Type elemType) {
