@@ -10,7 +10,7 @@ import IC.Parser.SemanticError;
 public class ArrayLocation extends Location {
 
 	private final Expression array;
-
+	
 	private final Expression index;
 
 	@Override
