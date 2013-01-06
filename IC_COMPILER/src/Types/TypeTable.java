@@ -46,7 +46,7 @@ public class TypeTable {
 			return uniqueClassTypes.get(name);
 		} else {
 			// class type doesn't exist - error
-			throw new UndefinedClassException();
+			throw new UndefinedClassException("undefined class");
 		}
 	}
 
