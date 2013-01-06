@@ -45,7 +45,7 @@ public class MethodType extends Type {
 		if(!TypeAdapter.adaptType(method.getType()).equals(this.returnType))
 			return false;
 		for(int i=0; i<this.paramTypes.length; i++)
-			if(!TypeAdapter.adaptType(method.getFormals().get(i)).equals(this.paramTypes[i]))
+			if(!TypeAdapter.adaptType(method.getFormals().get(i).getType()).equals(this.paramTypes[i]))
 				return false;
 		return true;
 	}

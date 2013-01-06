@@ -8,13 +8,16 @@ import IC.AST.Formal;
 import IC.AST.ICClass;
 import IC.AST.LocalVariable;
 import IC.AST.Method;
+import IC.AST.This;
 import IC.AST.Type;
 import IC.Parser.SemanticError;
+import SymbolTable.ISymbolTable;
 import SymbolTable.ISymbolTableOperations;
 import SymbolTable.Symbol;
 import SymbolTable.Symbol.SymbolKind;
 import SymbolTable.SymbolTable;
 import Types.TypeAdapter;
+import Types.UndefinedClassException;
 
 /**
  * SymTableUtils handles all functional utilities regarding the symbol table
@@ -24,14 +27,10 @@ import Types.TypeAdapter;
  */
 public class SymTableUtils implements ISymbolTableOperations {
 
-	private static TypeAdapter typeAdapter;
-
 	public SymTableUtils() {
-		typeAdapter = new TypeAdapter();
 	}
 
 	public static void initUtils() {
-		typeAdapter = new TypeAdapter();
 	}
 
 	/*
@@ -193,8 +192,8 @@ public class SymTableUtils implements ISymbolTableOperations {
 	 * -------------------------------------------------------------------
 	 */
 
-	public static Types.Type getNodeType(ASTNode node) {
-		return typeAdapter.adaptType(node);
+	public static Types.Type getNodeType(ASTNode node) throws UndefinedClassException {
+		return TypeAdapter.adaptType(node);
 	}
 
 	/*
@@ -205,6 +204,18 @@ public class SymTableUtils implements ISymbolTableOperations {
 
 	public static void printTable(SymbolTable symbolTable) {
 		System.out.println("\n" + symbolTable.toString());
+	}
+
+	@Override
+	public ISymbolTable findClassEnvironment(String className) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String findClassNameOfThis(This thisExpression) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

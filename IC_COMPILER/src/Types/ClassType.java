@@ -17,7 +17,7 @@ public class ClassType extends Type {
 			}
 			catch(UndefinedClassException e)
 			{
-				throw new UndefinedSuperClassException();
+				throw new UndefinedSuperClassException("undefined super class");
 			}
 		}
 	}
