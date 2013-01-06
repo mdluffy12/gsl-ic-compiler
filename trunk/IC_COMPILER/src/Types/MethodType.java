@@ -24,6 +24,20 @@ public class MethodType extends Type {
 		return name;
 	}
 	
+	/**
+	 * @return the paramTypes
+	 */
+	public Type[] getParamTypes() {
+		return this.paramTypes;
+	}
+
+	/**
+	 * @return the returnType
+	 */
+	public Type getReturnType() {
+		return this.returnType;
+	}
+
 	public boolean equals(IC.AST.Method method) throws UndefinedClassException
 	{
 		if(method.getFormals().size() != this.paramTypes.length)
