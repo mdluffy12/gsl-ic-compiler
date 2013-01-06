@@ -161,7 +161,8 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 			if(!(locationType instanceof ClassType))
 				throw new SemanticError("Expected class type before virtual call");
 			
-			environment = symTableOps.findClassEnvironment(locationType.getName());
+		 
+			environment = symTableOps.findClassEnvironment(location.getEnclosingScope(),locationType.getName());
 		}
 			
 		return environment.lookup(location.getName());
@@ -182,7 +183,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(StaticCall call) throws SemanticError {
-		ISymbolTable classEnvironment = symTableOps.findClassEnvironment(call.getClassName());
+		ISymbolTable classEnvironment = symTableOps.findClassEnvironment(call.getEnclosingScope(),call.getClassName());
 
 		return handleCallVisit(classEnvironment, call);
 	}
@@ -199,7 +200,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 			if(!(locationType instanceof ClassType))
 				throw new SemanticError("Expected class type before virtual call");
 			
-			environment = symTableOps.findClassEnvironment(locationType.getName());
+			environment = symTableOps.findClassEnvironment(call.getEnclosingScope(),locationType.getName());
 		}
 		
 		return handleCallVisit(environment, call);
@@ -228,7 +229,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(This thisExpression) throws SemanticError {
-		String thisClassName = symTableOps.findClassNameOfThis(thisExpression);
+		String thisClassName = symTableOps.findClassName(thisExpression);
 		return TypeTable.classType(thisClassName);
 	}
 

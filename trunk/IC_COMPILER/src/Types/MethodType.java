@@ -1,18 +1,20 @@
 package Types;
 
 public class MethodType extends Type {
-	Type[] paramTypes;
-	Type returnType;
+	private final Type[] paramTypes;
+	private final Type returnType;
 	
 	public MethodType(Type[] paramTypes, Type returnType)
 	{
 		super(buildName(paramTypes, returnType));
+	 
 		this.paramTypes = paramTypes;
 		this.returnType = returnType;
 	}
 	
 	private static String buildName(Type[] paramTypes, Type returnType)
 	{
+		/* ---- > changed 
 		String name = "Function with parameters: ";
 		boolean first = true;
 		for(Type paramType : paramTypes)
@@ -21,7 +23,22 @@ public class MethodType extends Type {
 			first = false;
 		}
 		name += "; return " + returnType.getName();
-		return name;
+		return name; */
+		
+		StringBuilder sb = new StringBuilder();
+
+		boolean first = true;
+		for (Type t : paramTypes) {
+
+			sb.append(((!first) ? ", " : "") + t.toString());
+			first = false;
+		}
+
+		sb.append(" -> " + returnType.toString());
+
+		return sb.toString();
+		
+		
 	}
 	
 	/**
@@ -54,5 +71,22 @@ public class MethodType extends Type {
 	public boolean subTypeOf(Type otherType)
 	{
 		return false;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+
+		boolean first = true;
+		for (Type t : paramTypes) {
+
+			sb.append(((!first) ? ", " : "") + t.toString());
+			first = false;
+		}
+
+		sb.append(" -> " + returnType.toString());
+
+		return sb.toString();
+
 	}
 }

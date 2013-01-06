@@ -56,4 +56,9 @@ public class Literal extends Expression {
 		return value;
 	}
 
+	@Override
+	public String toString() {
+		return getType().getDescription();
+	}
+
 }

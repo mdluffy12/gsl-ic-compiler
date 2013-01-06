@@ -17,6 +17,7 @@ public class ClassSymbol extends Symbol {
 	}
 
 	public SymbolTable getClassTable() {
+
 		return classTable;
 	}
 

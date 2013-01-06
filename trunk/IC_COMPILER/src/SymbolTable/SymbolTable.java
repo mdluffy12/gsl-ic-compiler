@@ -103,6 +103,7 @@ public class SymbolTable implements ISymbolTable {
 		this.setId(id);
 		setEntries(new LinkedHashMap<String, Symbol>());
 		setChildrenTables(new ArrayList<SymbolTable>());
+
 		isLoop = false;
 
 	}
@@ -394,6 +395,7 @@ public class SymbolTable implements ISymbolTable {
 	 * 
 	 */
 	public Symbol localLookup(String idName) {
+
 		return entries.get(idName);
 	}
 
@@ -422,7 +424,12 @@ public class SymbolTable implements ISymbolTable {
 		// lookup id name in local scope
 		Symbol local_symbol = localLookup(idName);
 
-		if (local_symbol != null) {
+		/*
+		 * return the local symbol in case it is found and is used after it is
+		 * declared in the local scope
+		 */
+		if (local_symbol != null
+				&& (idNode.getLine() >= local_symbol.getLine())) {
 
 			return local_symbol;
 		}
@@ -448,4 +455,41 @@ public class SymbolTable implements ISymbolTable {
 		return null;
 	}
 
+	/**
+	 * @return method symbol of an encapsulated block symbol table
+	 * 
+	 */
+	public Symbol getMethodParent() {
+
+		SymbolTable currentSymbolTable = this;
+
+		while (currentSymbolTable != null) {
+			if (currentSymbolTable.isMethodTable()) {
+				return currentSymbolTable.lookup(currentSymbolTable.getId());
+			}
+
+			currentSymbolTable = currentSymbolTable.getParentSymbolTable();
+		}
+
+		return null;
+	}
+
+	/**
+	 * @return class symbol of an encapsulated symbol table
+	 * 
+	 */
+	public Symbol getClassParent() {
+
+		SymbolTable currentSymbolTable = this;
+
+		while (currentSymbolTable != null) {
+			if (currentSymbolTable.isClassTable()) {
+				return currentSymbolTable.lookup(currentSymbolTable.getId());
+			}
+
+			currentSymbolTable = currentSymbolTable.getParentSymbolTable();
+		}
+
+		return null;
+	}
 }

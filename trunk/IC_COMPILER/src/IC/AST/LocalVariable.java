@@ -5,6 +5,8 @@ import IC.Parser.SemanticError;
 /**
  * Local variable declaration statement AST node.
  * 
+ * For Example: int a; int a = 2;
+ * 
  * @author Tovi Almozlino
  */
 public class LocalVariable extends Statement {
@@ -68,12 +70,7 @@ public class LocalVariable extends Statement {
 
 	@Override
 	public String toString() {
-		if (initValue == null) {
-			return "<type = " + type + ",name = " + name + ">";
-		}
-
-		return "<type = " + type + ",name = " + name + ",initValue = "
-				+ initValue + ">";
+		return this.name;
 	}
 
 }

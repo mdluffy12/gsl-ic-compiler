@@ -161,6 +161,10 @@ public class Symbol {
 		return getIdNode().getEnclosingScope();
 	}
 
+	public int getLine() {
+		return getIdNode().getLine();
+	}
+
 	/**
 	 * clones symbol table
 	 */

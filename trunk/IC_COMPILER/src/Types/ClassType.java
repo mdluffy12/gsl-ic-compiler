@@ -13,13 +13,21 @@ public class ClassType extends Type {
 			//been added to the TypeTable
 			try
 			{
-			this.superClassType = TypeTable.classType(classAST.getSuperClassName());
+			this.setSuperClassType(TypeTable.classType(classAST.getSuperClassName()));
 			}
 			catch(UndefinedClassException e)
 			{
 				throw new UndefinedSuperClassException("undefined super class");
 			}
 		}
+	}
+
+	public Type getSuperClassType() {
+		return superClassType;
+	}
+
+	public void setSuperClassType(Type superClassType) {
+		this.superClassType = (ClassType) superClassType;
 	}
 	
 	@Override
