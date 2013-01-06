@@ -1,10 +1,13 @@
 package Visitors;
 
+import java.util.List;
+
 import IC.BinaryOps;
 import IC.UnaryOps;
 import IC.AST.ArrayLocation;
 import IC.AST.Assignment;
 import IC.AST.Break;
+import IC.AST.Call;
 import IC.AST.CallStatement;
 import IC.AST.Continue;
 import IC.AST.Expression;
@@ -37,12 +40,25 @@ import IC.AST.VirtualMethod;
 import IC.AST.Visitor;
 import IC.AST.While;
 import IC.Parser.SemanticError;
+import SymbolTable.ISymbolTable;
+import SymbolTable.ISymbolTableOperations;
+import Types.ArrayType;
+import Types.ClassType;
+import Types.IntType;
+import Types.MethodType;
 import Types.Type;
 import Types.TypeAdapter;
 import Types.TypeTable;
 
 public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
+	private final ISymbolTableOperations symTableOps;
+	
+	public TypeEvaluator(ISymbolTableOperations symTableOps)
+	{
+		this.symTableOps = symTableOps;
+	}
+	
 	@Override
 	public Object visit(Program program) throws SemanticError {
 		return null;
@@ -55,128 +71,165 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(Field field) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object visit(VirtualMethod method) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object visit(StaticMethod method) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object visit(LibraryMethod method) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object visit(Formal formal) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object visit(PrimitiveType type) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object visit(UserType type) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object visit(Assignment assignment) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object visit(CallStatement callStatement) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object visit(Return returnStatement) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object visit(If ifStatement) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object visit(While whileStatement) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object visit(Break breakStatement) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object visit(Continue continueStatement) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object visit(StatementsBlock statementsBlock) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object visit(LocalVariable localVariable) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object visit(VariableLocation location) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
+		ISymbolTable environment = null;
+		
+		if(location.getLocation()==null)
+			environment = symTableOps.findSymbolTable(location);
+		else
+		{
+			Type locationType = this.evaluateExpressionType(location.getLocation());
+			if(!(locationType instanceof ClassType))
+				throw new SemanticError("Expected class type before virtual call");
+			
+			environment = symTableOps.findClassEnvironment(locationType.getName());
+		}
+			
+		return environment.lookup(location.getName());
 	}
 
 	@Override
 	public Object visit(ArrayLocation location) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
+		Type arrayType = this.evaluateExpressionType(location.getArray());
+		Type indexType = this.evaluateExpressionType(location.getIndex());
+		
+		if(!(arrayType instanceof ArrayType))
+			throw new SemanticError("Expected an array type");
+		if(!(indexType instanceof IntType))
+			throw new SemanticError("Expected an integer for index");
+		
+		return ((ArrayType)arrayType).getElemType();
 	}
 
 	@Override
 	public Object visit(StaticCall call) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
+		ISymbolTable classEnvironment = symTableOps.findClassEnvironment(call.getClassName());
+
+		return handleCallVisit(classEnvironment, call);
 	}
 
 	@Override
 	public Object visit(VirtualCall call) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
+		ISymbolTable environment = null;
+		
+		if(call.getLocation()==null)
+			environment = symTableOps.findSymbolTable(call);
+		else
+		{
+			Type locationType = this.evaluateExpressionType(call.getLocation());
+			if(!(locationType instanceof ClassType))
+				throw new SemanticError("Expected class type before virtual call");
+			
+			environment = symTableOps.findClassEnvironment(locationType.getName());
+		}
+		
+		return handleCallVisit(environment, call);
+	}
+	
+	private Object handleCallVisit(ISymbolTable environment, Call call) throws SemanticError
+	{
+		Type type = environment.lookup(call.getName()).getIdType();
+		
+		if(!(type instanceof MethodType))
+			throw new SemanticError("Expected method type");
+		
+		MethodType methodType = (MethodType) type;
+		Type[] paramTypes = methodType.getParamTypes();
+		List<Expression> methodArgs = call.getArguments();
+		
+		if(paramTypes.length != methodArgs.size())
+			throw new SemanticError("Unexpected number of arguments in static call");
+		
+		for(int i=0; i<paramTypes.length; i++)
+			if(!paramTypes[i].equals(this.evaluateExpressionType(methodArgs.get(i))))
+				throw new SemanticError("Unexpected argument type in static call. Arg number " + i);
+		
+		return methodType.getReturnType();
 	}
 
 	@Override
 	public Object visit(This thisExpression) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
+		String thisClassName = symTableOps.findClassNameOfThis(thisExpression);
+		return TypeTable.classType(thisClassName);
 	}
 
 	@Override
@@ -186,6 +239,8 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(NewArray newArray) throws SemanticError {
+		if(!(this.evaluateExpressionType(newArray.getSize()) instanceof IntType))
+			throw new SemanticError("Expected integer for array size");
 		return TypeTable.arrayType(TypeAdapter.adaptType(newArray.getType()));
 	}
 
