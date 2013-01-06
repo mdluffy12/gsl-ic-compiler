@@ -4,7 +4,7 @@ import IC.AST.ICClass;
 
 public class ClassType extends Type {
 	
-	private Type superClassType;
+	private ClassType superClassType = null;
 
 	public ClassType(ICClass classAST) throws UndefinedSuperClassException {
 		super(classAST.getName());
@@ -20,6 +20,20 @@ public class ClassType extends Type {
 				throw new UndefinedSuperClassException();
 			}
 		}
+	}
+	
+	@Override
+	public boolean subTypeOf(Type otherType)
+	{
+		ClassType ancestorClassType = this;
+		while(ancestorClassType != null)
+		{
+			if(ancestorClassType.equals(otherType))
+				return true;
+			ancestorClassType = ancestorClassType.superClassType;
+		}
+		
+		return false;
 	}
 	
 	
