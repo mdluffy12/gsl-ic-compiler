@@ -1,5 +1,17 @@
 package Types;
 
-public class UndefinedSuperClassException extends Exception {
+import IC.Parser.SemanticError;
+
+public class UndefinedSuperClassException extends SemanticError {
+
+	public UndefinedSuperClassException(String err_msg) {
+		super(err_msg);
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7776250715027337240L;
 	//This exception is thrown when a class is defined before it's super class (or its super class isn't defined at all)
 }

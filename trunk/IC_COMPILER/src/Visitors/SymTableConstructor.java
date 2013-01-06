@@ -49,6 +49,7 @@ import SymbolTable.Symbol;
 import SymbolTable.Symbol.SymbolKind;
 import SymbolTable.SymbolTable;
 import SymbolTable.SymbolTable.TableType;
+import Types.TypeTable;
 
 /**
  * SymTableConstructor constructs an hierarchy of symbol tables where the
@@ -181,6 +182,9 @@ public class SymTableConstructor implements Visitor {
 		Symbol super_class_symbol = null;
 		ClassSymbol classSymbol = null;
 
+		//Initialize TypeTable
+		TypeTable.initialize(program);
+		
 		// create global symbol table
 		SymbolTable global_table = new SymbolTable(file_name, TableType._global);
 

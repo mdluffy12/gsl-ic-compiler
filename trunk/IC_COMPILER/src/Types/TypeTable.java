@@ -65,7 +65,7 @@ public class TypeTable {
 		
 		Types.Type[] methodParams = new Types.Type[method.getFormals().size()];
 		for(int i=0; i<methodParams.length; i++)
-			methodParams[i] = TypeAdapter.adaptType(method.getFormals().get(i));
+			methodParams[i] = TypeAdapter.adaptType(method.getFormals().get(i).getType());
 			
 		MethodType methodType = new MethodType(methodParams, TypeAdapter.adaptType(method.getType()));
 		TypeTable.uniqueMethodTypes.add(methodType);
