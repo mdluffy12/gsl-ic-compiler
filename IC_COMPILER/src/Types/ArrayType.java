@@ -2,17 +2,39 @@ package Types;
 
 public class ArrayType extends Type {
 	
-	Type elemType;
+ 
+private Type elemType;
+ 
 	
 	public ArrayType(Type elemType) {
 		super("array of " + elemType.getName());
-		this.elemType = elemType;
+ 
+		this.setElemType(elemType);
 	}
 
-	/**
-	 * @return the elemType
-	 */
 	public Type getElemType() {
-		return this.elemType;
+		return elemType;
 	}
+
+	public void setElemType(Type elemType) {
+		this.elemType = elemType;
+	}
+ 
+	
+    @Override
+	public String toString(){
+
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append(getElemType().toString() + " ");
+		return null;
+		
+		/*
+		int currDim = getDimension();
+		while (currDim > 0) {
+			sb.append("[]");
+		}
+		return sb.toString(); */
+	}
+ 
 }

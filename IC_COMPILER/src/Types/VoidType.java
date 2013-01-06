@@ -3,7 +3,7 @@ package Types;
 public class VoidType extends Type {
 	
 	public VoidType(){
-		super("void");
+		super("Void");
 	}
 	
 	@Override
@@ -11,4 +11,5 @@ public class VoidType extends Type {
 	{
 		return false;
 	}
+ 
 }

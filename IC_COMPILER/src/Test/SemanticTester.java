@@ -51,11 +51,11 @@ public class SemanticTester extends GenTester {
 
 	private void createSymbolTableFile(File file) {
 		String inputFilePath = file.getAbsolutePath();
-
+		String errFilePath = null;
+		String errStr = null;
 		try {
 			String outputFilePath = file.getCanonicalPath() + mySuffix;
-
-			FileUtils.OverrideFile(outputFilePath);
+			errFilePath = file.getCanonicalPath() + ".err.txt";
 
 			this.setOutputFile(new File(outputFilePath));
 
@@ -73,17 +73,26 @@ public class SemanticTester extends GenTester {
 
 			// parser.getRoot().accept(semanticChecks);
 
+			FileUtils.OverrideFile(outputFilePath);
+
 			Tprint("\n", ot);
 			Tprint(rootTable.toString(), ot);
 
 		} catch (LexicalError lexicalErr) {
-			Tprint(lexicalErr.toString(), ot);
+			errStr = lexicalErr.toString();
 		} catch (SyntaxError syntaxErr) {
-			Tprint(syntaxErr.toString(), ot);
+			errStr = syntaxErr.toString();
 		} catch (SemanticError semanticErr) {
-			Tprint(semanticErr.toString(), ot);
+			errStr = semanticErr.toString();
+
 		} catch (Exception e) {
-			System.out.println("error creating table" + e.toString());
+			errStr = "error creating table" + e.toString();
+		} finally {
+			this.setOutputFile(new File(errFilePath));
+			if (errStr != null && errStr.length() > 0) {
+				Tprint(errStr, ot);
+			}
+
 		}
 
 	}

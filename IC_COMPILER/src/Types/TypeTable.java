@@ -62,8 +62,8 @@ public class TypeTable {
 			if(methodType.equals(method))
 				return methodType;
 		
-		
 		Types.Type[] methodParams = new Types.Type[method.getFormals().size()];
+		
 		for(int i=0; i<methodParams.length; i++)
 			methodParams[i] = TypeAdapter.adaptType(method.getFormals().get(i).getType());
 			

@@ -7,4 +7,6 @@ public class BoolType extends Type {
 		super("boolean");
 	}
 	
+ 
+	
 }

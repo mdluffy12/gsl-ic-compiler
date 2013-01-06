@@ -5,6 +5,8 @@ import IC.Parser.SemanticError;
 /**
  * Variable reference AST node.
  * 
+ * For Example: the variable 'a' in f(a); this.a = 2;
+ * 
  * @author Tovi Almozlino
  */
 public class VariableLocation extends Location {

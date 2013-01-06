@@ -8,7 +8,6 @@ import IC.AST.Formal;
 import IC.AST.ICClass;
 import IC.AST.LocalVariable;
 import IC.AST.Method;
-import IC.AST.This;
 import IC.AST.Type;
 import IC.Parser.SemanticError;
 import SymbolTable.ISymbolTable;
@@ -17,7 +16,6 @@ import SymbolTable.Symbol;
 import SymbolTable.Symbol.SymbolKind;
 import SymbolTable.SymbolTable;
 import Types.TypeAdapter;
-import Types.UndefinedClassException;
 
 /**
  * SymTableUtils handles all functional utilities regarding the symbol table
@@ -181,19 +179,20 @@ public class SymTableUtils implements ISymbolTableOperations {
 		return localVarSymbol != null;
 	}
 
-	@Override
-	public SymbolTable findSymbolTable(ASTNode node) {
-		return node.getEnclosingScope();
-	}
-
 	/*
 	 * -------------------------------------------------------------------
 	 * ---------------------------- type Utils --------------------------
 	 * -------------------------------------------------------------------
 	 */
 
-	public static Types.Type getNodeType(ASTNode node) throws UndefinedClassException {
-		return TypeAdapter.adaptType(node);
+	public static Types.Type getNodeType(ASTNode node) {
+		Types.Type type = null;
+		try {
+			type = TypeAdapter.adaptType(node);
+		} catch (Exception e) {
+			// System.out.println(e);
+		}
+		return type;
 	}
 
 	/*
@@ -207,15 +206,33 @@ public class SymTableUtils implements ISymbolTableOperations {
 	}
 
 	@Override
-	public ISymbolTable findClassEnvironment(String className) {
-		// TODO Auto-generated method stub
-		return null;
+	public SymbolTable findSymbolTable(ASTNode node) {
+		return node.getEnclosingScope();
 	}
 
 	@Override
-	public String findClassNameOfThis(This thisExpression) {
-		// TODO Auto-generated method stub
-		return null;
+	public SymbolTable findClassEnvironment(ISymbolTable currentScope, String name) {
+
+		// search name in current symbol table path to root
+		Symbol symbol = currentScope.lookup(name);
+
+		if (symbol == null)
+			return null;
+
+		return symbol.getSymbolTable();
+
+	}
+
+	@Override
+	public String findClassName(ASTNode node) {
+
+		// get current scope
+		SymbolTable currentScope = node.getEnclosingScope();
+
+		// get class in which the node was defined
+		Symbol classSymbol = currentScope.getClassParent();
+
+		return classSymbol.getIdName();
 	}
 
 }
