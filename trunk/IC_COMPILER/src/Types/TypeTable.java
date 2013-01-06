@@ -18,29 +18,34 @@ public class TypeTable {
 	public static Type stringType = new StringType();
 	public static Type voidType = new VoidType();
 	public static Type nullType = new NullType();
-	
 
-	public static void initialize(Program program) throws UndefinedSuperClassException {
+	public static void initialize(Program program)
+			throws UndefinedSuperClassException {
 		// Initializes the TypeTable by adding uniqueClassTypes by going over
 		// top of AST
 
-		for(ICClass icClass : program.getClasses())
-			addClassType(icClass);		
+		for (ICClass icClass : program.getClasses())
+			addClassType(icClass);
 	}
 
 	public static ArrayType arrayType(Type elemType) {
+
+		ArrayType arrType = null;
+
 		if (uniqueArrayTypes.containsKey(elemType)) {
 			// array type obj already created - we'll return it
 			return uniqueArrayTypes.get(elemType);
 		} else {
 			// array type doesn't exist - create and return it
-			ArrayType arrType = new ArrayType(elemType);
+			// TODO : micha asks : what about dimension here? Am I missing something?
+			arrType = new ArrayType(elemType);
 			uniqueArrayTypes.put(elemType, arrType);
 			return arrType;
 		}
 	}
 
-	public static ClassType classType(String name) throws UndefinedClassException {
+	public static ClassType classType(String name)
+			throws UndefinedClassException {
 		if (uniqueClassTypes.containsKey(name)) {
 			// class type obj already created - we'll return it
 			return uniqueClassTypes.get(name);
@@ -50,24 +55,26 @@ public class TypeTable {
 		}
 	}
 
-	private static void addClassType(ICClass icClass)  throws UndefinedSuperClassException
-	{
+	private static void addClassType(ICClass icClass)
+			throws UndefinedSuperClassException {
 		ClassType classType = new ClassType(icClass);
 		uniqueClassTypes.put(classType.getName(), classType);
 	}
-	
-	public static MethodType methodType(IC.AST.Method method) throws UndefinedClassException 
-	{
-		for(Types.MethodType methodType : TypeTable.uniqueMethodTypes)
-			if(methodType.equals(method))
+
+	public static MethodType methodType(IC.AST.Method method)
+			throws UndefinedClassException {
+		for (Types.MethodType methodType : TypeTable.uniqueMethodTypes)
+			if (methodType.equals(method))
 				return methodType;
-		
+
 		Types.Type[] methodParams = new Types.Type[method.getFormals().size()];
-		
-		for(int i=0; i<methodParams.length; i++)
-			methodParams[i] = TypeAdapter.adaptType(method.getFormals().get(i).getType());
-			
-		MethodType methodType = new MethodType(methodParams, TypeAdapter.adaptType(method.getType()));
+
+		for (int i = 0; i < methodParams.length; i++)
+			methodParams[i] = TypeAdapter.adaptType(method.getFormals().get(i)
+					.getType());
+
+		MethodType methodType = new MethodType(methodParams,
+				TypeAdapter.adaptType(method.getType()));
 		TypeTable.uniqueMethodTypes.add(methodType);
 		return methodType;
 	}

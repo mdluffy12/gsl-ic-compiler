@@ -5,7 +5,9 @@ import java.util.Comparator;
 import IC.AST.ASTNode;
 
 /**
- * TODO add info
+ * Symbol represents an entry to the symbol table 
+ * 
+ * @author Micha
  */
 public class Symbol {
 

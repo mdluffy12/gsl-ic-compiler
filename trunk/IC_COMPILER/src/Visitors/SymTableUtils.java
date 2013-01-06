@@ -10,7 +10,7 @@ import IC.AST.LocalVariable;
 import IC.AST.Method;
 import IC.AST.Type;
 import IC.Parser.SemanticError;
-import SymbolTable.ISymbolTable;
+import SymbolTable.ClassSymbol;
 import SymbolTable.ISymbolTableOperations;
 import SymbolTable.Symbol;
 import SymbolTable.Symbol.SymbolKind;
@@ -21,7 +21,7 @@ import Types.TypeAdapter;
  * SymTableUtils handles all functional utilities regarding the symbol table
  * construction and usage
  * 
- * @author micha
+ * @author Micha
  */
 public class SymTableUtils implements ISymbolTableOperations {
 
@@ -211,15 +211,21 @@ public class SymTableUtils implements ISymbolTableOperations {
 	}
 
 	@Override
-	public SymbolTable findClassEnvironment(ISymbolTable currentScope, String name) {
+	public SymbolTable findClassEnvironment(String className) {
 
-		// search name in current symbol table path to root
-		Symbol symbol = currentScope.lookup(name);
-
-		if (symbol == null)
+		// get global table
+		SymbolTable globalTable = SymbolTable.getRoot();
+		
+		// get class symbol
+		ClassSymbol classSymbol = (ClassSymbol) globalTable.localLookup(className);
+		
+		if(classSymbol == null){
+			// class not found!
 			return null;
-
-		return symbol.getSymbolTable();
+		}
+		
+		// get referenced class table
+		return classSymbol.getClassTable();
 
 	}
 
