@@ -309,7 +309,7 @@ public class SymTableConstructor implements Visitor {
 			field.accept(this);
 
 			// resolve field type
-			Types.Type fieldType = SymTableUtils.getNodeType(field);
+			Types.Type fieldType = SymTableUtils.getNodeType(field.getType());
 
 			// add field to class table
 			class_symbol_table.addSymbol(new Symbol(field.getName(),
@@ -384,7 +384,7 @@ public class SymTableConstructor implements Visitor {
 			}
 
 			// resolve parameter type
-			Types.Type paramType = SymTableUtils.getNodeType(param);
+			Types.Type paramType = SymTableUtils.getNodeType(param.getType());
 
 			// add parameter to method symbol table
 			method_symbol_table.addSymbol(new Symbol(param.getName(),
@@ -477,7 +477,7 @@ public class SymTableConstructor implements Visitor {
 		}
 
 		// resolve parameter type
-		Types.Type localVarType = SymTableUtils.getNodeType(localVariable);
+		Types.Type localVarType = SymTableUtils.getNodeType(localVariable.getType());
 
 		// add local variable symbol to variable scope table
 		localVarScope.addSymbol(new Symbol(localVariable.getName(),

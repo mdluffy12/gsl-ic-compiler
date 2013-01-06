@@ -1,6 +1,5 @@
 package Types;
 
-import IC.AST.UserType;
 
 public class TypeAdapter {
 	
@@ -9,7 +8,7 @@ public class TypeAdapter {
 	{
 		if(astNode instanceof IC.AST.ICClass)
 			return null; //No need for type checking for ICClass objects!
-		else if(astNode instanceof UserType)
+		else if(astNode instanceof IC.AST.UserType)
 		{
 			IC.AST.UserType uType = (IC.AST.UserType) astNode;
 			

@@ -1,10 +1,13 @@
 package Visitors;
 
+import IC.BinaryOps;
+import IC.UnaryOps;
 import IC.AST.ArrayLocation;
 import IC.AST.Assignment;
 import IC.AST.Break;
 import IC.AST.CallStatement;
 import IC.AST.Continue;
+import IC.AST.Expression;
 import IC.AST.ExpressionBlock;
 import IC.AST.Field;
 import IC.AST.Formal;
@@ -34,34 +37,19 @@ import IC.AST.VirtualMethod;
 import IC.AST.Visitor;
 import IC.AST.While;
 import IC.Parser.SemanticError;
-import SymbolTable.SymbolTable;
+import Types.Type;
+import Types.TypeAdapter;
+import Types.TypeTable;
 
-public class SemanticChecks implements Visitor {
-
-	private static SymTableUtils symTableUtils;
-
-	public SemanticChecks() {
-		symTableUtils = new SymTableUtils();
-	}
+public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(Program program) throws SemanticError {
-		for (ICClass icClass : program.getClasses()) {
-			icClass.accept(this);
-		}
 		return null;
 	}
 
 	@Override
 	public Object visit(ICClass icClass) throws SemanticError {
-
-		// just an example of findSymbolTable usage
-		SymbolTable classScope = symTableUtils.findSymbolTable(icClass);
-
-		if (classScope.lookup(icClass.getName()) == null) {
-			System.out.println("something is wrong");
-		}
-
 		return null;
 	}
 
@@ -109,15 +97,8 @@ public class SemanticChecks implements Visitor {
 
 	@Override
 	public Object visit(Assignment assignment) throws SemanticError {
-		Location loc = assignment.getVariable();
-		Expression assgn = assignment.getAssignment();
-		
-		Types.Type locType = SymTableUtils.getNodeType(loc);
-		Types.Type assgnType = TTTT.visit(assgn);
-		if(!locType.subTypeOf(assgnType))
-			return false;
-		else
-			return true;
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
@@ -200,56 +181,130 @@ public class SemanticChecks implements Visitor {
 
 	@Override
 	public Object visit(NewClass newClass) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
+		return TypeTable.classType(newClass.getName());
 	}
 
 	@Override
 	public Object visit(NewArray newArray) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
+		return TypeTable.arrayType(TypeAdapter.adaptType(newArray.getType()));
 	}
 
 	@Override
 	public Object visit(Length length) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
+		return TypeTable.intType;
 	}
 
 	@Override
 	public Object visit(MathBinaryOp binaryOp) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
+		Type firstOperandType = this.evaluateExpressionType(binaryOp.getFirstOperand());
+		Type secondOperandType = this.evaluateExpressionType(binaryOp.getSecondOperand());
+		BinaryOps op = binaryOp.getOperator();
+		
+		if(op!=BinaryOps.PLUS && op!=BinaryOps.MINUS && op!=BinaryOps.DIVIDE && op!=BinaryOps.MULTIPLY && op!=BinaryOps.MOD)
+			throw new SemanticError("Expected math operation");
+		
+		if(firstOperandType.equals(TypeTable.stringType) && secondOperandType.equals(TypeTable.stringType))
+		{
+			if(op==BinaryOps.PLUS)
+				return TypeTable.stringType;
+			else
+				throw new SemanticError("Expected a plus operation between two strings");
+		}
+		else
+		{
+			if(firstOperandType != TypeTable.intType || secondOperandType != TypeTable.intType)
+				throw new SemanticError("Expected integers in math binary op");
+			return TypeTable.intType;
+		}
 	}
 
 	@Override
 	public Object visit(LogicalBinaryOp binaryOp) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
+		Type firstOperandType = this.evaluateExpressionType(binaryOp.getFirstOperand());
+		Type secondOperandType = this.evaluateExpressionType(binaryOp.getSecondOperand());
+		BinaryOps op = binaryOp.getOperator();
+		
+		if(op==BinaryOps.PLUS && op==BinaryOps.MINUS && op==BinaryOps.DIVIDE && op==BinaryOps.MULTIPLY && op==BinaryOps.MOD)
+			throw new SemanticError("Expected logical operation");
+		
+		if(op==BinaryOps.EQUAL || op==BinaryOps.NEQUAL)
+		{
+			if(firstOperandType.subTypeOf(secondOperandType) || secondOperandType.subTypeOf(firstOperandType))
+				return TypeTable.boolType;
+			else
+				throw new SemanticError("Expected inheriting types in equality operation");
+		}
+		else if(op==BinaryOps.GT || op==BinaryOps.GTE || op==BinaryOps.LT || op==BinaryOps.LTE)
+		{
+			if(firstOperandType.equals(TypeTable.intType) && secondOperandType.equals(TypeTable.intType))
+				return TypeTable.boolType;
+			else
+				throw new SemanticError("Expected int types in inequality operation");
+		}
+		else if(op==BinaryOps.LAND || op==BinaryOps.LOR)
+		{
+			if(firstOperandType.equals(TypeTable.boolType) && secondOperandType.equals(TypeTable.boolType))
+				return TypeTable.boolType;
+			else
+				throw new SemanticError("Expected bool types in and/or operation");
+		}
+		else
+			throw new SemanticError("Unexpected binary operation");
 	}
 
 	@Override
 	public Object visit(MathUnaryOp unaryOp) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
+		Type operandType = this.evaluateExpressionType(unaryOp.getOperand());
+		UnaryOps op = unaryOp.getOperator();
+		
+		if(op!=UnaryOps.UMINUS)
+			throw new SemanticError("Unexpected unary op");
+		else if(!operandType.equals(TypeTable.intType))
+			throw new SemanticError("Expected int type in unary minus op");
+		else
+			return TypeTable.intType;
 	}
 
 	@Override
 	public Object visit(LogicalUnaryOp unaryOp) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
+		Type operandType = this.evaluateExpressionType(unaryOp.getOperand());
+		UnaryOps op = unaryOp.getOperator();
+		
+		if(op!=UnaryOps.LNEG)
+			throw new SemanticError("Unexpected unary op");
+		else if(!operandType.equals(TypeTable.boolType))
+			throw new SemanticError("Expected bool type in unary negation op");
+		else
+			return TypeTable.boolType;
 	}
 
 	@Override
 	public Object visit(Literal literal) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
+		switch(literal.getType())
+		{
+		case INTEGER:
+			return TypeTable.intType;
+		case STRING:
+			return TypeTable.stringType;
+		case TRUE:
+			return TypeTable.boolType;
+		case FALSE:
+			return TypeTable.boolType;
+		case NULL:
+			return TypeTable.nullType;
+		default:
+			throw new SemanticError("Unexpected literal type!");
+		}
 	}
 
 	@Override
 	public Object visit(ExpressionBlock expressionBlock) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
+		return this.evaluateExpressionType(expressionBlock.getExpression());
+	}
+
+	@Override
+	public Type evaluateExpressionType(Expression exp) throws SemanticError {
+		return (Type)exp.accept(this);
 	}
 
 }
