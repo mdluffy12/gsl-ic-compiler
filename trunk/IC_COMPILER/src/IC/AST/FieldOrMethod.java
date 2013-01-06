@@ -1,7 +1,7 @@
-/* Created By Micha Sherman,Tzvika Geft and Rani Lichtman 
+/**
+ * Created By Micha Sherman,Tzvika Geft and Rani Lichtman 
  * Compilation course, University of Tel Aviv 2012 ©   
  */
-
 package IC.AST;
 
 /**
@@ -9,6 +9,7 @@ package IC.AST;
  * or a single method. This is not a part of the AST by itself ( FieldOrMethod
  * is NOT an ASTNode!)
  * 
+ * @author Micha
  */
 public class FieldOrMethod {
 

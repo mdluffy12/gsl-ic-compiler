@@ -120,29 +120,29 @@ public class ICClass extends ASTNode {
 
 	}
 
-	@Override
-	public String toString() {
-
-		if (getFields() == null && getMethods() == null) {
-			return "\nclassID = " + getName();
-		} else if (!(getFields() == null) && getMethods() == null) {
-			return "\nclassID = " + getName() + "\nfields = " + getFields();
-		} else if (getFields() == null && !(getMethods() == null)) {
-			return "\nclassID = " + getName() + "\nmethods = " + getMethods();
-		} else if (!(getFields() == null) && !(getMethods() == null)) {
-			return "\nclassID = " + getName() + "\nfields = " + getFields()
-					+ "\nmethods = " + getMethods();
-		}
-
-		return "";
-
-	}
-
 	/**
 	 * @return true iff class represents a library class
 	 */
 	public boolean isLibrary() {
 		return this.getName().equals("Library");
+	}
+
+	@Override
+	public String toString() {
+
+		StringBuilder sb = new StringBuilder();
+
+		sb.append(this.getName() + ": \n");
+		for (Field f : this.getFields()) {
+			sb.append("field: " + f.getName() + "\n");
+		}
+
+		for (Method m : this.getMethods()) {
+			sb.append("method: " + m.getName() + "\n");
+		}
+
+		return sb.toString();
+
 	}
 
 }

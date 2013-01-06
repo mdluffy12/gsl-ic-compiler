@@ -1,3 +1,7 @@
+/**
+ * Created By Micha Sherman,Tzvika Geft and Rani Lichtman 
+ * Compilation course, University of Tel Aviv 2012 ©   
+ */
 package Visitors;
 
 import java.util.ArrayList;
@@ -47,12 +51,14 @@ import IC.AST.While;
 import IC.Parser.SemanticError;
 import SymbolTable.Symbol;
 import SymbolTable.SymbolTable;
+import Types.Type;
 
 /**
  * SemanticChecks is responsible for all the semantic checks that could not be
  * performed while constructing the table (for efficiency or technical reasons)
  * 
- * @authors Micha,Roni,Grisha (although Grisha is sitting home doing nothing right now)
+ * @authors Micha,Roni,Grisha (although Grisha is sitting home doing nothing
+ *          right now)
  */
 
 public class SemanticChecks implements Visitor {
@@ -168,11 +174,6 @@ public class SemanticChecks implements Visitor {
 		for (Statement stmt : method.getStatements()) {
 			stmt.accept(this);
 		}
-
-		/*
-		 * System.out.println("initalized vars of : " + method.getName()); for
-		 * (String s : initializedVars.keySet()) { System.out.print(s + " "); }
-		 */
 
 		return method;
 	}
@@ -385,6 +386,7 @@ public class SemanticChecks implements Visitor {
 	@Override
 	public Object visit(VariableLocation location) throws SemanticError {
 
+ 
 		// get variable location
 		Expression varLocation = location.getLocation();
 
@@ -480,6 +482,9 @@ public class SemanticChecks implements Visitor {
 
 		Expression expr = assignment.getAssignment();
 
+		Type type = (Type) expr.accept(typeEvaluator);
+		System.out.println(type.toString());
+
 		location.accept(this);
 
 		expr.accept(this);
@@ -519,13 +524,21 @@ public class SemanticChecks implements Visitor {
 
 		setLocationContext(call);
 
+		
+		Type type = (Type) call.accept(typeEvaluator);
+		System.out.println(type.toString());
+		
+		
 		for (Expression expr : call.getArguments()) {
+ 
 			expr.accept(this);
+
 		}
 
 		if (call.isExternal()) {
 
-			call.getLocation().accept(this);
+			Expression callLocation = call.getLocation();
+			callLocation.accept(this);
 		}
 
 		return null;

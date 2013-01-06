@@ -42,7 +42,7 @@ public class Field extends ASTNode {
 
 	@Override
 	public String toString() {
-		return "<type = " + getType() + ",name = " + getName() + ">";
+		return getType() + " " + getName() ;
 	}
 
 }

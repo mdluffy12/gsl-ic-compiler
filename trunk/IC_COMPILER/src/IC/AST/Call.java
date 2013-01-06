@@ -9,9 +9,9 @@ import java.util.List;
  */
 public abstract class Call extends Expression {
 
-	private String name;
+	private final String name;
 
-	private List<Expression> arguments;
+	private final List<Expression> arguments;
 
 	/**
 	 * Constructs a new method call node. Used by subclasses.
@@ -35,6 +35,11 @@ public abstract class Call extends Expression {
 
 	public List<Expression> getArguments() {
 		return arguments;
+	}
+	
+	@Override
+	public String toString(){
+		return "call to " + name; 
 	}
 
 }

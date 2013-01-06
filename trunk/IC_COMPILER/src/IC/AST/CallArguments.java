@@ -1,7 +1,7 @@
-/* Created By Micha Sherman,Tzvika Geft and Rani Lichtman 
+/**
+ * Created By Micha Sherman,Tzvika Geft and Rani Lichtman 
  * Compilation course, University of Tel Aviv 2012 ©   
  */
-
 package IC.AST;
 
 import java.util.ArrayList;
@@ -9,7 +9,8 @@ import java.util.List;
 
 /**
  * CallArguments represents expression list as an arguments for a function call
- * This is not a part of the AST by itself (CallArguments is NOT an ASTNode!)
+ * This is not a part of the AST by itself (CallArguments is NOT an ASTNode!) 
+ * @author Micha
  */
 
 public class CallArguments {
