@@ -35,25 +35,17 @@ public class VirtualMethod extends Method {
 
 	@Override
 	public String toString() {
-		if (getFormals() == null && getStatements() == null)
-			return "<type = " + super.getType().getName() + "," + "ID = "
-					+ super.getName();
-		else if (getFormals() != null && getStatements() == null) {
-			return "<type = " + super.getType().getName() + "," + "ID = "
-					+ super.getName() + "," + "params = "
-					+ super.getFormals().toString() + ">";
-		} else if (getFormals() == null && getStatements() != null) {
-			return "<type = " + super.getType().getName() + "," + "ID = "
-					+ super.getName() + ">\n<body statments: "
-					+ super.getStatements().toString() + ">";
-		} else if (getFormals() != null && getStatements() != null) {
-			return "<type = " + super.getType().getName() + "," + "ID = "
-					+ super.getName() + "," + "params = "
-					+ super.getFormals().toString() + ">\n<body statments: "
-					+ super.getStatements().toString() + ">";
+		
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append(name + ": \n");
+		
+		for(Formal formal : formals){
+			sb.append("param: " + formal.toString() + "\n");
 		}
-
-		return null;
+		
+		
+		return sb.toString();
 	}
 
 }

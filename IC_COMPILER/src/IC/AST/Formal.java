@@ -42,7 +42,7 @@ public class Formal extends ASTNode {
 
 	@Override
 	public String toString() {
-		return "<type = " + getType().getName() + ",ID = " + getName() + ">";
+		return getType().getName() + " " + name;
 	}
 
 }

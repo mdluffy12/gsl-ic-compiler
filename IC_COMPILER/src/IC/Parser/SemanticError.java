@@ -1,7 +1,7 @@
-/* Created By Micha Sherman,Tzvika Geft and Rani Lichtman 
+/**
+ * Created By Micha Sherman,Tzvika Geft and Rani Lichtman 
  * Compilation course, University of Tel Aviv 2012 ©   
  */
-
 package IC.Parser;
 
 import IC.AST.ASTNode;

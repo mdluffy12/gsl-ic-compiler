@@ -1,7 +1,7 @@
-/* Created By Micha Sherman,Tzvika Geft and Rani Lichtman 
+/**
+ * Created By Micha Sherman,Tzvika Geft and Rani Lichtman 
  * Compilation course, University of Tel Aviv 2012 ©   
  */
-
 package IC.AST;
 
 import java.util.ArrayList;
@@ -11,6 +11,8 @@ import java.util.List;
  * FunctionParameters is an inner definition that represents a function
  * parameter. This is not a part of the AST by itself ( FuntionArguments is NOT
  * an ASTNode!)
+ * 
+ * @author Micha
  */
 
 public class FunctionParameters {
@@ -22,6 +24,7 @@ public class FunctionParameters {
 	 */
 	public FunctionParameters() {
 		this.parameters = new ArrayList<Formal>();
+
 	}
 
 	/**
