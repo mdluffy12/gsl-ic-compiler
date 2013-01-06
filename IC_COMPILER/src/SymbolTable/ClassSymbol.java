@@ -2,6 +2,14 @@ package SymbolTable;
 
 import IC.AST.ASTNode;
 
+/**
+ * ClassSymbol defines a special symbol for a class (to be inserted only to the
+ * global table)
+ * 
+ * ClassSymbol holds a special pointer to it's referenced class
+ * 
+ * @authors Micha
+ */
 public class ClassSymbol extends Symbol {
 
 	private SymbolTable classTable;

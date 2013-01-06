@@ -10,9 +10,11 @@ import java.util.Map;
 import IC.AST.ASTNode;
 
 /**
- * TODO add info
+ * SymbolTable represents a map from a symbol name to a symbol value as well of
+ * an hierarchy of all inherited tables
+ * 
+ * @author Micha
  */
-
 public class SymbolTable implements ISymbolTable {
 
 	/*
@@ -64,34 +66,40 @@ public class SymbolTable implements ISymbolTable {
 	}
 
 	/**
-	 * TODO add info
+	 * map between a symbol name, and it's corresponding value
 	 */
 	private Map<String, Symbol> entries;
 
 	/**
-	 * TODO add info
+	 * symbol id
 	 */
 	private String id;
 
 	/**
-	 * TODO add info
+	 * symbol table parent (always single)
 	 */
 	private SymbolTable parentSymbolTable;
 
 	/**
-	 * TODO add info
+	 * symbol table type (global/class/method/block)
 	 */
 	private TableType table_type;
 
 	/**
-	 * TODO add info
+	 * a list consisting of all table children (can be more then one)
 	 */
 	private List<SymbolTable> childrenTables;
 
 	/**
-	 * TODO add info
+	 * is true iff symbol table is a block symbol table AND is defined within a
+	 * loop (hence in 'while)
 	 */
 	private boolean isLoop;
+
+	/**
+	 * holds the root of all the symbol table 
+	 */
+	private static SymbolTable root;
 
 	/*
 	 * -------------------------------------------------------------------
@@ -457,7 +465,6 @@ public class SymbolTable implements ISymbolTable {
 
 	/**
 	 * @return method symbol of an encapsulated block symbol table
-	 * 
 	 */
 	public Symbol getMethodParent() {
 
@@ -476,7 +483,6 @@ public class SymbolTable implements ISymbolTable {
 
 	/**
 	 * @return class symbol of an encapsulated symbol table
-	 * 
 	 */
 	public Symbol getClassParent() {
 
@@ -491,5 +497,19 @@ public class SymbolTable implements ISymbolTable {
 		}
 
 		return null;
+	}
+
+	/**
+	 * sets root symbol table
+	 */
+	public static void setRoot(SymbolTable rootSymbolTable) {
+		root = rootSymbolTable;
+	}
+
+	/**
+	 * @return root symbol table
+	 */
+	public static SymbolTable getRoot() {
+		return root;
 	}
 }

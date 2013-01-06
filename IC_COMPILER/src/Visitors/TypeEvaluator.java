@@ -50,15 +50,20 @@ import Types.Type;
 import Types.TypeAdapter;
 import Types.TypeTable;
 
+/**
+ * TypeEvaluator used to evaluate expression types and performs some partial
+ * type checking which are relevant to the evaluation
+ * 
+ * @author Roni the KING
+ */
 public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	private final ISymbolTableOperations symTableOps;
-	
-	public TypeEvaluator(ISymbolTableOperations symTableOps)
-	{
+
+	public TypeEvaluator(ISymbolTableOperations symTableOps) {
 		this.symTableOps = symTableOps;
 	}
-	
+
 	@Override
 	public Object visit(Program program) throws SemanticError {
 		return null;
@@ -152,19 +157,21 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 	@Override
 	public Object visit(VariableLocation location) throws SemanticError {
 		ISymbolTable environment = null;
-		
-		if(location.getLocation()==null)
+
+		if (location.getLocation() == null)
 			environment = symTableOps.findSymbolTable(location);
-		else
-		{
-			Type locationType = this.evaluateExpressionType(location.getLocation());
-			if(!(locationType instanceof ClassType))
-				throw new SemanticError("Expected class type before virtual call");
-			
-		 
-			environment = symTableOps.findClassEnvironment(location.getEnclosingScope(),locationType.getName());
+		else {
+			Type locationType = this.evaluateExpressionType(location
+					.getLocation());
+			if (!(locationType instanceof ClassType))
+				throw new SemanticError(
+						"Expected class type before virtual call");
+
+			environment = symTableOps.findClassEnvironment(locationType
+					.getName());
+			// TODO for Roni : check if environment != null
 		}
-			
+
 		return environment.lookup(location.getName());
 	}
 
@@ -172,58 +179,65 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 	public Object visit(ArrayLocation location) throws SemanticError {
 		Type arrayType = this.evaluateExpressionType(location.getArray());
 		Type indexType = this.evaluateExpressionType(location.getIndex());
-		
-		if(!(arrayType instanceof ArrayType))
+
+		if (!(arrayType instanceof ArrayType))
 			throw new SemanticError("Expected an array type");
-		if(!(indexType instanceof IntType))
+		if (!(indexType instanceof IntType))
 			throw new SemanticError("Expected an integer for index");
-		
-		return ((ArrayType)arrayType).getElemType();
+
+		return ((ArrayType) arrayType).getElemType();
 	}
 
 	@Override
 	public Object visit(StaticCall call) throws SemanticError {
-		ISymbolTable classEnvironment = symTableOps.findClassEnvironment(call.getEnclosingScope(),call.getClassName());
-
+		ISymbolTable classEnvironment = symTableOps.findClassEnvironment(call
+				.getClassName());
+		// TODO for Roni : check if classEnvironment != null
 		return handleCallVisit(classEnvironment, call);
 	}
 
 	@Override
 	public Object visit(VirtualCall call) throws SemanticError {
 		ISymbolTable environment = null;
-		
-		if(call.getLocation()==null)
+
+		if (call.getLocation() == null)
 			environment = symTableOps.findSymbolTable(call);
-		else
-		{
+		else {
 			Type locationType = this.evaluateExpressionType(call.getLocation());
-			if(!(locationType instanceof ClassType))
-				throw new SemanticError("Expected class type before virtual call");
-			
-			environment = symTableOps.findClassEnvironment(call.getEnclosingScope(),locationType.getName());
+			if (!(locationType instanceof ClassType))
+				throw new SemanticError(
+						"Expected class type before virtual call");
+
+			environment = symTableOps.findClassEnvironment(locationType
+					.getName());
+			// TODO for Roni : check if environment != null
 		}
-		
+
 		return handleCallVisit(environment, call);
 	}
-	
-	private Object handleCallVisit(ISymbolTable environment, Call call) throws SemanticError
-	{
+
+	private Object handleCallVisit(ISymbolTable environment, Call call)
+			throws SemanticError {
 		Type type = environment.lookup(call.getName()).getIdType();
-		
-		if(!(type instanceof MethodType))
+
+		if (!(type instanceof MethodType))
 			throw new SemanticError("Expected method type");
-		
+
 		MethodType methodType = (MethodType) type;
 		Type[] paramTypes = methodType.getParamTypes();
 		List<Expression> methodArgs = call.getArguments();
-		
-		if(paramTypes.length != methodArgs.size())
-			throw new SemanticError("Unexpected number of arguments in static call");
-		
-		for(int i=0; i<paramTypes.length; i++)
-			if(!paramTypes[i].equals(this.evaluateExpressionType(methodArgs.get(i))))
-				throw new SemanticError("Unexpected argument type in static call. Arg number " + i);
-		
+
+		if (paramTypes.length != methodArgs.size())
+			throw new SemanticError(
+					"Unexpected number of arguments in static call");
+
+		for (int i = 0; i < paramTypes.length; i++)
+			if (!paramTypes[i].equals(this.evaluateExpressionType(methodArgs
+					.get(i))))
+				throw new SemanticError(
+						"Unexpected argument type in static call. Arg number "
+								+ i);
+
 		return methodType.getReturnType();
 	}
 
@@ -240,7 +254,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(NewArray newArray) throws SemanticError {
-		if(!(this.evaluateExpressionType(newArray.getSize()) instanceof IntType))
+		if (!(this.evaluateExpressionType(newArray.getSize()) instanceof IntType))
 			throw new SemanticError("Expected integer for array size");
 		return TypeTable.arrayType(TypeAdapter.adaptType(newArray.getType()));
 	}
@@ -252,23 +266,27 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(MathBinaryOp binaryOp) throws SemanticError {
-		Type firstOperandType = this.evaluateExpressionType(binaryOp.getFirstOperand());
-		Type secondOperandType = this.evaluateExpressionType(binaryOp.getSecondOperand());
+		Type firstOperandType = this.evaluateExpressionType(binaryOp
+				.getFirstOperand());
+		Type secondOperandType = this.evaluateExpressionType(binaryOp
+				.getSecondOperand());
 		BinaryOps op = binaryOp.getOperator();
-		
-		if(op!=BinaryOps.PLUS && op!=BinaryOps.MINUS && op!=BinaryOps.DIVIDE && op!=BinaryOps.MULTIPLY && op!=BinaryOps.MOD)
+
+		if (op != BinaryOps.PLUS && op != BinaryOps.MINUS
+				&& op != BinaryOps.DIVIDE && op != BinaryOps.MULTIPLY
+				&& op != BinaryOps.MOD)
 			throw new SemanticError("Expected math operation");
-		
-		if(firstOperandType.equals(TypeTable.stringType) && secondOperandType.equals(TypeTable.stringType))
-		{
-			if(op==BinaryOps.PLUS)
+
+		if (firstOperandType.equals(TypeTable.stringType)
+				&& secondOperandType.equals(TypeTable.stringType)) {
+			if (op == BinaryOps.PLUS)
 				return TypeTable.stringType;
 			else
-				throw new SemanticError("Expected a plus operation between two strings");
-		}
-		else
-		{
-			if(firstOperandType != TypeTable.intType || secondOperandType != TypeTable.intType)
+				throw new SemanticError(
+						"Expected a plus operation between two strings");
+		} else {
+			if (firstOperandType != TypeTable.intType
+					|| secondOperandType != TypeTable.intType)
 				throw new SemanticError("Expected integers in math binary op");
 			return TypeTable.intType;
 		}
@@ -276,35 +294,40 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(LogicalBinaryOp binaryOp) throws SemanticError {
-		Type firstOperandType = this.evaluateExpressionType(binaryOp.getFirstOperand());
-		Type secondOperandType = this.evaluateExpressionType(binaryOp.getSecondOperand());
+		Type firstOperandType = this.evaluateExpressionType(binaryOp
+				.getFirstOperand());
+		Type secondOperandType = this.evaluateExpressionType(binaryOp
+				.getSecondOperand());
 		BinaryOps op = binaryOp.getOperator();
-		
-		if(op==BinaryOps.PLUS && op==BinaryOps.MINUS && op==BinaryOps.DIVIDE && op==BinaryOps.MULTIPLY && op==BinaryOps.MOD)
+
+		if (op == BinaryOps.PLUS && op == BinaryOps.MINUS
+				&& op == BinaryOps.DIVIDE && op == BinaryOps.MULTIPLY
+				&& op == BinaryOps.MOD)
 			throw new SemanticError("Expected logical operation");
-		
-		if(op==BinaryOps.EQUAL || op==BinaryOps.NEQUAL)
-		{
-			if(firstOperandType.subTypeOf(secondOperandType) || secondOperandType.subTypeOf(firstOperandType))
+
+		if (op == BinaryOps.EQUAL || op == BinaryOps.NEQUAL) {
+			if (firstOperandType.subTypeOf(secondOperandType)
+					|| secondOperandType.subTypeOf(firstOperandType))
 				return TypeTable.boolType;
 			else
-				throw new SemanticError("Expected inheriting types in equality operation");
-		}
-		else if(op==BinaryOps.GT || op==BinaryOps.GTE || op==BinaryOps.LT || op==BinaryOps.LTE)
-		{
-			if(firstOperandType.equals(TypeTable.intType) && secondOperandType.equals(TypeTable.intType))
+				throw new SemanticError(
+						"Expected inheriting types in equality operation");
+		} else if (op == BinaryOps.GT || op == BinaryOps.GTE
+				|| op == BinaryOps.LT || op == BinaryOps.LTE) {
+			if (firstOperandType.equals(TypeTable.intType)
+					&& secondOperandType.equals(TypeTable.intType))
 				return TypeTable.boolType;
 			else
-				throw new SemanticError("Expected int types in inequality operation");
-		}
-		else if(op==BinaryOps.LAND || op==BinaryOps.LOR)
-		{
-			if(firstOperandType.equals(TypeTable.boolType) && secondOperandType.equals(TypeTable.boolType))
+				throw new SemanticError(
+						"Expected int types in inequality operation");
+		} else if (op == BinaryOps.LAND || op == BinaryOps.LOR) {
+			if (firstOperandType.equals(TypeTable.boolType)
+					&& secondOperandType.equals(TypeTable.boolType))
 				return TypeTable.boolType;
 			else
-				throw new SemanticError("Expected bool types in and/or operation");
-		}
-		else
+				throw new SemanticError(
+						"Expected bool types in and/or operation");
+		} else
 			throw new SemanticError("Unexpected binary operation");
 	}
 
@@ -312,10 +335,10 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 	public Object visit(MathUnaryOp unaryOp) throws SemanticError {
 		Type operandType = this.evaluateExpressionType(unaryOp.getOperand());
 		UnaryOps op = unaryOp.getOperator();
-		
-		if(op!=UnaryOps.UMINUS)
+
+		if (op != UnaryOps.UMINUS)
 			throw new SemanticError("Unexpected unary op");
-		else if(!operandType.equals(TypeTable.intType))
+		else if (!operandType.equals(TypeTable.intType))
 			throw new SemanticError("Expected int type in unary minus op");
 		else
 			return TypeTable.intType;
@@ -325,10 +348,10 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 	public Object visit(LogicalUnaryOp unaryOp) throws SemanticError {
 		Type operandType = this.evaluateExpressionType(unaryOp.getOperand());
 		UnaryOps op = unaryOp.getOperator();
-		
-		if(op!=UnaryOps.LNEG)
+
+		if (op != UnaryOps.LNEG)
 			throw new SemanticError("Unexpected unary op");
-		else if(!operandType.equals(TypeTable.boolType))
+		else if (!operandType.equals(TypeTable.boolType))
 			throw new SemanticError("Expected bool type in unary negation op");
 		else
 			return TypeTable.boolType;
@@ -336,8 +359,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(Literal literal) throws SemanticError {
-		switch(literal.getType())
-		{
+		switch (literal.getType()) {
 		case INTEGER:
 			return TypeTable.intType;
 		case STRING:
@@ -360,7 +382,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Type evaluateExpressionType(Expression exp) throws SemanticError {
-		return (Type)exp.accept(this);
+		return (Type) exp.accept(this);
 	}
 
 }

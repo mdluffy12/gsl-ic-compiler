@@ -48,6 +48,13 @@ import IC.Parser.SemanticError;
 import SymbolTable.Symbol;
 import SymbolTable.SymbolTable;
 
+/**
+ * SemanticChecks is responsible for all the semantic checks that could not be
+ * performed while constructing the table (for efficiency or technical reasons)
+ * 
+ * @authors Micha,Roni,Grisha (although Grisha is sitting home doing nothing right now)
+ */
+
 public class SemanticChecks implements Visitor {
 
 	protected SymTableUtils symTableUtils;
@@ -81,6 +88,7 @@ public class SemanticChecks implements Visitor {
 		for (ICClass icClass : program.getClasses()) {
 			icClass.accept(this);
 		}
+
 		return null;
 	}
 
@@ -377,7 +385,6 @@ public class SemanticChecks implements Visitor {
 	@Override
 	public Object visit(VariableLocation location) throws SemanticError {
 
-		
 		// get variable location
 		Expression varLocation = location.getLocation();
 
@@ -386,8 +393,7 @@ public class SemanticChecks implements Visitor {
 			// visit expression location
 			varLocation.accept(this);
 		}
-		
-		
+
 		String variableName = location.getName();
 
 		ASTNode locationContext = getLocationContext();
@@ -419,7 +425,7 @@ public class SemanticChecks implements Visitor {
 					.getVariable()).getName().equals(variableName))) {
 				String err_msg = "The local variable " + variableName
 						+ " may not have been initialized";
-				HandleError(err_msg, location);
+				// HandleError(err_msg, location);
 			}
 
 		}
@@ -469,16 +475,14 @@ public class SemanticChecks implements Visitor {
 		 * assgnType = TTTT.visit(assgn); if(!locType.subTypeOf(assgnType))
 		 * return false; else return true; >>>>>>> .r18
 		 */
-		
-		
-		  Location location = assignment.getVariable();
-		  
-		  Expression expr = assignment.getAssignment();
-		  
-		  location.accept(this);
-		  
-		  expr.accept(this);
-		 
+
+		Location location = assignment.getVariable();
+
+		Expression expr = assignment.getAssignment();
+
+		location.accept(this);
+
+		expr.accept(this);
 
 		return null;
 	}
@@ -533,7 +537,7 @@ public class SemanticChecks implements Visitor {
 		// for Roni
 		String className = symTableUtils.findClassName(thisExpression);
 		System.out.println(className);
-		
+
 		return null;
 	}
 

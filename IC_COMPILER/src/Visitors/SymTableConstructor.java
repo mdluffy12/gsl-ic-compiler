@@ -72,7 +72,7 @@ import Types.TypeTable;
  * 
  * 6) Parameters and variables are defined only once
  * 
- * @author micha
+ * @author Micha
  */
 public class SymTableConstructor implements Visitor {
 
@@ -265,6 +265,9 @@ public class SymTableConstructor implements Visitor {
 			HandleError(err_msg, null);
 		}
 
+		// set static root for symbol table
+		SymbolTable.setRoot(global_table);
+		
 		return global_table;
 	}
 
