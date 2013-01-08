@@ -7,16 +7,20 @@ package IC;
 import java.io.FileNotFoundException;
 
 import IC.AST.ICClass;
+import IC.AST.Program;
 import IC.Parser.Debugger;
 import IC.Parser.GenLexer;
 import IC.Parser.GenParser;
 import IC.Parser.LibraryUtils;
 import IC.Parser.SemanticError;
+import SymbolTable.ISymbolTableOperations;
 import SymbolTable.SymbolTable;
 import Types.TypeTable;
 import Visitors.SemanticChecks;
 import Visitors.SymTableConstructor;
 import Visitors.SymTableUtils;
+import Visitors.TypeChecker;
+import Visitors.TypeEvaluator;
 
 /**
  * This class takes a filename as an argument (.ic file) , it reads that file
@@ -174,15 +178,28 @@ public class Compiler {
 		SymTableConstructor symBuilder = new SymTableConstructor(file_path);
 		 
 		SemanticChecks semanticChecks = new SemanticChecks();
+		
+		ISymbolTableOperations symUtils = new SymTableUtils();
+		
+		TypeEvaluator typeEvaluator = new TypeEvaluator(symUtils);
+		TypeChecker typeChecks = new TypeChecker(typeEvaluator);
+		
+		
+		Program p = (Program) parser.getRoot();
 		try {
-			SymbolTable globalTable = (SymbolTable) parser.getRoot().accept(
+			TypeTable.initialize(p, file_path);
+			
+			SymbolTable globalTable = (SymbolTable) p.accept(
 					symBuilder);
 
-			parser.getRoot().accept(semanticChecks);
-
-			TypeTable.initialize(null);
+			p.accept(typeChecks);
+			p.accept(semanticChecks);
 
 			SymTableUtils.printTable(globalTable);
+			
+			
+			String typeTableStr = TypeTable.asString();
+			System.out.print(typeTableStr.substring(0, typeTableStr.length()-1));
 
 		} catch (SemanticError e) {
 			System.out.println(e);

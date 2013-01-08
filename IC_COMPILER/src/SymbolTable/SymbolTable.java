@@ -101,7 +101,7 @@ public class SymbolTable implements ISymbolTable {
 	private boolean isLoop;
 
 	/**
-	 * holds the root of all the symbol table 
+	 * holds the root of all the symbol table
 	 */
 	private static SymbolTable root;
 
@@ -431,33 +431,46 @@ public class SymbolTable implements ISymbolTable {
 	 * @return the symbol if found in scope or in any other parent symbol table,
 	 *         or null otherwise
 	 */
+	@Override
 	public Symbol lookup(String idName, ASTNode idNode) {
 
-		// lookup id name in local scope
-		Symbol local_symbol = localLookup(idName);
+		Symbol local_symbol = null;
+		SymbolTable currentSymbolTable = this;
 
-		/*
-		 * return the local symbol in case it is found and is used after it is
-		 * declared in the local scope
-		 */
-		if (local_symbol != null
-				&& (idNode.getLine() >= local_symbol.getLine())) {
+		while (currentSymbolTable != null) {
+			local_symbol = currentSymbolTable.localLookup(idName);
+			/*
+			 * return the local symbol in case it is found and is used after it
+			 * is declared in the local scope
+			 */
+			if (local_symbol != null
+					&& (local_symbol.isMethod() || local_symbol.isClass())) {
+				return local_symbol;
+			}
 
-			return local_symbol;
+			if (local_symbol != null
+					&& (idNode.getLine() >= local_symbol.getLine())) {
+
+				return local_symbol;
+			}
+
+			currentSymbolTable = currentSymbolTable.getParentSymbolTable();
 		}
 
-		return lookupParent(idName, idNode);
+		return null;
 	}
 
-	@Override
 	public Symbol lookup(String symbolName) {
 		Symbol local_symbol = null;
 		SymbolTable currentSymbolTable = this;
 
 		while (currentSymbolTable != null) {
 			local_symbol = currentSymbolTable.localLookup(symbolName);
+			/*
+			 * return the local symbol in case it is found and is used after it
+			 * is declared in the local scope
+			 */
 			if (local_symbol != null) {
-				// in case symbol was found in local scope
 				return local_symbol;
 			}
 

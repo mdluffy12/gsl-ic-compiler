@@ -8,8 +8,8 @@ public class ArrayType extends Type {
 
 	private Type elemType;
 
-	public ArrayType(Type elemType) {
-		super(elemType.getName() + "[]");
+	public ArrayType(Type elemType, int id) {
+		super(elemType.getName() + "[]", id);
 
 		this.setElemType(elemType);
 

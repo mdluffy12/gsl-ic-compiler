@@ -20,9 +20,14 @@ import IC.Parser.LexicalError;
 import IC.Parser.Parser;
 import IC.Parser.SemanticError;
 import IC.Parser.SyntaxError;
+import SymbolTable.ISymbolTableOperations;
 import SymbolTable.SymbolTable;
+import Types.TypeTable;
 import Visitors.SemanticChecks;
 import Visitors.SymTableConstructor;
+import Visitors.SymTableUtils;
+import Visitors.TypeChecker;
+import Visitors.TypeEvaluator;
 
 public class SemanticTester extends GenTester {
 
@@ -58,6 +63,9 @@ public class SemanticTester extends GenTester {
 		String errFilePath = null;
 		String errStr = null;
 		try {
+			
+			StringBuilder sb = new StringBuilder();
+			
 			String outputFilePath = file.getCanonicalPath() + mySuffix;
 			errFilePath = file.getCanonicalPath() + ".err.txt";
 
@@ -68,19 +76,33 @@ public class SemanticTester extends GenTester {
 			Symbol parseSymbol = p.parse();
 			Program root = (Program) parseSymbol.value;
 
-			SymTableConstructor symBuilder = new SymTableConstructor(
-					inputFilePath);
-
+			SymTableConstructor symBuilder = new SymTableConstructor(inputFilePath);
+			 
 			SemanticChecks semanticChecks = new SemanticChecks();
+			
+			ISymbolTableOperations symUtils = new SymTableUtils();
+			
+			TypeEvaluator typeEvaluator = new TypeEvaluator(symUtils);
+			TypeChecker typeChecks = new TypeChecker(typeEvaluator);
+			
+			 
+				TypeTable.initialize(root, inputFilePath);
+				
+				SymbolTable globalTable = (SymbolTable) root.accept(
+						symBuilder);
+				
+				sb.append(globalTable.toString());
 
-			SymbolTable rootTable = (SymbolTable) root.accept(symBuilder);
+				root.accept(typeChecks);
+				root.accept(semanticChecks);
 
-			// parser.getRoot().accept(semanticChecks);
+				String typeTableStr = TypeTable.asString();
+				sb.append(typeTableStr.substring(0, typeTableStr.length()-1));
 
 			FileUtils.OverrideFile(outputFilePath);
 
 			Tprint("\n", ot);
-			Tprint(rootTable.toString(), ot);
+			Tprint(sb.toString(), ot);
 
 		} catch (LexicalError lexicalErr) {
 			errStr = lexicalErr.toString();

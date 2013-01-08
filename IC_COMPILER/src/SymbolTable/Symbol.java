@@ -186,8 +186,8 @@ public class Symbol {
 	public String toString() {
 
 		if (this.isMethod()) {
-			return this.idKind.toString() + ": " + this.idName + " " + "{"
-					+ this.getIdType().toString() + "}";
+			return this.idKind.toString() + ": " + this.idName + " " 
+					+ this.getIdType().toString() ;
 		}
 
 		if (this.getIdType() == null) {

@@ -9,6 +9,6 @@ import IC.Parser.SemanticError;
 
 public interface ITypeEvaluator {
 	
-	public Type evaluateExpressionType(Expression exp) throws SemanticError;
+	public Type evaluateAndCheckExpressionType(Expression exp) throws SemanticError;
 	
 }

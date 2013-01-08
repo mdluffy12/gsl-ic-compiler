@@ -16,6 +16,8 @@ public abstract class ASTNode {
 	 * reference to symbol table of enclosing scope
 	 */
 	private SymbolTable enclosingScope;
+	
+	private boolean inLoop = false;
 
 	/**
 	 * Double dispatch method, to allow a visitor to visit a specific subclass.
@@ -52,6 +54,14 @@ public abstract class ASTNode {
 
 	public void setEnclosingScope(SymbolTable enclosingScope) {
 		this.enclosingScope = enclosingScope;
+	}
+
+	public boolean isInLoop() {
+		return inLoop;
+	}
+
+	public void setInLoop() {
+		this.inLoop = true;
 	}
 
 }

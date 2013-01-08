@@ -6,8 +6,8 @@ package Types;
 
 public class VoidType extends Type {
 	
-	public VoidType(){
-		super("void");
+	public VoidType(int id){
+		super("void", id);
 	}
 	
 	@Override

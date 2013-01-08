@@ -19,7 +19,9 @@ import SymbolTable.ISymbolTableOperations;
 import SymbolTable.Symbol;
 import SymbolTable.Symbol.SymbolKind;
 import SymbolTable.SymbolTable;
+import Types.MethodType;
 import Types.TypeAdapter;
+import Types.TypeTable;
 
 /**
  * SymTableUtils handles all functional utilities regarding the symbol table
@@ -103,19 +105,17 @@ public class SymTableUtils implements ISymbolTableOperations {
 			List<Method> methods) throws SemanticError {
 
 		if (CheckFieldCollisions(fields)) {
-			// TODO throw exception
-			System.out.println("duplicate fields");
+			throw new SemanticError("duplicate fields");
 		}
 
 		if (CheckMethodCollisions(methods)) {
-			// TODO throw exception
-			System.out.println("duplicate methods");
+			throw new SemanticError("duplicate methods");
 		}
 
 		for (Method method : methods) {
 			for (Field field : fields) {
 				if (field.getName().equals(method.getName())) {
-					System.out.println("method and field with same name");
+					throw new SemanticError("duplicate field and method");
 				}
 			}
 		}
@@ -131,7 +131,7 @@ public class SymTableUtils implements ISymbolTableOperations {
 	/**
 	 * check if method represents a legal main method
 	 */
-	public static boolean isMainMethod(Method m, SymbolKind methodKind) {
+	public static boolean isMainMethod(Method m, SymbolKind methodKind) throws SemanticError {
 
 		List<Formal> params = m.getFormals();
 		int numParams = params.size();
@@ -141,9 +141,9 @@ public class SymTableUtils implements ISymbolTableOperations {
 		} else
 			return false;
 
-		// TODO , in addition check:
-		// 1) method type is void (after type table is done)
+ 
 		return m.getName().equals("main") && numParams == 1
+				&& ((MethodType)TypeAdapter.adaptType(m)).getReturnType().equals(TypeTable.voidType)
 				&& methodKind == SymbolKind._static_method
 				&& firstParam.getType().getName().equals("string")
 				&& firstParam.getType().getDimension() == 1;
@@ -194,7 +194,7 @@ public class SymTableUtils implements ISymbolTableOperations {
 		try {
 			type = TypeAdapter.adaptType(node);
 		} catch (Exception e) {
-			// System.out.println(e);
+			System.out.println(e);
 		}
 		return type;
 	}
@@ -206,7 +206,7 @@ public class SymTableUtils implements ISymbolTableOperations {
 	 */
 
 	public static void printTable(SymbolTable symbolTable) {
-		System.out.println("\n" + symbolTable.toString());
+		System.out.print("\n" + symbolTable.toString());
 	}
 
 	@Override
