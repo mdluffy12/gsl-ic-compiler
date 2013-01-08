@@ -6,9 +6,9 @@ package Types;
 
 public class StringType extends Type {
 	
-	public StringType()
+	public StringType(int id)
 	{
-		super("string");
+		super("string", id);
 	}
  
 	

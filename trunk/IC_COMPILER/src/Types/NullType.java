@@ -6,8 +6,8 @@ package Types;
 
 public class NullType extends Type {
 	
-	public NullType(){
-		super("null");
+	public NullType(int id){
+		super("null", id);
 	}
 	
 	@Override

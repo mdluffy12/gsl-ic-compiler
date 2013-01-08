@@ -12,7 +12,12 @@ public class TypeAdapter {
 			throws UndefinedClassException {
 		
 		if (astNode instanceof IC.AST.ICClass)
-			return null; // No need for type checking for ICClass objects!
+		{
+			ClassType result = TypeTable.classType(((IC.AST.ICClass) astNode).getName());
+			
+			if(result.getId() == Type.unititializedTypeID)
+				result.setId(TypeTable.getCurIdAndIncrement());
+		}
 		
 		else if (astNode instanceof IC.AST.UserType) {
 			IC.AST.UserType uType = (IC.AST.UserType) astNode;

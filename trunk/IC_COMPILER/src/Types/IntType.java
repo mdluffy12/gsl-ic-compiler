@@ -6,8 +6,8 @@ package Types;
 
 public class IntType extends Type {
 
-	public IntType() {
-		super("int");
+	public IntType(int id) {
+		super("int", id);
 	}
  
 

@@ -4,6 +4,8 @@
  */
 package SymbolTable;
 
+import IC.AST.ASTNode;
+
 /**
  * Defines an interface to the symbol table inner operations
  * 
@@ -13,5 +15,8 @@ package SymbolTable;
  * @authors Micha,Roni
  */
 public interface ISymbolTable {
-	public Symbol lookup(String symbolName);
+	public Symbol lookup(String symbolName, ASTNode astNode);
+	public Symbol getMethodParent();
+	public boolean isClassTable();
+	public SymbolTable getParentSymbolTable();
 }

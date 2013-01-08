@@ -6,9 +6,9 @@ package Types;
 
 public class BoolType extends Type {
 	
-	public BoolType()
+	public BoolType(int id)
 	{
-		super("boolean");
+		super("boolean", id);
 	}
 	
  

@@ -47,6 +47,7 @@ import IC.AST.While;
 import IC.Parser.SemanticError;
 import SymbolTable.ISymbolTable;
 import SymbolTable.ISymbolTableOperations;
+import SymbolTable.Symbol;
 import Types.ArrayType;
 import Types.ClassType;
 import Types.IntType;
@@ -166,7 +167,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 		if (location.getLocation() == null)
 			environment = symTableOps.findSymbolTable(location);
 		else {
-			Type locationType = this.evaluateExpressionType(location
+			Type locationType = this.evaluateAndCheckExpressionType(location
 					.getLocation());
 			if (!(locationType instanceof ClassType))
 				throw new SemanticError(
@@ -174,16 +175,23 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 			environment = symTableOps.findClassEnvironment(locationType
 					.getName());
-			// TODO for Roni : check if environment != null
 		}
+		
+		if(environment == null)
+			throw new SemanticError("Undefined environment");
+		
+		Symbol resSym = environment.lookup(location.getName(), location);
+		
+		if(resSym == null)
+			throw new SemanticError("Undefined variable");
 
-		return environment.lookup(location.getName());
+		return resSym.getIdType();
 	}
 
 	@Override
 	public Object visit(ArrayLocation location) throws SemanticError {
-		Type arrayType = this.evaluateExpressionType(location.getArray());
-		Type indexType = this.evaluateExpressionType(location.getIndex());
+		Type arrayType = this.evaluateAndCheckExpressionType(location.getArray());
+		Type indexType = this.evaluateAndCheckExpressionType(location.getIndex());
 
 		if (!(arrayType instanceof ArrayType))
 			throw new SemanticError("Expected an array type");
@@ -198,7 +206,11 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 		ISymbolTable classEnvironment = symTableOps.findClassEnvironment(call
 				.getClassName());
 		// TODO for Roni : check if classEnvironment != null
-		return handleCallVisit(classEnvironment, call);
+		
+		if(classEnvironment==null)
+			throw new SemanticError("class not defined, can not call function");
+		
+		return handleCallVisit(classEnvironment, call, false);
 	}
 
 	@Override
@@ -208,22 +220,37 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 		if (call.getLocation() == null)
 			environment = symTableOps.findSymbolTable(call);
 		else {
-			Type locationType = this.evaluateExpressionType(call.getLocation());
+			Type locationType = this.evaluateAndCheckExpressionType(call.getLocation());
 			if (!(locationType instanceof ClassType))
 				throw new SemanticError(
 						"Expected class type before virtual call");
 
 			environment = symTableOps.findClassEnvironment(locationType
 					.getName());
-			// TODO for Roni : check if environment != null
+
+			if(environment == null)
+				throw new SemanticError("Unknown in environment in virtualcall");
 		}
 
-		return handleCallVisit(environment, call);
+		return handleCallVisit(environment, call, true);
 	}
 
-	private Object handleCallVisit(ISymbolTable environment, Call call)
+	private Object handleCallVisit(ISymbolTable environment, Call call, boolean isVirtualCall)
 			throws SemanticError {
-		Type type = environment.lookup(call.getName()).getIdType();
+		
+		Symbol methodSymbol = environment.lookup(call.getName(), call);
+		
+		if(methodSymbol == null){
+			throw new SemanticError("function not found in class");
+		}
+		
+		if(isVirtualCall)
+		{
+			if(!methodSymbol.isVirtualMethod())
+				throw new SemanticError("Expected virtual method");
+		}
+		
+		Type type = methodSymbol.getIdType();
 
 		if (!(type instanceof MethodType))
 			throw new SemanticError("Expected method type");
@@ -237,7 +264,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 					"Unexpected number of arguments in static call");
 
 		for (int i = 0; i < paramTypes.length; i++)
-			if (!paramTypes[i].equals(this.evaluateExpressionType(methodArgs
+			if (!paramTypes[i].equals(this.evaluateAndCheckExpressionType(methodArgs
 					.get(i))))
 				throw new SemanticError(
 						"Unexpected argument type in static call. Arg number "
@@ -248,6 +275,24 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(This thisExpression) throws SemanticError {
+		ISymbolTable scope = thisExpression.getEnclosingScope();
+		if(scope==null)
+		{
+			throw new RuntimeException("No scope found for ASTNode");
+		}
+		else
+		{
+			Symbol methodSym = scope.getMethodParent();
+			if(methodSym==null)
+			{
+				throw new RuntimeException("No method parent for 'this' expression");
+			}
+			else
+			{
+				if(methodSym.isStaticMethod())
+					throw new SemanticError("The 'this' keyword cannot appear inside a static method");
+			}
+		}
 		String thisClassName = symTableOps.findClassName(thisExpression);
 		return TypeTable.classType(thisClassName);
 	}
@@ -259,7 +304,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(NewArray newArray) throws SemanticError {
-		if (!(this.evaluateExpressionType(newArray.getSize()) instanceof IntType))
+		if (!(this.evaluateAndCheckExpressionType(newArray.getSize()) instanceof IntType))
 			throw new SemanticError("Expected integer for array size");
 		return TypeTable.arrayType(TypeAdapter.adaptType(newArray.getType()));
 	}
@@ -271,9 +316,9 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(MathBinaryOp binaryOp) throws SemanticError {
-		Type firstOperandType = this.evaluateExpressionType(binaryOp
+		Type firstOperandType = this.evaluateAndCheckExpressionType(binaryOp
 				.getFirstOperand());
-		Type secondOperandType = this.evaluateExpressionType(binaryOp
+		Type secondOperandType = this.evaluateAndCheckExpressionType(binaryOp
 				.getSecondOperand());
 		BinaryOps op = binaryOp.getOperator();
 
@@ -299,9 +344,9 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(LogicalBinaryOp binaryOp) throws SemanticError {
-		Type firstOperandType = this.evaluateExpressionType(binaryOp
+		Type firstOperandType = this.evaluateAndCheckExpressionType(binaryOp
 				.getFirstOperand());
-		Type secondOperandType = this.evaluateExpressionType(binaryOp
+		Type secondOperandType = this.evaluateAndCheckExpressionType(binaryOp
 				.getSecondOperand());
 		BinaryOps op = binaryOp.getOperator();
 
@@ -338,7 +383,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(MathUnaryOp unaryOp) throws SemanticError {
-		Type operandType = this.evaluateExpressionType(unaryOp.getOperand());
+		Type operandType = this.evaluateAndCheckExpressionType(unaryOp.getOperand());
 		UnaryOps op = unaryOp.getOperator();
 
 		if (op != UnaryOps.UMINUS)
@@ -351,7 +396,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(LogicalUnaryOp unaryOp) throws SemanticError {
-		Type operandType = this.evaluateExpressionType(unaryOp.getOperand());
+		Type operandType = this.evaluateAndCheckExpressionType(unaryOp.getOperand());
 		UnaryOps op = unaryOp.getOperator();
 
 		if (op != UnaryOps.LNEG)
@@ -382,11 +427,11 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(ExpressionBlock expressionBlock) throws SemanticError {
-		return this.evaluateExpressionType(expressionBlock.getExpression());
+		return this.evaluateAndCheckExpressionType(expressionBlock.getExpression());
 	}
 
 	@Override
-	public Type evaluateExpressionType(Expression exp) throws SemanticError {
+	public Type evaluateAndCheckExpressionType(Expression exp) throws SemanticError {
 		return (Type) exp.accept(this);
 	}
 

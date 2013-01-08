@@ -8,9 +8,9 @@ public class MethodType extends Type {
 	private final Type[] paramTypes;
 	private final Type returnType;
 	
-	public MethodType(Type[] paramTypes, Type returnType)
+	public MethodType(Type[] paramTypes, Type returnType, int id)
 	{
-		super(buildName(paramTypes, returnType));
+		super(buildName(paramTypes, returnType), id);
 	 
 		this.paramTypes = paramTypes;
 		this.returnType = returnType;
@@ -31,6 +31,8 @@ public class MethodType extends Type {
 		
 		StringBuilder sb = new StringBuilder();
 
+		sb.append("{");
+		
 		boolean first = true;
 		for (Type t : paramTypes) {
 
@@ -38,8 +40,8 @@ public class MethodType extends Type {
 			first = false;
 		}
 
-		sb.append(" -> " + returnType.toString());
-
+		sb.append(" -> " + returnType.toString() + "}");
+		
 		return sb.toString();
 		
 		
@@ -75,22 +77,5 @@ public class MethodType extends Type {
 	public boolean subTypeOf(Type otherType)
 	{
 		return false;
-	}
-	
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-
-		boolean first = true;
-		for (Type t : paramTypes) {
-
-			sb.append(((!first) ? ", " : "") + t.toString());
-			first = false;
-		}
-
-		sb.append(" -> " + returnType.toString());
-
-		return sb.toString();
-
 	}
 }

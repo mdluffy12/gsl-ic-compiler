@@ -53,7 +53,6 @@ import SymbolTable.Symbol;
 import SymbolTable.Symbol.SymbolKind;
 import SymbolTable.SymbolTable;
 import SymbolTable.SymbolTable.TableType;
-import Types.TypeTable;
 
 /**
  * SymTableConstructor constructs an hierarchy of symbol tables where the
@@ -186,15 +185,15 @@ public class SymTableConstructor implements Visitor {
 		Symbol super_class_symbol = null;
 		ClassSymbol classSymbol = null;
 
-		//Initialize TypeTable
-		TypeTable.initialize(program);
-		
 		// create global symbol table
 		SymbolTable global_table = new SymbolTable(file_name, TableType._global);
 
 		// iterate all classes and add them to global symbol table
 		for (ICClass icClass : program.getClasses()) {
 
+			// resolve class type
+			Types.Type classType = SymTableUtils.getNodeType(icClass);
+			
 			// check if class is defined twice
 			if (SymTableUtils.isClassDefined(icClass, global_table)) {
 
@@ -235,9 +234,6 @@ public class SymTableConstructor implements Visitor {
 
 			}
 
-			// resolve class type
-			Types.Type classType = SymTableUtils.getNodeType(icClass);
-
 			classSymbol = new ClassSymbol(icClass.getName(), SymbolKind._class,
 					classType, icClass, classSymTable);
 
@@ -252,8 +248,8 @@ public class SymTableConstructor implements Visitor {
 				// set class symbol table parent to be the class parent symbol
 				// table in case it inherits a class
 				classSymTable
-						.setParentSymbolTable(((ClassSymbol) super_class_symbol)
-								.getClassTable());
+				.setParentSymbolTable(((ClassSymbol) super_class_symbol)
+						.getClassTable());
 
 			} else {
 				// set class symbol table parent to be the global parent
@@ -271,7 +267,7 @@ public class SymTableConstructor implements Visitor {
 
 		// set static root for symbol table
 		SymbolTable.setRoot(global_table);
-		
+
 		return global_table;
 	}
 
@@ -331,6 +327,9 @@ public class SymTableConstructor implements Visitor {
 		// iterate methods and add them to class symbol table
 		for (Method method : icClass.getMethods()) {
 
+			// resolve method type
+			Types.Type methodType = SymTableUtils.getNodeType(method);
+			
 			// set method scope as its class's scope
 			method.setEnclosingScope(class_symbol_table);
 
@@ -348,10 +347,8 @@ public class SymTableConstructor implements Visitor {
 
 			// add class symbol table as parent for current method symbol table
 			method_symbol_table.setParentSymbolTable(class_symbol_table);
-
-			// resolve method type
-			Types.Type methodType = SymTableUtils.getNodeType(method);
-
+			
+			
 			// add method symbol to class symbol table
 			class_symbol_table.addSymbol(new Symbol(method.getName(),
 					getMethodKind(), methodType, method));
@@ -419,7 +416,7 @@ public class SymTableConstructor implements Visitor {
 				// parent symbol table
 				SymbolTable stmt_block_symbol_table = (SymbolTable) stmtRet;
 				stmt_block_symbol_table
-						.setParentSymbolTable(method_symbol_table);
+				.setParentSymbolTable(method_symbol_table);
 			}
 		}
 
@@ -467,7 +464,7 @@ public class SymTableConstructor implements Visitor {
 				// in case of nested blocks, set the nested block parent to be
 				// the current block symbol table
 				((SymbolTable) stmtSymTable)
-						.setParentSymbolTable(block_symbol_table);
+				.setParentSymbolTable(block_symbol_table);
 			}
 		}
 		return block_symbol_table;
@@ -488,7 +485,8 @@ public class SymTableConstructor implements Visitor {
 		}
 
 		// resolve parameter type
-		Types.Type localVarType = SymTableUtils.getNodeType(localVariable.getType());
+		Types.Type localVarType = SymTableUtils.getNodeType(localVariable
+				.getType());
 
 		// add local variable symbol to variable scope table
 		localVarScope.addSymbol(new Symbol(localVariable.getName(),

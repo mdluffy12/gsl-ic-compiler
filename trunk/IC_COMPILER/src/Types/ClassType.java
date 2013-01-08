@@ -10,8 +10,8 @@ public class ClassType extends Type {
 	
 	private ClassType superClassType = null;
 
-	public ClassType(ICClass classAST) throws UndefinedSuperClassException {
-		super(classAST.getName());
+	public ClassType(ICClass classAST, int id) throws UndefinedSuperClassException {
+		super(classAST.getName(), id);
 		if(classAST.hasSuperClass()) {
 			//Since extending classes appear after their super class, the super class should have already
 			//been added to the TypeTable
@@ -46,6 +46,16 @@ public class ClassType extends Type {
 		}
 		
 		return false;
+	}
+	
+	public boolean hasSuperClass()
+	{
+		return this.superClassType!=null;
+	}
+	
+	public void setId(int id)
+	{
+		this.id = id;
 	}
 	
 	
