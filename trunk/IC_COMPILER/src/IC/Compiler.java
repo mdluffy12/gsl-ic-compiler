@@ -13,6 +13,7 @@ import IC.Parser.GenParser;
 import IC.Parser.LibraryUtils;
 import IC.Parser.SemanticError;
 import SymbolTable.SymbolTable;
+import Types.TypeTable;
 import Visitors.SemanticChecks;
 import Visitors.SymTableConstructor;
 import Visitors.SymTableUtils;
@@ -178,7 +179,9 @@ public class Compiler {
 					symBuilder);
 
 			parser.getRoot().accept(semanticChecks);
- 
+
+			TypeTable.initialize(null);
+
 			SymTableUtils.printTable(globalTable);
 
 		} catch (SemanticError e) {
