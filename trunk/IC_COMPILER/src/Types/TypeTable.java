@@ -12,6 +12,7 @@ import java.util.Map;
 
 import IC.AST.ICClass;
 import IC.AST.Program;
+import IC.Parser.SemanticError;
 
 public class TypeTable {
 	private static Map<Type, ArrayType> uniqueArrayTypes;
@@ -29,7 +30,7 @@ public class TypeTable {
 	private static String fourSpace = "    ";
 	
 	public static void initialize(Program program, String fileName)
-			throws UndefinedSuperClassException {
+			throws SemanticError {
 		// Initializes the TypeTable by adding uniqueClassTypes by going over
 		// top of AST
 		
@@ -47,8 +48,9 @@ public class TypeTable {
 		curId = 6;
 		
 		
-		for (ICClass icClass : program.getClasses())
+		for (ICClass icClass : program.getClasses()){
 			addClassType(icClass);
+		}
 		
 		TypeTable.fileName = fileName;
 		
@@ -67,15 +69,14 @@ public class TypeTable {
 			return uniqueArrayTypes.get(elemType);
 		} else {
 			// array type doesn't exist - create and return it
-			// TODO : micha asks : what about dimension here? Am I missing something?
 			arrType = new ArrayType(elemType, curId++);
 			uniqueArrayTypes.put(elemType, arrType);
 			return arrType;
 		}
 	}
 
-	public static ClassType classType(String name)
-			throws UndefinedClassException {
+	public static ClassType classType(String name) throws UndefinedClassException
+			 {
 		if (uniqueClassTypes.containsKey(name)) {
 			// class type obj already created - we'll return it
 			
@@ -84,10 +85,12 @@ public class TypeTable {
 			// class type doesn't exist - error
 			throw new UndefinedClassException("undefined class");
 		}
+		
+		 
 	}
 
 	private static void addClassType(ICClass icClass)
-			throws UndefinedSuperClassException {
+			throws SemanticError {
 		ClassType classType = new ClassType(icClass, -1);
 		uniqueClassTypes.put(classType.getName(), classType);
 	}

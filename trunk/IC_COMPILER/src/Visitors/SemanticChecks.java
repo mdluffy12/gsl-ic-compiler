@@ -55,11 +55,13 @@ import Types.TypeAdapter;
 
 public class SemanticChecks implements Visitor {
 
+	/**
+	 * counts the depth of while at runtime
+	 */
 	private int loopCount = 0;
 
 	@Override
 	public Object visit(Program program) throws SemanticError {
-		// TODO Auto-generated method stub
 		for (ICClass icClass : program.getClasses())
 			icClass.accept(this);
 		return null;
@@ -67,16 +69,49 @@ public class SemanticChecks implements Visitor {
 
 	@Override
 	public Object visit(ICClass icClass) throws SemanticError {
-		for (Field field : icClass.getFields())
+		for (Field field : icClass.getFields()) {
 			field.accept(this);
-		for (Method method : icClass.getMethods())
+		}
+		for (Method method : icClass.getMethods()) {
+			loopCount = 0;
 			method.accept(this);
+		}
 		return null;
 	}
 
 	@Override
 	public Object visit(Field field) throws SemanticError {
-		// TODO Auto-generated method stub
+
+		SymbolTable fieldClass = field.getEnclosingScope();
+
+		if (fieldClass == null || !fieldClass.isClassTable()) {
+			// something is wrong
+			return null;
+		}
+
+		SymbolTable classSymboTableParent = fieldClass.getParentSymbolTable();
+
+		if (classSymboTableParent != null
+				&& classSymboTableParent.isGlobalTable()) {
+			// symbol table directly inherits global table
+			return null;
+		}
+
+		// look for field decelerations with same name in super classes
+		Symbol fieldSymbol = classSymboTableParent.lookup(field.getName());
+
+		/*
+		 * throw error in case we found a field with the same name in the any
+		 * super class in the inheritance hierarchy
+		 */
+		if (fieldSymbol != null && fieldSymbol.isField()) {
+			throw new SemanticError(
+					"field "
+							+ field.getName()
+							+ " appears to be hidden, all of the newly defined fields in a subclass must have different names than those in the superclasses",
+					field);
+		}
+
 		return null;
 	}
 
@@ -139,49 +174,41 @@ public class SemanticChecks implements Visitor {
 
 	@Override
 	public Object visit(LibraryMethod method) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object visit(Formal formal) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object visit(PrimitiveType type) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object visit(UserType type) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object visit(Assignment assignment) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object visit(CallStatement callStatement) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object visit(Return returnStatement) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Object visit(If ifStatement) throws SemanticError {
-		// TODO Auto-generated method stub
 		ifStatement.getOperation().accept(this);
 		if (ifStatement.hasElse())
 			ifStatement.getElseOperation().accept(this);
@@ -190,34 +217,41 @@ public class SemanticChecks implements Visitor {
 
 	@Override
 	public Object visit(While whileStatement) throws SemanticError {
-		
+
 		this.loopCount++;
 
 		Statement whileOperation = whileStatement.getOperation();
 		whileStatement.getOperation().accept(this);
 
 		this.loopCount--;
-		
+
 		return null;
 	}
 
 	@Override
 	public Object visit(Break breakStatement) throws SemanticError {
 		if (this.loopCount < 1)
-			throw new SemanticError("break cannot be used outside of a loop",breakStatement);
+			throw new SemanticError("break cannot be used outside of a loop",
+					breakStatement);
 		return null;
 	}
 
 	@Override
 	public Object visit(Continue continueStatement) throws SemanticError {
 		if (this.loopCount < 1)
-			throw new SemanticError("continue cannot be used outside of a loop",continueStatement);
+			throw new SemanticError(
+					"continue cannot be used outside of a loop",
+					continueStatement);
 		return null;
 	}
 
 	@Override
 	public Object visit(StatementsBlock statementsBlock) throws SemanticError {
-		// TODO Auto-generated method stub
+		
+		for(Statement stmt : statementsBlock.getStatements()){
+			stmt.accept(this);
+		}
+		
 		return null;
 	}
 
@@ -253,7 +287,7 @@ public class SemanticChecks implements Visitor {
 
 	@Override
 	public Object visit(This thisExpression) throws SemanticError {
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -307,7 +341,9 @@ public class SemanticChecks implements Visitor {
 
 	@Override
 	public Object visit(ExpressionBlock expressionBlock) throws SemanticError {
-		// TODO Auto-generated method stub
+
+		expressionBlock.getExpression().accept(this);
+		
 		return null;
 	}
 

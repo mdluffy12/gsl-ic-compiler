@@ -1,13 +1,55 @@
-class A {
-	static void main(string[] args) {		
-		B b = new B();
-	}
+/* There are two kinds of method calls: static and virtual, rules:
+
+1. At each method invocation, the number and types of actual values of the call site must be
+   the same as the number and types of formal parameters in the method declaration.
+
+2. values returned by return statements must agree with the corresponding return types
+   from method declarations.
+
+3. If a method is declared to return void, then return statements in
+the body of the method cannot return values.
+
+4. if the method is declared with a return type T, 
+   then all return statements must return values of type T.
+
+
+output: (3rd rule violation)
+23: Semantic error: type mismatch: cannot resolve void as int
+*/
+
+class A
+{ 
+  
+  static void main (string [] args){
+   
+   A a = new B();
+   B b = new B();
+   foo();
+  }
+  
+   void foo(){
+    return;
+  }
+  
+ 
+ 
 }
 
-class B  extends D{
-	int k;
-	
-	void test1(int j, string n, int c) {
-		j = j + 1;
-	}
+class B extends A{
+
+  A a;
+ 
+  void foo(){
+    return;
+  }
+  
+  static void koo(){
+  
+  }
 }
+
+class C extends B{
+  
+}
+
+ 

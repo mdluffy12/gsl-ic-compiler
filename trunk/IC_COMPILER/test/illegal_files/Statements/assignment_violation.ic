@@ -1,0 +1,35 @@
+/* IC has the standard control statements: assignments, method calls, return statements, if
+constructs, while loops, break and continue statements, and statement blocks, rules:
+
+1. The type of the updated location must match the type of the evaluated expression.
+For integers and booleans, the assignment copies the integer or boolean value.
+
+2. The break and continue statements must occur in the body of an 
+   enclosing loop in the current method.
+
+output: (first rule violation)
+27: Semantic error: the operator + is undefined for the argument types int and boolean
+*/
+
+class A
+{ 
+  
+  static void main (string [] args){
+    
+    int a = 2;
+    int b = 3;
+    if(a > b){
+      
+      int c = 3;
+      
+      while(true){
+      {{{{ 
+           a = c + true;
+           break;
+      }}}}
+      
+      }
+     
+    } 
+  }
+}

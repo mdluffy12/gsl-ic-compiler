@@ -1,0 +1,58 @@
+/* Inheritance induces a subtyping relation., rules:
+
+1. subtyping is reflexive and transitive.
+ 
+output: (1th rule violation)
+30: Semantic error: the method checkSubType in the type D is not applicable for type B as the type of the 3th argument
+*/
+
+class A
+{ 
+  
+  static void main (string [] args){
+   
+   A a;
+   B b;
+   C c;
+   D d;
+   
+   // legal
+   D.checkSubType(a,b,c,d);
+ 
+   // legal
+   D.checkSubType(d,d,d,d);
+   
+   // legal
+   D.checkSubType(b,c,d,null);
+   
+   // illegal
+   D.checkSubType(d,d,b,d);
+   
+  }
+}
+
+class B extends A
+{ 
+   
+}
+
+class C extends B
+{ 
+           
+}
+
+class D extends C
+{ 
+   static void fooA(A a){}
+   static void fooB(B b){} 
+   static void fooC(C c){}
+   static void fooD(D d){}    
+   
+   static void checkSubType(A a, B b, C c , D d){
+      D.fooA(a);
+      D.fooB(b);
+      D.fooC(c);
+      D.fooD(d);
+      
+   }        
+}

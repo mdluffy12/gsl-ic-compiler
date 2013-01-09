@@ -199,12 +199,21 @@ public class TypeChecker implements Visitor {
 							.evaluateAndCheckExpressionType(ReturnStmt
 									.getValue());
 
-					if (!methodReturnType.subTypeOf(actualReturnType)) {
+					/*
+					 * ----> changed if
+					 * (!methodReturnType.subTypeOf(actualReturnType)) {
+					 * 
+					 * throw new SemanticError( "type mismatch: cannot resolve "
+					 * + actualReturnType.toString() + " as " +
+					 * methodReturnType.toString(), ReturnStmt); }
+					 */
+
+					if (!actualReturnType.subTypeOf(methodReturnType)) {
 
 						throw new SemanticError(
 								"type mismatch: cannot resolve "
-										+ actualReturnType.toString() + " as "
-										+ methodReturnType.toString(),
+										+ methodReturnType.toString() + " as "
+										+ actualReturnType.toString(),
 								ReturnStmt);
 					}
 				}

@@ -13,7 +13,7 @@ import IC.AST.ASTNode;
  * 
  * @author Micha
  */
-public class Symbol {
+public class Symbol{
 
 	/*
 	 * -------------------------------------------------------------------

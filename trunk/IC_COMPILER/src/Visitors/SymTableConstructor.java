@@ -197,7 +197,7 @@ public class SymTableConstructor implements Visitor {
 			// check if class is defined twice
 			if (SymTableUtils.isClassDefined(icClass, global_table)) {
 
-				String err_msg = "Class " + icClass.getName()
+				String err_msg = "class " + icClass.getName()
 						+ " is already defined";
 				HandleError(err_msg, icClass);
 
@@ -215,7 +215,7 @@ public class SymTableConstructor implements Visitor {
 				// check if class extends itself
 				if (icClass.getName().equals(super_class_name)) {
 
-					String err_msg = "Cycle detected: the type "
+					String err_msg = "cycle detected: the type "
 							+ icClass.getName() + " cannot extend itself";
 					HandleError(err_msg, icClass);
 				}
@@ -755,6 +755,16 @@ public class SymTableConstructor implements Visitor {
 		return null;
 	}
 
+	@Override
+	public Object visit(ExpressionBlock expressionBlock) throws SemanticError {
+		
+		Expression expression = expressionBlock.getExpression();
+		
+		expression.setEnclosingScope(expressionBlock.getEnclosingScope());
+      
+        return expression.accept(this);
+	}
+	
 	private Object HandleBinaryOp(BinaryOp binaryOp) throws SemanticError {
 
 		// handle first operand
@@ -853,9 +863,6 @@ public class SymTableConstructor implements Visitor {
 		return null;
 	}
 
-	@Override
-	public Object visit(ExpressionBlock expressionBlock) {
-		return null;
-	}
+
 
 }

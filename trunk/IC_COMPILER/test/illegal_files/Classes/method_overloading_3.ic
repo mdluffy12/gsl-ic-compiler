@@ -1,0 +1,54 @@
+/* Classes are collections of fields and methods, rules:
+
+1. The extends clause is optional.
+
+2. Only one class can be inherited, hence IC supports
+   only single inheritance
+   
+3. Classes can only extend previously defined classes.
+
+4. class cannot extend
+
+   itself or another class defined later in the program.
+
+5. Method overloading is not supported: A class cannot have multiple methods with the
+   same name, even if the methods have different number of types of 
+   arguments, or different return types.
+   
+6. Hidden fields are not permitted either
+
+7. All of the newly defined fields in a subclass must have 
+   different names than those in the superclasses.
+
+8. However, methods can be overridden in subclasses. Subclasses can 
+   re-define more specialized versions of methods defined in their 
+   superclasses.
+   
+output: (5th rule violation)
+51: Semantic error: method foo in type C is overridden illegally (type mismatch)
+
+*/
+
+class A
+{ 
+  static void main (string [] args){
+   
+  }
+}
+
+class B extends A
+{ 
+  void foo(){
+    
+  }
+  
+   
+  
+}
+
+class C extends B
+{ 
+    void foo(int c){
+    
+    }
+}
