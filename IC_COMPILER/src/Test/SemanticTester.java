@@ -77,7 +77,7 @@ public class SemanticTester extends GenTester {
 		String outputFilePath = null;
 		
 		
-		if(file.getName().equals("LeadingIDNums2.ic")){
+		if(file.getName().equals("return_type_in_void_func.ic")){
 			outputFilePath = outputFilePath + "";
 		}
 		try {

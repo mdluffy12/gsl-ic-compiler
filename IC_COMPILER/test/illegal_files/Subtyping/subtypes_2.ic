@@ -1,0 +1,69 @@
+/* Inheritance induces a subtyping relation., rules:
+
+1. subtyping is reflexive and transitive.
+2. Subtyping is not covariant for array types: if A is a subtype of B then A[ ] is not a subtype
+of B[ ].
+
+output: (2nd rule violation)
+31: Semantic error: the method checkArrSubType in the type D is not applicable for type D[] as the type of the 1th argument
+*/
+
+class A
+{ 
+  
+  static void main (string [] args){
+   
+   A a;
+   B b;
+   C c;
+   D d;
+   
+   // legal
+   D.checkSubType(a,b,c,d);
+ 
+   // legal
+   D.checkSubType(d,d,d,d);
+   
+   // legal
+   D.checkSubType(b,c,d,null);
+   
+   D[] arr_d;
+   
+   // legal 
+   D.fooArrD (arr_d);
+   
+   // illegal
+   D.checkArrSubType(arr_d,arr_d,arr_d,arr_d);
+   
+  }
+}
+
+class B extends A
+{ 
+   
+}
+
+class C extends B
+{ 
+           
+}
+
+class D extends C
+{ 
+   static void fooA(A a){}
+   static void fooB(B b){} 
+   static void fooC(C c){}
+   static void fooD(D d){}    
+   static void fooArrD(D[] d){}
+   
+   static void checkSubType(A a, B b, C c , D d){
+      D.fooA(a);
+      D.fooB(b);
+      D.fooC(c);
+      D.fooD(d);
+   } 
+   
+   static void checkArrSubType(A[] a, B[] b, C[] c , D[] d){
+    
+   }          
+}

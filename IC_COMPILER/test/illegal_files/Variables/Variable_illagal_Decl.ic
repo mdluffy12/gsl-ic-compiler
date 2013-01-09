@@ -1,0 +1,18 @@
+/* Variables can hold integer
+and boolean values, or references to objects, arrays, or strings. 
+
+output:
+8: Semantic error: type mismatch: cannot resolve {string[] -> void} as int
+*/
+
+class A 
+{ 
+  static void main (string [] args){
+    
+	int b = main;
+	
+  }
+}
+
+ 
+ 

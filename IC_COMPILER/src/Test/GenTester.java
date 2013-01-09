@@ -221,9 +221,8 @@ public class GenTester {
 
 			if (!files[i].isDirectory() && files[i].getName().endsWith(suffix)) {
 				fileList.add(files[i]);
-				if (files[i].isDirectory()) {
-					CreateFileList(files[i], fileList, suffix);
-				}
+			}else if (files[i].isDirectory()) {
+				CreateFileList(files[i], fileList, suffix);
 			}
 		}
 	}

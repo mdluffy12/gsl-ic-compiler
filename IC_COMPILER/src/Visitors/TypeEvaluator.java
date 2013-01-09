@@ -149,7 +149,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 			if (!(locationType instanceof ClassType)) {
 				throw new SemanticError("cannot invoke virtual method "
 						+ call.getName() + " on type "
-						+ locationType.toString(),call);
+						+ locationType.toString(), call);
 			}
 
 			environment = (SymbolTable) symTableOps
@@ -166,24 +166,64 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 	private Object handleCallVisit(SymbolTable environment, Call call,
 			boolean isVirtualCall) throws SemanticError {
 
-		String callName = call.getName();
-		String className = environment.getId();
+		String calledFunctionName = call.getName();
 
-		Symbol methodSymbol = environment.lookup(callName, call);
+		Symbol classParent = environment.getClassParent();
+
+		if (classParent == null) {
+			// something is wrong
+			return null;
+		}
+
+		String className = classParent.getIdName();
+
+		Symbol methodSymbol = environment.lookup(calledFunctionName, call);
 
 		if (methodSymbol == null) {
-			throw new SemanticError("the method " + callName
+			throw new SemanticError("the method " + calledFunctionName
 					+ " is undefined for the type " + className, call);
 		}
 
+		/*
+		 * ---- > changed if (isVirtualCall) { if
+		 * (!methodSymbol.isVirtualMethod()) { throw new SemanticError(
+		 * "method " + methodSymbol.getIdName() +
+		 * " cannot be resolved as a virtual method for the type " + className,
+		 * call); } }
+		 */
+
 		if (isVirtualCall) {
-			if (!methodSymbol.isVirtualMethod()) {
+			VirtualCall vCall = (VirtualCall) call;
+			if (!methodSymbol.isVirtualMethod() && vCall.isExternal()) {
 				throw new SemanticError(
 						"method "
 								+ methodSymbol.getIdName()
 								+ " cannot be resolved as a virtual method for the type "
 								+ className, call);
 			}
+
+			/*
+			 * --- > added check that a virtual call invoked from a static
+			 * method
+			 */
+
+			// get method parent of the virtual call's scope
+			Symbol methodParent = vCall.getEnclosingScope().getMethodParent();
+
+			/*
+			 * in case call is not external (location is null) , and it is
+			 * declared within a non-virtual method while the function call is
+			 * actually declared as virtual, throw exception
+			 */
+			if (methodParent != null && methodSymbol.isVirtualMethod()
+					&& !methodParent.isVirtualMethod() && !vCall.isExternal()) {
+				throw new SemanticError(
+						"cannot make a static reference to the non-static method "
+								+ methodSymbol.getIdName()
+								+ " from the static method "
+								+ methodParent.getIdName(), call);
+			}
+
 		}
 
 		Type type = methodSymbol.getIdType();
@@ -197,21 +237,32 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 		List<Expression> methodArgs = call.getArguments();
 
 		if (paramTypes.length != methodArgs.size()) {
-			throw new SemanticError("the method " + callName + " in the type "
-					+ className + " is not applicable for " + methodArgs.size()
-					+ " arguments ", call);
+			throw new SemanticError("the method " + calledFunctionName
+					+ " in the type " + className + " is not applicable for "
+					+ methodArgs.size() + " argument(s) ", call);
 		}
+
+		Type paramType;
 
 		for (int i = 0; i < paramTypes.length; i++) {
 			type = this.evaluateAndCheckExpressionType(methodArgs.get(i));
+			paramType = paramTypes[i];
 
-			if (!paramTypes[i].equals(type)) {
-				throw new SemanticError("the method " + callName
+			/*
+			 * ----- > changed TODO: ask Roni if (!paramTypes[i].equals(type)) {
+			 * throw new SemanticError("the method " + callName +
+			 * " in the type " + className + " is not applicable for type " +
+			 * type.toString() + " as the type of the " + (i + 1) +
+			 * "th argument", call); }
+			 */
+
+			if (!type.subTypeOf(paramType)) {
+				throw new SemanticError("the method " + calledFunctionName
 						+ " in the type " + className
 						+ " is not applicable for type " + type.toString()
-						+ " as the type of the " + (i + 1) + "th argument",
-						call);
+						+ " as the type of the #" + (i + 1) + " argument", call);
 			}
+
 		}
 
 		return methodType.getReturnType();
@@ -230,7 +281,8 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 			} else {
 				if (methodSym.isStaticMethod())
 					throw new SemanticError(
-							"cannot use this in a static context",thisExpression);
+							"cannot use this in a static context",
+							thisExpression);
 			}
 		}
 		String thisClassName = symTableOps.findClassName(thisExpression);
@@ -283,7 +335,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 			if (op == BinaryOps.PLUS)
 				return TypeTable.stringType;
 			else
-				throw new SemanticError(opRep
+				throw new SemanticError("the operator " + opRep
 						+ " is undefined for strings (expected plus)", binaryOp);
 
 		} else {
@@ -325,8 +377,8 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 			else
 				throw new SemanticError("incompatible operand types "
 						+ firstOperandType.toString() + " and "
-						+ secondOperandType.toString()
-						+ " (expected inheriting types)", binaryOp);
+						+ secondOperandType.toString() + " for operator "
+						+ opRep, binaryOp);
 
 		} else if (op == BinaryOps.GT || op == BinaryOps.GTE
 				|| op == BinaryOps.LT || op == BinaryOps.LTE) {
@@ -373,9 +425,9 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(LogicalUnaryOp unaryOp) throws SemanticError {
-		
+
 		String opRep = unaryOp.getOperator().getOperatorString();
-		
+
 		Type operandType = this.evaluateAndCheckExpressionType(unaryOp
 				.getOperand());
 		UnaryOps op = unaryOp.getOperator();
@@ -404,7 +456,8 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 		case NULL:
 			return TypeTable.nullType;
 		default:
-			throw new SemanticError("unexpected literal " + literal.getType().toString(), literal);
+			throw new SemanticError("unexpected literal "
+					+ literal.getType().toString(), literal);
 		}
 	}
 

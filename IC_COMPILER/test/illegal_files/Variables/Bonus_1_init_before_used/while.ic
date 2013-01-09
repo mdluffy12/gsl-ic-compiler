@@ -1,0 +1,12 @@
+/* Classes can only extend previously defined classes */
+
+class A 
+{ 
+  static void main (string [] args){}
+}
+
+class B extends C 
+{ 
+   
+}
+ 

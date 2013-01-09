@@ -1,0 +1,8 @@
+/* A program must have exactly one method main, with the
+following signature:
+static void main (string[] args) { ... } */
+
+class A 
+{ 
+   
+}

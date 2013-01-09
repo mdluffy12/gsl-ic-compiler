@@ -1,0 +1,43 @@
+/* The language supports arrays with arbitrary element types: 
+1. array elements can be arrays themselves,
+   allowing programmers to build multidimensional arrays.
+
+
+output:  
+36: Semantic error: the operator + is undefined for the argument types B[] and int
+*/
+
+class A
+{ 
+  static void main (string [] args){
+   
+  }
+}
+
+class B extends A
+{ 
+  void foo(){
+    
+    int[] arr = new int [100];
+    
+	A [] a_arr = new A[14];
+	
+	B [][] b_matrix = new B[][4];
+  
+    enterTheMatrix(a_arr,b_matrix,a_arr.length*7-15/(((arr[4]-arr[2]) / arr[3])));
+	
+  }
+  
+  void enterTheMatrix(A [] a_arr,B [][] arr,int size){
+    
+
+    int[] array = new int [100];
+ 
+    array[5] = arr[size] + 4;
+     
+  
+  }
+}
+
+ 
+ 

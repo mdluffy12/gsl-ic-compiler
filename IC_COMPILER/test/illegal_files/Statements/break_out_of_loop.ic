@@ -1,0 +1,31 @@
+/* IC has the standard control statements: assignments, method calls, return statements, if
+constructs, while loops, break and continue statements, and statement blocks, rules:
+
+1. The type of the updated location must match the type of the evaluated expression.
+For integers and booleans, the assignment copies the integer or boolean value.
+
+2. The break and continue statements must occur in the body of an 
+   enclosing loop in the current method.
+
+output: (2nd rule violation)
+26: Semantic error: break cannot be used outside of a loop
+*/
+
+class A
+{ 
+  
+  static void main (string [] args){
+    
+    if(1 > 2){
+      
+      while(true){
+       break;
+      }
+      
+      {
+       break;
+      }
+
+    }
+  }
+}

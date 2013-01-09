@@ -1,0 +1,38 @@
+/* Strings can be manipulated only in the following ways: 
+1. using assignments of string references (including null);
+2. concatenating strings with the + operator; 
+3. and testing for string reference equality using == (Note: this operator
+does not compare string contents).
+
+output: (second rule violation)
+29: Semantic error: the operator - is undefined for strings (expected plus)
+*/
+
+class A 
+{ 
+  static void main (string [] args){
+    
+	// init with string literal
+	string s1 = "Toy";
+	string s2 = "Story";
+	
+	// init with null
+	string s3 = null;
+	
+	//assignments of string references
+	s3 = s1;
+	
+	//concatenating strings with the + operator
+	s2 = s1 + s3;
+	
+	if(s2 == s1){
+	  s2 = s1 - s3;
+	}
+	
+	
+	
+  }
+}
+
+ 
+ 

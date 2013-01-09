@@ -1,0 +1,54 @@
+/* Unary and binary operators include the following: 
+
+1. Arithmetic operators: addition +, subtraction -, multiplication *, division /, and mod-
+ulo %. The operands must be integers. The plus operator + is also used to concatenate
+strings. Division by zero and modulus of zero are dynamically checked, and cause
+program termination.
+
+2. Relational comparison operators: less than <, less or equal than <=, greater than >,
+   and greater or equal then >=. Their operands must be integers.
+
+3. Equality comparison operators: equal == or different !=. The operands must have the
+   same type. For integer and boolean types, operand values are compared. For the other
+   types, references are compared.
+
+4. Conditional operators: short-circuit \and" &&, and short-circuit \or" ||. If the first
+   operand of && evaluates to false, its second operand is not evaluated. Similarly, if the
+   first operand of || evaluates to true, its second operand is not evaluated. The operands
+   must be booleans.
+
+5. unary operators: sign change - for integers and logical negation ! for booleans
+
+output: (4th rule violation)
+37: Semantic error: the operator + is undefined for the argument types boolean and int
+*/
+
+class A
+{ 
+  
+  static void main (string [] args){
+   
+  }
+  
+  void checkOperators(){
+ 
+     boolean b1 = func_b1() || func_b2() && func_b2();
+     boolean b2 = func_b1() + f();
+  }
+  
+  int f(){
+    return 2;
+  }
+  
+  boolean func_b1(){
+    return true;
+  }
+  
+   boolean func_b2(){
+    return false;
+  }
+  
+  void foo(){
+   
+  }
+}
