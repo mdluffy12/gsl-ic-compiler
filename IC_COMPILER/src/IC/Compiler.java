@@ -204,6 +204,10 @@ public class Compiler {
 		} catch (SemanticError e) {
 			System.out.println(e);
 			return false;
+		} catch (RuntimeException e){
+		    System.out.println("Compiler runtime exception: " + e);
+		} catch(Exception e){
+			System.out.println("Unexpected exception: " + e);
 		}
 
 		return true;

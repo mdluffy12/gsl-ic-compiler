@@ -12,7 +12,6 @@ import IC.AST.Formal;
 import IC.AST.ICClass;
 import IC.AST.LocalVariable;
 import IC.AST.Method;
-import IC.AST.Type;
 import IC.Parser.SemanticError;
 import SymbolTable.ClassSymbol;
 import SymbolTable.ISymbolTableOperations;
@@ -43,12 +42,6 @@ public class SymTableUtils implements ISymbolTableOperations {
 	 * -------------------------------------------------------------------
 	 */
 
-	private static boolean compareTypes(Type t1, Type t2) {
-		// TODO check if this is the kind of type comparison we need to do
-		return t1.getName().equals(t2.getName())
-				&& t1.getDimension() == t2.getDimension();
-	}
-
 	/**
 	 * @return true iff fields are equal (according to the IC rules)
 	 */
@@ -63,59 +56,69 @@ public class SymTableUtils implements ISymbolTableOperations {
 	 */
 	private static boolean compareMethods(Method m1, Method m2) {
 
-		// check if this is the type we need to check
 		return m1.getName().equals(m2.getName());
-
 	}
 
 	/**
 	 * @return true iff all fields are declared legally
+	 * @throws SemanticError
 	 */
-	private static boolean CheckFieldCollisions(List<Field> fields) {
+	private static void CheckFieldCollisions(String className,
+			List<Field> fields) throws SemanticError {
 
 		for (Field field : fields) {
 			for (Field iterated_field : fields) {
 				if (field != iterated_field
 						&& compareFields(field, iterated_field) == true) {
-					return true;
+					throw new SemanticError("duplicated field "
+							+ iterated_field.getName() + " in type "
+							+ className, iterated_field);
 				}
 			}
 		}
 
-		return false;
 	}
 
 	/**
 	 * @return true iff all methods are declared legally
+	 * @throws SemanticError
 	 */
-	private static boolean CheckMethodCollisions(List<Method> methods) {
+	private static void CheckMethodCollisions(String className,
+			List<Method> methods) throws SemanticError {
 		for (Method method : methods) {
 			for (Method iterated_method : methods) {
 				if (method != iterated_method
 						&& compareMethods(method, iterated_method)) {
-					return true;
+					throw new SemanticError("duplicated method "
+							+ iterated_method.getName() + " in type "
+							+ className, iterated_method);
 				}
 			}
 		}
 
-		return false;
 	}
 
-	public static void CheckFieldMethodCollisions(List<Field> fields,
-			List<Method> methods) throws SemanticError {
+	public static void CheckFieldMethodCollisions(ICClass icClass)
+			throws SemanticError {
 
-		if (CheckFieldCollisions(fields)) {
-			throw new SemanticError("duplicate fields");
-		}
+		String className = icClass.getName();
+		List<Method> methods = icClass.getMethods();
+		List<Field> fields = icClass.getFields();
 
-		if (CheckMethodCollisions(methods)) {
-			throw new SemanticError("duplicate methods");
-		}
+		// look for duplicate fields
+		CheckFieldCollisions(className, fields);
 
+		// look for duplicate methods
+		CheckMethodCollisions(className, methods);
+
+		// look for any duplicate combination
 		for (Method method : methods) {
 			for (Field field : fields) {
 				if (field.getName().equals(method.getName())) {
-					throw new SemanticError("duplicate field and method");
+					throw new SemanticError(
+							"method and field are declared with the same name \""
+									+ field.getName() + "\"" + " in type "
+									+ className, field);
 				}
 			}
 		}
@@ -131,7 +134,8 @@ public class SymTableUtils implements ISymbolTableOperations {
 	/**
 	 * check if method represents a legal main method
 	 */
-	public static boolean isMainMethod(Method m, SymbolKind methodKind) throws SemanticError {
+	public static boolean isMainMethod(Method m, SymbolKind methodKind)
+			throws SemanticError {
 
 		List<Formal> params = m.getFormals();
 		int numParams = params.size();
@@ -141,9 +145,10 @@ public class SymTableUtils implements ISymbolTableOperations {
 		} else
 			return false;
 
- 
-		return m.getName().equals("main") && numParams == 1
-				&& ((MethodType)TypeAdapter.adaptType(m)).getReturnType().equals(TypeTable.voidType)
+		return m.getName().equals("main")
+				&& numParams == 1
+				&& ((MethodType) TypeAdapter.adaptType(m)).getReturnType()
+						.equals(TypeTable.voidType)
 				&& methodKind == SymbolKind._static_method
 				&& firstParam.getType().getName().equals("string")
 				&& firstParam.getType().getDimension() == 1;
@@ -219,15 +224,16 @@ public class SymTableUtils implements ISymbolTableOperations {
 
 		// get global table
 		SymbolTable globalTable = SymbolTable.getRoot();
-		
+
 		// get class symbol
-		ClassSymbol classSymbol = (ClassSymbol) globalTable.localLookup(className);
-		
-		if(classSymbol == null){
+		ClassSymbol classSymbol = (ClassSymbol) globalTable
+				.localLookup(className);
+
+		if (classSymbol == null) {
 			// class not found!
 			return null;
 		}
-		
+
 		// get referenced class table
 		return classSymbol.getClassTable();
 
