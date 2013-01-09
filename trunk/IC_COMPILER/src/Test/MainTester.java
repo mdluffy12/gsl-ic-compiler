@@ -4,21 +4,31 @@
  */
 package Test;
 
+
 public class MainTester {
 
+	public static final boolean RunTest = true;
+	public static final boolean DeleteOutputFiles = true;
+	public static final boolean withLib = true;
+	
 	public static void main(String[] args) {
 
-		/*
-		 * SyntaxTester synTester = new SyntaxTester(args[0], ".ast.txt",
-		 * ".ast.txt", true); synTester.ExecuteSyntaxTest();
-		 * 
-		 * SyntaxTester.DeleteAllFilesWithSuffix(args[0], "_tree");
-		 */
+		String testedFolder = args[0];
+		SemanticTester semanticTester = new SemanticTester(testedFolder,
+				".table.txt", ".out.txt",withLib);
 
-		SemanticTester semanticTester = new SemanticTester(args[0],
-				".table.txt", ".out.txt");
+		if (DeleteOutputFiles) {
+			SemanticTester.deleteOutputFiles(testedFolder);
+		}
 
-		semanticTester.executeSemanticTester();
+		if (RunTest) {
+
+			try {
+				semanticTester.executeSemanticTester();
+			} catch (Exception e) {
+				System.out.println(e);
+			}
+		}
 	}
 
 }

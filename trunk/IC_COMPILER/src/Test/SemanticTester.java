@@ -4,19 +4,25 @@
  */
 package Test;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Scanner;
 
 import java_cup.runtime.Symbol;
+import IC.AST.ICClass;
 import IC.AST.PrettyPrinter;
 import IC.AST.Program;
 import IC.Parser.FileUtils;
 import IC.Parser.Lexer;
 import IC.Parser.LexicalError;
+import IC.Parser.LibraryParser;
 import IC.Parser.Parser;
 import IC.Parser.SemanticError;
 import IC.Parser.SyntaxError;
@@ -33,21 +39,27 @@ public class SemanticTester extends GenTester {
 
 	/* global variables */
 	private static String filePath = null;
-
+	private static File listerFile = null;
 	private static String syffix;
 	private static String mySuffix;
 	private final String testedFolder;
+	private final boolean withLib;
+	private final String libPath;
 
 	public SemanticTester(String testedFolder, String mySyntaxSuffix,
-			String syntaxSuffix) {
+			String syntaxSuffix,boolean withLib) {
 		super(GenTester.OutputType.all);
 		this.testedFolder = testedFolder;
+		
+		listerFile = new File(testedFolder + File.separator + "Test_Files.txt");
 		SemanticTester.syffix = syntaxSuffix;
 		SemanticTester.mySuffix = mySyntaxSuffix;
 		// setOutputFile(CreateOutputFile());
+		this.withLib = withLib;
+		libPath = System.getProperty("user.dir") + File.separator + "libic.sig";
 	}
 
-	public void executeSemanticTester() {
+	public void executeSemanticTester() throws Exception {
 		List<File> files = new ArrayList<File>();
 
 		CreateFileList(new File(testedFolder), files, "ic");
@@ -58,15 +70,21 @@ public class SemanticTester extends GenTester {
 
 	}
 
-	private void createSymbolTableFile(File file) {
+	private void createSymbolTableFile(File file) throws Exception {
 		String inputFilePath = file.getAbsolutePath();
 		String errFilePath = null;
 		String errStr = null;
+		String outputFilePath = null;
+		
+		
+		if(file.getName().equals("LeadingIDNums2.ic")){
+			outputFilePath = outputFilePath + "";
+		}
 		try {
 			
 			StringBuilder sb = new StringBuilder();
 			
-			String outputFilePath = file.getCanonicalPath() + mySuffix;
+			outputFilePath = file.getCanonicalPath() + mySuffix;
 			errFilePath = file.getCanonicalPath() + ".err.txt";
 
 			this.setOutputFile(new File(outputFilePath));
@@ -74,8 +92,21 @@ public class SemanticTester extends GenTester {
 			Parser p = new Parser(new Lexer(new FileReader(inputFilePath)));
 
 			Symbol parseSymbol = p.parse();
+			
 			Program root = (Program) parseSymbol.value;
 
+			if(withLib){
+				LibraryParser libParser = new LibraryParser(new Lexer(new FileReader(libPath)));
+				Symbol libParseSymbol = libParser.parse();
+				ICClass libRoot = (ICClass) libParseSymbol.value;
+				
+				ArrayList<ICClass> programClasses = new ArrayList<ICClass>();
+				programClasses.add(libRoot);
+				programClasses.addAll(root.getClasses());
+				root.setClasses(programClasses);
+			}
+			
+		 
 			SymTableConstructor symBuilder = new SymTableConstructor(inputFilePath);
 			 
 			SemanticChecks semanticChecks = new SemanticChecks();
@@ -106,21 +137,45 @@ public class SemanticTester extends GenTester {
 
 		} catch (LexicalError lexicalErr) {
 			errStr = lexicalErr.toString();
+		    
 		} catch (SyntaxError syntaxErr) {
 			errStr = syntaxErr.toString();
+	 
 		} catch (SemanticError semanticErr) {
 			errStr = semanticErr.toString();
-
+	 
 		} catch (Exception e) {
-			errStr = "error creating table" + e.toString();
+			deleteOutputFiles(testedFolder);
+			throw new Exception("error on file: " + file.getName());
 		} finally {
 			this.setOutputFile(new File(errFilePath));
 			if (errStr != null && errStr.length() > 0) {
 				Tprint(errStr, ot);
 			}
+			
+			if(errFilePath != null){
+				listFile(errFilePath);
+			}
+			
+			if(outputFilePath != null){
+				listFile(outputFilePath);
+			}
+			 
 
 		}
 
+	}
+
+	private void listFile(String filePath) {
+		try {
+			PrintWriter out = new PrintWriter(new BufferedWriter(
+					new FileWriter(listerFile, true)));
+			out.println(filePath);
+			out.close();
+		} catch (Exception e) {
+		 
+		}
+		
 	}
 
 	public void executeSemanticComperator() {
@@ -188,7 +243,7 @@ public class SemanticTester extends GenTester {
 	private void CreateASToutputFile(File inputFile, String astString) {
 		String fileDirectory = null;
 		String path = inputFile.getAbsolutePath();
-		int lastDef = path.lastIndexOf("\\");
+		int lastDef = path.lastIndexOf(File.separator);
 		fileDirectory = path.substring(0, lastDef + 1);
 		filePath = fileDirectory + inputFile.getName() + mySuffix;
 
@@ -231,7 +286,7 @@ public class SemanticTester extends GenTester {
 	}
 
 	private File CreateOutputFile() {
-		String outputPath = testedFolder + "\\" + getOutputFileName() + ".txt";
+		String outputPath = testedFolder + File.separator + getOutputFileName() + ".txt";
 		return OverrideFile(outputPath);
 	}
 
@@ -253,7 +308,7 @@ public class SemanticTester extends GenTester {
 			String directory = null, fileName = null;
 			try {
 				String canPath = inputFile.getCanonicalPath();
-				int lastDef = canPath.lastIndexOf('\\');
+				int lastDef = canPath.lastIndexOf(File.separator);
 				directory = canPath.substring(0, lastDef + 1);
 
 				fileName = inputFile.getName();
@@ -274,6 +329,37 @@ public class SemanticTester extends GenTester {
 		} catch (Exception e) {
 
 		}
+
+	}
+	
+	public static void deleteOutputFiles(String testedFolder) {
+		File listerFile = new File(testedFolder + File.separator + "Test_Files.txt");
+		String filePath = null;
+		if (!listerFile.exists()) {
+			return;
+		}
+
+		try {
+			@SuppressWarnings("resource")
+			Scanner s = new Scanner(new FileReader(listerFile));
+			while (s.hasNextLine()) {
+
+				// read line
+				filePath = s.nextLine();
+
+				try {
+					new File(filePath).delete();
+				} catch (Exception e) {
+				}
+
+			}
+		 
+			listerFile.delete();
+		} catch (Exception e) {
+	
+		}
+		
+		
 
 	}
 

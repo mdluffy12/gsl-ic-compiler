@@ -227,7 +227,7 @@ public class SymTableConstructor implements Visitor {
 					// throw error if super class was not found in global table
 					// because it cannot be defined later in the program
 
-					String err_msg = "Super class " + super_class_name
+					String err_msg = "super class " + super_class_name
 							+ " is undefined";
 					HandleError(err_msg, icClass);
 				}
@@ -261,7 +261,7 @@ public class SymTableConstructor implements Visitor {
 
 		// check if has main method
 		if (mainCounter == 0) {
-			String err_msg = "A program must have exactly one method main";
+			String err_msg = "a program must have exactly one method main";
 			HandleError(err_msg, null);
 		}
 
@@ -303,8 +303,7 @@ public class SymTableConstructor implements Visitor {
 
 		// check duplicate fields, duplicate methods, or duplicate combination
 		// between any field and method
-		SymTableUtils.CheckFieldMethodCollisions(icClass.getFields(),
-				icClass.getMethods());
+		SymTableUtils.CheckFieldMethodCollisions(icClass);
 
 		// iterate fields
 		for (Field field : icClass.getFields()) {
@@ -341,7 +340,7 @@ public class SymTableConstructor implements Visitor {
 
 			// check if at least one main method is defined in library class
 			if (icClass.isLibrary() && mainCounterDiff < mainCounter) {
-				String err_msg = "A program must not have any method main in Library class";
+				String err_msg = "a program must not have any method main in Library class";
 				HandleError(err_msg, icClass);
 			}
 
@@ -374,7 +373,7 @@ public class SymTableConstructor implements Visitor {
 		if (SymTableUtils.isMainMethod(method, getMethodKind())) {
 			mainCounter++;
 			if (mainCounter >= 2) {
-				String err_msg = "A program must have exactly one method main";
+				String err_msg = "a program must have exactly one method main";
 				HandleError(err_msg, method);
 			}
 		}
@@ -385,8 +384,8 @@ public class SymTableConstructor implements Visitor {
 			// scan for parameter in local scope
 			if (SymTableUtils.isParameterDefinedInScope(param,
 					method_symbol_table)) {
-				String err_msg = "Parameter " + param.getName()
-						+ " is defined multiple times in method "
+				String err_msg = "duplicated parameter " + param.getName()
+						+ " in method "
 						+ method.getName();
 				HandleError(err_msg, method);
 			}
@@ -444,7 +443,7 @@ public class SymTableConstructor implements Visitor {
 
 	@Override
 	public Object visit(StatementsBlock statementsBlock) throws SemanticError {
-
+ 
 		// create block id
 		String blockID = "statement block";
 
@@ -478,8 +477,7 @@ public class SymTableConstructor implements Visitor {
 
 		if (SymTableUtils
 				.isVariableDefinedInScope(localVariable, localVarScope)) {
-			String err_msg = "Variable " + localVariable.getName()
-					+ " is already declared in scope";
+			String err_msg = "duplicated local variable " + localVariable.getName();
 			HandleError(err_msg, localVariable);
 			return null;
 		}

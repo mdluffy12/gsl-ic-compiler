@@ -1,8 +1,13 @@
 class A {
-	static void main(string[] args) { 
-		
-		
-		while (true) break;
+	static void main(string[] args) {		
+		B b = new B();
+	}
+}
+
+class B  extends D{
+	int k;
 	
+	void test1(int j, string n, int c) {
+		j = j + 1;
 	}
 }
