@@ -21,6 +21,7 @@ import SymbolTable.SymbolTable;
 import Types.MethodType;
 import Types.TypeAdapter;
 import Types.TypeTable;
+import Types.UndefinedClassException;
 
 /**
  * SymTableUtils handles all functional utilities regarding the symbol table
@@ -194,12 +195,13 @@ public class SymTableUtils implements ISymbolTableOperations {
 	 * -------------------------------------------------------------------
 	 */
 
-	public static Types.Type getNodeType(ASTNode node) {
+	public static Types.Type getNodeType(ASTNode node) throws SemanticError {
 		Types.Type type = null;
 		try {
 			type = TypeAdapter.adaptType(node);
-		} catch (Exception e) {
-			System.out.println(e);
+		}
+		catch(UndefinedClassException e) {
+			throw new SemanticError(e.getClassname() + " cannot be resolved to a type", node);
 		}
 		return type;
 	}

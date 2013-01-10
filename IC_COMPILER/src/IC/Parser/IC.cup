@@ -91,7 +91,7 @@ parser code {:
      	public void syntax_error(Symbol errSym) {
      	 SyntaxError synErr = null;
      	
-     	if(additionalErrMsg == null){
+     	if(additionalErrMsg == null || errList.size()==0){
      	  synErr = new SyntaxError((Token) errSym);
      	  errList.add(synErr);
      	}else{
@@ -125,7 +125,7 @@ scan with {:
 		
     if(t.isEOF() && !errorFree){
     
-    if(additionalErrMsg != null){
+    if(additionalErrMsg != null && errList.size()>0){
      	 	errList.remove(errList.size()-1);
      		errList.add(new SyntaxError(additionalErrMsg.toString(),errToken));
      	}

@@ -670,7 +670,7 @@ public class SymTableConstructor implements Visitor {
 			Object elseOpVal = elseOperation.accept(this);
 
 			// only in case else operation is a block statement
-			if (elseOpVal != null && ((SymbolTable) ifOpVal).isBlockTable()) {
+			if (elseOpVal != null && ((SymbolTable) elseOpVal).isBlockTable()) {
 				SymbolTable elseBlockSymbolTable = (SymbolTable) elseOpVal;
 				elseBlockSymbolTable.setParentSymbolTable(ifScope);
 

@@ -77,7 +77,7 @@ public class SemanticTester extends GenTester {
 		String outputFilePath = null;
 		
 		
-		if(file.getName().equals("return_type_in_void_func.ic")){
+		if(file.getName().equals("IlegalDec.ic")){
 			outputFilePath = outputFilePath + "";
 		}
 		try {
@@ -145,6 +145,7 @@ public class SemanticTester extends GenTester {
 			errStr = semanticErr.toString();
 	 
 		} catch (Exception e) {
+			e.printStackTrace();
 			deleteOutputFiles(testedFolder);
 			throw new Exception("error on file: " + file.getName());
 		} finally {
