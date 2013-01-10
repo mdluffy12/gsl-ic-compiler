@@ -9,8 +9,18 @@ import IC.Parser.SemanticError;
 
 public class UndefinedClassException extends SemanticError {
 
-	public UndefinedClassException(String err_msg) {
+	private final String classname;
+	
+	/**
+	 * @return the classname
+	 */
+	public String getClassname() {
+		return this.classname;
+	}
+
+	public UndefinedClassException(String err_msg, String classname) {
 		super(err_msg);
+		this.classname = classname;
 		// TODO Auto-generated constructor stub
 	}
 

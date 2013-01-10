@@ -203,9 +203,12 @@ public class Compiler {
 
 		} catch (SemanticError e) {
 			System.out.println(e);
+			//TODO: erase following line before handing in
+			//e.printStackTrace();
 			return false;
 		} catch (RuntimeException e){
-		    System.out.println("Compiler runtime exception: " + e);
+		    System.out.println("Compiler runtime exception: " + e + "\nTrace: ");
+		    e.printStackTrace();
 		} catch(Exception e){
 			System.out.println("Unexpected exception: " + e);
 		}

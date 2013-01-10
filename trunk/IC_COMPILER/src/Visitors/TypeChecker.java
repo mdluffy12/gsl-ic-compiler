@@ -46,6 +46,7 @@ import IC.Parser.SemanticError;
 import SymbolTable.ISymbolTable;
 import Types.ITypeEvaluator;
 import Types.Type;
+import Types.TypeTable;
 
 /**
  * TypeChecker used to check the type correctness of the program
@@ -56,6 +57,11 @@ import Types.Type;
 public class TypeChecker implements Visitor {
 
 	private final ITypeEvaluator evaluator;
+	
+	//The return type for the current method
+	private Type methodReturnType; 
+	//The name of the current method
+	private String methodName;
 
 	public TypeChecker(ITypeEvaluator evaluator) {
 		super();
@@ -185,42 +191,14 @@ public class TypeChecker implements Visitor {
 	}
 
 	private void handleMethod(Method method) throws SemanticError {
-
-		Type methodReturnType = Types.TypeAdapter.adaptType(method.getType());
-
+		
+		this.methodReturnType = Types.TypeAdapter.adaptType(method.getType());
+		this.methodName = method.getName();
+		
 		boolean hasReturn = false;
 
 		for (Statement s : method.getStatements()) {
-			if (s instanceof Return) {
-
-				Return ReturnStmt = (Return) s;
-				if (ReturnStmt.hasValue()) {
-					Type actualReturnType = evaluator
-							.evaluateAndCheckExpressionType(ReturnStmt
-									.getValue());
-
-					/*
-					 * ----> changed if
-					 * (!methodReturnType.subTypeOf(actualReturnType)) {
-					 * 
-					 * throw new SemanticError( "type mismatch: cannot resolve "
-					 * + actualReturnType.toString() + " as " +
-					 * methodReturnType.toString(), ReturnStmt); }
-					 */
-
-					if (!actualReturnType.subTypeOf(methodReturnType)) {
-
-						throw new SemanticError(
-								"type mismatch: cannot resolve "
-										+ methodReturnType.toString() + " as "
-										+ actualReturnType.toString(),
-								ReturnStmt);
-					}
-				}
-			}
-
-			else
-				s.accept(this);
+			s.accept(this);
 		}
 
 		// if the method doesn't return when needed, throw exception
@@ -269,8 +247,25 @@ public class TypeChecker implements Visitor {
 
 	@Override
 	public Object visit(Return returnStatement) throws SemanticError {
-		// The type checking for the return value is done in the method check
-		// already!
+		if (returnStatement.hasValue()) {
+			Type actualReturnType = evaluator
+					.evaluateAndCheckExpressionType(returnStatement
+							.getValue());
+
+			if (!actualReturnType.subTypeOf(methodReturnType)) {
+
+				throw new SemanticError(
+						"type mismatch: cannot resolve "
+								+ methodReturnType.toString() + " as "
+								+ actualReturnType.toString(),
+								returnStatement);
+			}
+		}else{
+			if(!methodReturnType.equals(TypeTable.voidType)){
+			   throw new SemanticError("the method " + methodName +
+					   " must return a result of type " + methodReturnType.toString(),returnStatement);
+			}
+		}
 		return null;
 	}
 

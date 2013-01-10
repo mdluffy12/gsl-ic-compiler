@@ -56,6 +56,7 @@ import Types.MethodType;
 import Types.Type;
 import Types.TypeAdapter;
 import Types.TypeTable;
+import Types.UndefinedClassException;
 
 /**
  * TypeEvaluator used to evaluate expression types and performs some partial
@@ -248,14 +249,6 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 			type = this.evaluateAndCheckExpressionType(methodArgs.get(i));
 			paramType = paramTypes[i];
 
-			/*
-			 * ----- > changed TODO: ask Roni if (!paramTypes[i].equals(type)) {
-			 * throw new SemanticError("the method " + callName +
-			 * " in the type " + className + " is not applicable for type " +
-			 * type.toString() + " as the type of the " + (i + 1) +
-			 * "th argument", call); }
-			 */
-
 			if (!type.subTypeOf(paramType)) {
 				throw new SemanticError("the method " + calledFunctionName
 						+ " in the type " + className
@@ -291,7 +284,14 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(NewClass newClass) throws SemanticError {
-		return TypeTable.classType(newClass.getName());
+		try
+		{
+			return TypeTable.classType(newClass.getName());
+		}
+		catch(UndefinedClassException e)
+		{
+			throw new SemanticError(e.getClassname() + " cannot be resolved to a type", newClass);
+		}
 	}
 
 	@Override
@@ -302,11 +302,21 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 					"the type of the array index must be an int but it is resolved to "
 							+ type.toString(), newArray);
 		}
-		return TypeTable.arrayType(TypeAdapter.adaptType(newArray.getType()));
+		try
+		{
+			return TypeTable.arrayType(TypeAdapter.adaptType(newArray.getType()));
+		}
+		catch(UndefinedClassException e)
+		{
+			throw new SemanticError(e.getClassname() + " cannot be resolved to a type", newArray);
+		}
 	}
 
 	@Override
 	public Object visit(Length length) throws SemanticError {
+		Type arrType = this.evaluateAndCheckExpressionType(length.getArray());
+		if(!(arrType instanceof ArrayType))
+			throw new SemanticError("the type " + arrType + " does not have a field length" ,length);
 		return TypeTable.intType;
 	}
 
