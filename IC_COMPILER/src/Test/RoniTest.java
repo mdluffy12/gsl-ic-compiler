@@ -71,9 +71,12 @@ public class RoniTest {
 		return true;
 	}
 
-	public static void main(String[] args) {
 
+	public static void main(String[] args) {
+ 
 		CompareFiles(new File(args[0]), new File(args[1]));
 	}
+	
+	 
 
 }

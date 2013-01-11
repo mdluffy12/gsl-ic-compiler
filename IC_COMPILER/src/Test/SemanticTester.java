@@ -45,10 +45,12 @@ public class SemanticTester extends GenTester {
 	private final String testedFolder;
 	private final boolean withLib;
 	private final String libPath;
-
+	private static int numOfFiles = 0;
+	private static int errCounter = 0;
+	
 	public SemanticTester(String testedFolder, String mySyntaxSuffix,
 			String syntaxSuffix,boolean withLib) {
-		super(GenTester.OutputType.all);
+		super(GenTester.OutputType.file);
 		this.testedFolder = testedFolder;
 		
 		listerFile = new File(testedFolder + File.separator + "Test_Files.txt");
@@ -64,9 +66,14 @@ public class SemanticTester extends GenTester {
 
 		CreateFileList(new File(testedFolder), files, "ic");
 
+		numOfFiles = files.size();
+		
 		for (File file : files) {
 			createSymbolTableFile(file);
 		}
+		
+		
+		System.out.println("found compilation errors in : " + errCounter + "/" + numOfFiles + " files");
 
 	}
 
@@ -75,6 +82,7 @@ public class SemanticTester extends GenTester {
 		String errFilePath = null;
 		String errStr = null;
 		String outputFilePath = null;
+		
 		
 		
 		if(file.getName().equals("IlegalDec.ic")){
@@ -95,8 +103,8 @@ public class SemanticTester extends GenTester {
 			
 			Program root = (Program) parseSymbol.value;
 
-			PrettyPrinter astPrinter = new PrettyPrinter(new File(inputFilePath).getName());
-			sb.append(root.accept(astPrinter));
+			//PrettyPrinter astPrinter = new PrettyPrinter(new File(inputFilePath).getName());
+			//sb.append(root.accept(astPrinter));
 			
 			
 			if(withLib){
@@ -155,7 +163,13 @@ public class SemanticTester extends GenTester {
 		} finally {
 			this.setOutputFile(new File(errFilePath));
 			if (errStr != null && errStr.length() > 0) {
-				Tprint(errStr, ot);
+				errCounter++;
+				int prevLastIndex = errFilePath.lastIndexOf(File.separatorChar);
+				String prefixStr = errFilePath.substring(0,prevLastIndex-1);
+				prevLastIndex = prefixStr.lastIndexOf(File.separatorChar);
+				
+				System.out.println("compilation error in : " + errFilePath.substring(prevLastIndex+1,errFilePath.length()));
+				Tprint(errStr + "\n", OutputType.all);
 			}
 			
 			if(errFilePath != null){
@@ -166,6 +180,7 @@ public class SemanticTester extends GenTester {
 				listFile(outputFilePath);
 			}
 			 
+		
 
 		}
 

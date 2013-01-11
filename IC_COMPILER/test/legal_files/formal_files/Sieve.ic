@@ -2,7 +2,7 @@ class Sieve {
 
   int[] num;
 
-  static void initArray() {
+   void initArray() {
     int i = 0;
     while (i < num.length) {
       num[i] = i;
@@ -10,7 +10,7 @@ class Sieve {
     }
   }
 
-  static void sieveAll() {
+   void sieveAll() {
     int i = 2;
     while (i < num.length) {
       sieve(i);
@@ -18,7 +18,7 @@ class Sieve {
     }
   }
 
-  static void sieve(int n) {
+   void sieve(int n) {
     int i = 2*n;
     while (i < num.length) {
       num[i] = 0;
@@ -26,7 +26,7 @@ class Sieve {
     }
   }
 
-  static void printPrimes() {
+   void printPrimes() {
     int i = 2;
     Library.print("Primes less than ");
     Library.printi(num.length);
@@ -42,7 +42,12 @@ class Sieve {
 
 
   static void main(string[] args) {
-    int n;
+  (new Sieve()).execute(args);
+
+  }
+  
+  void execute(string [] args){
+   int n;
 
     if (args.length != 1) {
       Library.println("Unspecified number.");
@@ -61,7 +66,6 @@ class Sieve {
     sieveAll();
     printPrimes();
     Library.println("");
-
-  }
-
+  
 }
+  }

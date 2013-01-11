@@ -217,7 +217,8 @@ class T extends V{
 
  static void staticToo()
  {
-    {{staticVoo(kk);}}
+    int dd = 2;
+    {{staticVoo(dd);}}
  }
  
  void virtualToo(){

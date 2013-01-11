@@ -149,13 +149,16 @@ public class GenTester {
 		switch (output_type) {
 		case standart: {
 			System.out.println(str);
+			break;
 		}
 		case file: {
 			AppendStringToFile(outputFile, str);
+			break;
 		}
 		case all: {
 			System.out.println(str);
 			AppendStringToFile(outputFile, str);
+			break;
 		}
 		}
 	}
