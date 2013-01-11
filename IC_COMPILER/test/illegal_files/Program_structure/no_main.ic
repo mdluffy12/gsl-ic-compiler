@@ -1,6 +1,10 @@
 /* A program must have exactly one method main, with the
 following signature:
-static void main (string[] args) { ... } */
+static void main (string[] args) { ... } 
+
+output:
+semantic error : a program must have exactly one method main
+*/
 
 class A 
 { 

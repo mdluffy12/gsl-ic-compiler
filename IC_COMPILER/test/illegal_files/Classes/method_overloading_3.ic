@@ -25,8 +25,7 @@
    superclasses.
    
 output: (5th rule violation)
-51: Semantic error: method foo in type C is overridden illegally (type mismatch)
-
+semantic error at line 51: method foo in type C is overridden illegally (type mismatch)
 */
 
 class A

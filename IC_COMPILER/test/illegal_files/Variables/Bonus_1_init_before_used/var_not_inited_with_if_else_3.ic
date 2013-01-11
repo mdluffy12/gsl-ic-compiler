@@ -1,0 +1,120 @@
+/* Initialization: The program does not initialize variables with default values at declaration
+points. Instead, the compiler statically checks that each variable is assigned before it is used.
+Violations of this rule will cause compilation errors.  
+
+output:
+semantic error at line 110: the local variable c may not have been initialized
+*/
+
+class A {
+   
+   int f1;
+   
+   static void main(string [] args) {
+   
+    int a;
+    int b;
+    int c;
+    
+    if(f1 > 2){
+       a = 2;
+       b = 2;
+       
+       if(true) c = 2;
+       
+    }else if(f1 > 3){
+    
+        a = 2;
+        b = 1;
+        
+        if(f1 < 0){
+          b = 3;
+          c = 1;
+        }else{
+          c = 3;
+        }
+        
+    }else if (f1 > 4){
+    
+        if(f1 > 1){
+         a = 1;
+         b = 2;
+         
+         if(f1 > 1){
+           c = 2;
+         }else{
+           c = 4;
+         }
+
+
+        }else{
+         a = 1;
+         b = 2;
+         c = 3;
+        }
+       
+    }else{
+         a = 1;
+         b = 2;
+         c = 3;
+    
+    }
+    
+   int y = (f(b) * g(a)) - f(c);
+  
+   
+     
+   }
+   
+   static int f(int a){
+       
+   int b;
+   int c;
+   if(f1 > 2){
+       a = 2;
+       b = 2;
+       
+       if(true) c = 2;
+       
+    }else if(f1 > 3){
+    
+        a = 2;
+        b = 1;
+        
+        if(f1 < 0){
+          b = 3;
+          c = 1;
+        }else{
+          c = 3;
+        }
+        
+    }else if (f1 > 4){
+    
+        if(f1 > 1){
+         a = 1;
+         b = 2;
+         //c = 3; ---- > missing c
+        }else{
+         a = 1;
+         b = 2;
+         c = 3;
+        }
+       
+    }else{
+         a = 1;
+         b = 2;
+         c = 3;
+    
+    }
+    
+    return (f(b) * g(a)) - f(c);
+   }
+   
+   static int g(int b){
+     return b;
+   }
+   
+ 
+   
+   
+}

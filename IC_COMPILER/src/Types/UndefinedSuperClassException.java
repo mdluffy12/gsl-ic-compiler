@@ -10,7 +10,6 @@ public class UndefinedSuperClassException extends SemanticError {
 
 	public UndefinedSuperClassException(String err_msg) {
 		super(err_msg);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**

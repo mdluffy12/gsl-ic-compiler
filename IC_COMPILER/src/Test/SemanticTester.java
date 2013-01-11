@@ -95,6 +95,10 @@ public class SemanticTester extends GenTester {
 			
 			Program root = (Program) parseSymbol.value;
 
+			PrettyPrinter astPrinter = new PrettyPrinter(new File(inputFilePath).getName());
+			sb.append(root.accept(astPrinter));
+			
+			
 			if(withLib){
 				LibraryParser libParser = new LibraryParser(new Lexer(new FileReader(libPath)));
 				Symbol libParseSymbol = libParser.parse();

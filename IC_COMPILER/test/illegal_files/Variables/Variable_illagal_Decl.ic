@@ -2,7 +2,7 @@
 and boolean values, or references to objects, arrays, or strings. 
 
 output:
-8: Semantic error: type mismatch: cannot resolve {string[] -> void} as int
+semantic error at line 12: type mismatch: cannot resolve {string[] -> void} as int
 */
 
 class A 

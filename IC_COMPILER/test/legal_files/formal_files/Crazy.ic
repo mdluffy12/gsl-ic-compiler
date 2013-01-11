@@ -1,0 +1,350 @@
+class A {
+boolean b;
+
+int kk;
+
+  string str;
+  int i;
+
+  static int sfunc(boolean b) {
+    if (b) {
+      {
+        int k = 5;
+      }
+      return 1;
+    }
+    else {
+      A x = new A();
+      x.i = 9;
+      x.str = "hello";
+      return 0;
+    }
+  }
+
+  void vfunc(A a, int max, int val) {
+    int[] arr = new int[max];
+    int i = 0;
+    while (i < max){
+        arr[i] = val;
+        i = i + 1;
+        if (a == null)
+          break;
+    }
+  }
+}
+
+class B extends A {
+    
+    int kkk;
+    
+    
+    int j;
+
+    void vfunc(A a, int max, int val) {
+    }
+}
+
+class C {
+int f1;
+  static void main(string[] args) {
+    A[][] a;
+    int n = 4;
+    
+    if (args.length != 1) {
+      Library.println("Unspecified number.");
+      return;
+    }
+
+    Library.println("");
+    n = Library.stoi(args[0], 0);
+    if (n <= 0) {
+      Library.println("Invalid array length");
+      return;
+    }
+    int [] num = new int[n];
+    
+     
+  }
+  
+  void f(string[] args) {
+    {{{{{A[][][][][][] a;}}}}}  
+  }
+}
+
+class D extends C {
+  int koo(string[] args) {
+    A[][] aa;
+    
+        int a;
+    int b;
+    int c;
+    
+    if(f1 > 2){
+       a = 2;
+       b = 2;
+       
+       if(true) c = 2;
+       
+    }else if(f1 > 3){
+    
+        a = 2;
+        b = 1;
+        
+        if(f1 < 0){
+          b = 3;
+          c = 1;
+        }else{
+          c = 3;
+        }
+        
+    }else if (f1 > 4){
+    
+        if(f1 > 1){
+         a = 1;
+         b = 2;
+         
+         if(f1 > 1){
+           c = 2;
+         }else{
+           c = 4;
+         }
+
+
+        }else{
+         a = 1;
+         b = 2;
+         c = 3;
+        }
+       
+    }else{
+         a = 1;
+         b = 2;
+         c = 3;
+    
+    }
+    
+    int [] arr_a = new int [a];
+    int [] arr_b = new int [b];
+    string [] arr_c = new string [c];
+    
+    return crazyFunc(arr_a,arr_b,arr_c);
+  }
+  
+  int crazyFunc(int [] a, int [] b, string [] c){
+  
+   if(f1 == 2){{{
+     if(f1 > 3){
+       return 2;
+     }else if(f1 > 3){
+       return 3;
+     }else{
+        if(f1 == 0){{
+         return 2;
+        }}else {{return 3;}}
+     }
+   }}}
+   
+   
+    return a[1] + b[2] + Library.stoi(c[a[b[4]]],3);
+  }
+  
+  
+  void f(string[] args) {
+    {{{{{A[][][][][][] a;}}}}} 
+    
+    
+    int m = Library.stoi(args[0], 0);
+	int n = Library.stoi(args[1], 0);
+	int p = Library.stoi(args[2], 0);
+	if(m < 1){
+	    Library.println("Invalid value for parameter `m'");
+	    Library.exit(1);
+	}
+	if(n < 1){
+	    Library.println("Invalid value for parameter `n'");
+	    Library.exit(1);
+	    return;
+	}
+	if(p < 1){
+	    Library.println("Invalid value for parameter `p'");
+	    Library.exit(1);
+	}
+	
+	{{return;}}
+	 
+  }
+}
+
+class P extends B{
+ 
+   static void maine(string [] args) {
+   
+    int a;
+    int b = 2;
+    int c = 1;
+   
+   
+    a = 2;
+     
+    int y = (f(b) * g(c)) / (f(c) - q(a,c));
+   }
+   
+   static int f(int a){
+     return 3;
+   }
+   
+   static int g(int b){
+    return 5;
+   }
+   
+   static int q(int a,int b){
+    return 14;
+    
+   }
+ 
+
+}
+
+
+
+class V extends B{
+
+ static void staticVoo(int a){}
+ void virtualVoo(int b){}
+}
+
+class T extends V{
+
+ static void staticToo()
+ {
+    {{staticVoo(kk);}}
+ }
+ 
+ void virtualToo(){
+ {
+  { virtualVoo(kkk);}
+ }}
+
+
+}
+
+
+class E extends B {
+
+    void goo(string[] args) {
+    A[][] a;
+    
+    string s = Library.itos(2);
+     
+  }
+  
+  int grishaFunc(int m,int[][] a){
+    a = new int[][m];
+	i = 0;
+	int n;
+	int [][]b;
+	int p = 3;
+	int [][] c;
+	while(i < m){
+	n = 2;
+	    a[i] = new int[n];
+	    i = i + 1;
+	}
+	n = 3;
+	b = new int[][n];
+	i = 0;
+	while(i < n){
+	    b[i] = new int[p];
+	    i = i + 1;
+	}
+	
+	c = new int[][m];
+	i = 0;
+	while(i < m){
+	    c[i] = new int[p];
+	    i = i + 1;
+	    
+	    return 2;
+	}
+	
+	if(m > 4){
+	  return 3;
+	} else if(m > 12){
+	  return 4;
+	} else{
+	  return 5;
+	}
+  }
+  
+  
+  int roniFunc(int m,int[][] a, int max){
+    if(m < 1){
+	    Library.println("Invalid value for parameter `m'");
+	    Library.exit(1);
+	}
+	
+	 int val;
+	
+	int[] arr = new int[max];
+    int i = 0;
+    while (i < max){
+    val = 2;
+        arr[i] = val;
+        
+        i = i + 1;
+        if (a == null)
+          break;
+    }
+    
+    B x ;
+      
+    if (b && !b) {
+      {
+        int k = 5;
+      }
+      return 1;
+    }
+    else {
+      A x = new A();
+      x.i = 9;
+      x.str = "hello";
+      
+      {{
+         
+         x = (new A[2])[1];
+         string x = "hi";
+      }} 
+      
+      x = (new A[][2])[x.i*4-19][x.i]; 
+      
+      
+      return 0;
+    }
+     
+     B bb;
+     x = (new B[][4-3])[x.i*4-19][x.i]; 
+     bb = x;
+     
+    return 2;
+    
+  }
+  
+  void f(string[] args) {
+    {{{{{A[][][][][][] a;}}}}}
+    
+    A[] a = new A[4];
+    
+    int x = a.length + kkk;
+		{
+			x = x*62;
+			boolean x = true;
+			x = false;
+		}
+		
+		
+		int[] arr = new int[2];
+		
+		arr[3] = 4 + kkk * j;
+		  
+  }
+}

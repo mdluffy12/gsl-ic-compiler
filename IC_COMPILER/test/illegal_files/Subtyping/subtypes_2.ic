@@ -5,7 +5,7 @@
 of B[ ].
 
 output: (2nd rule violation)
-31: Semantic error: the method checkArrSubType in the type D is not applicable for type D[] as the type of the 1th argument
+semantic error at line 36: the method checkArrSubType in the type D is not applicable for type D[] as the type of the #1 argument
 */
 
 class A

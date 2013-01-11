@@ -14,7 +14,7 @@ the body of the method cannot return values.
 
 
 output: (3rd rule violation)
-23: Semantic error: type mismatch: cannot resolve void as int
+semantic error at line 27: type mismatch: cannot resolve void as int
 */
 
 class A
@@ -26,8 +26,6 @@ class A
    B b = new B();
    int c = b.foo();
   }
-  
- 
  
 }
 

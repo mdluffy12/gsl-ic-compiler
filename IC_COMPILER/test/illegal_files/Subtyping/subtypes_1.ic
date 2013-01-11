@@ -3,7 +3,7 @@
 1. subtyping is reflexive and transitive.
  
 output: (1th rule violation)
-30: Semantic error: the method checkSubType in the type D is not applicable for type B as the type of the 3th argument
+semantic error at line 29: the method checkSubType in the type D is not applicable for type B as the type of the #3 argument
 */
 
 class A

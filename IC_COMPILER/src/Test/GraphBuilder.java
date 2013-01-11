@@ -48,7 +48,7 @@ public class GraphBuilder implements Visitor {
 	private String dotSource;
 
 	// counters are used to give unique names to nodes of the same type
-	protected int cnt = 0; // TODO might need to make it long for large programs
+	protected int cnt = 0; 
 	String extraInfo = ""; // used to print extra info when needed
 
 	public GraphBuilder() {
@@ -181,20 +181,8 @@ public class GraphBuilder implements Visitor {
 
 	@Override
 	public Object visit(While whileStatement) {
-		// this code replaces the code below, TODO remove comments later
 		return buildSubtree(whileStatement, "While statement",
 				whileStatement.getCondition(), whileStatement.getOperation());
-
-		/*
-		 * String whileNode = "while" + cnt++; gv.addln(whileNode +
-		 * " [label=\"While statement\"]");
-		 * 
-		 * gv.addln(whileNode + " -> " +
-		 * whileStatement.getCondition().accept(this)); gv.addln(whileNode +
-		 * " -> " + whileStatement.getOperation().accept(this));
-		 * 
-		 * return whileNode;
-		 */
 	}
 
 	@Override
@@ -209,18 +197,6 @@ public class GraphBuilder implements Visitor {
 
 	@Override
 	public Object visit(StatementsBlock statementsBlock) {
-
-		/*
-		 * String sbNode = "stateBlock" + cnt++; gv.addln(sbNode +
-		 * " [label=\"Statement Block\"]");
-		 * 
-		 * for (Statement statement : statementsBlock.getStatements())
-		 * gv.addln(sbNode + " -> " + statement.accept(this));
-		 * 
-		 * return sbNode;
-		 */
-
-		// above code is replaced by: TODO remove comment
 
 		return buildSubtree(statementsBlock, "Statement Block", statementsBlock
 				.getStatements().toArray(new ASTNode[0]));
@@ -379,8 +355,7 @@ public class GraphBuilder implements Visitor {
 		try {
 			root.accept(this);
 		} catch (SemanticError e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 
@@ -425,8 +400,7 @@ public class GraphBuilder implements Visitor {
 			try {
 				gv.addln(node + " -> " + child.accept(this));
 			} catch (SemanticError e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
 		}
 	}

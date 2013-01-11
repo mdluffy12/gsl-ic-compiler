@@ -20,7 +20,7 @@ program termination.
 5. unary operators: sign change - for integers and logical negation ! for booleans
 
 output: (2nd rule violation)
-39: Semantic error: the operator > is undefined for the argument types int and boolean
+semantic error at line 38: the operator > is undefined for the argument types int and boolean
 */
 
 class A

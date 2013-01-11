@@ -57,8 +57,7 @@ public class GenParser {
 		try {
 			System.out.println(root.accept(printer));
 		} catch (SemanticError e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 

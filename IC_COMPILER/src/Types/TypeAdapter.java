@@ -10,42 +10,49 @@ public class TypeAdapter {
 	// types from the Types package
 	public static Types.Type adaptType(IC.AST.ASTNode astNode)
 			throws UndefinedClassException {
-		
-		if (astNode instanceof IC.AST.ICClass)
-		{
-			ClassType result = TypeTable.classType(((IC.AST.ICClass) astNode).getName());
-			
-			if(result.getId() == Type.unititializedTypeID)
+
+		if (astNode instanceof IC.AST.ICClass) {
+			ClassType result = TypeTable.classType(((IC.AST.ICClass) astNode)
+					.getName());
+
+			if (result.getId() == Type.unititializedTypeID)
 				result.setId(TypeTable.getCurIdAndIncrement());
 		}
-		
+
 		else if (astNode instanceof IC.AST.UserType) {
 			IC.AST.UserType uType = (IC.AST.UserType) astNode;
 
 			return handleDimension(Types.TypeTable.classType(uType.getName()),
 					uType.getDimension());
-			
+
 		} else if (astNode instanceof IC.AST.PrimitiveType) {
 			IC.AST.PrimitiveType pType = (IC.AST.PrimitiveType) astNode;
 
 			Types.Type baseType = null;
-			switch (pType.getName()) {
-			case "int":
+			String typeName = pType.getName();
+
+			if (typeName.equals("int")) {
+				
 				baseType = Types.TypeTable.intType;
-				break;
-			case "boolean":
+				
+			} else if (typeName.equals("boolean")) {
+				
 				baseType = Types.TypeTable.boolType;
-				break;
-			case "string":
+				
+			} else if (typeName.equals("string")) {
+				
 				baseType = Types.TypeTable.stringType;
-				break;
-			case "void":
+				
+			} else if (typeName.equals("void")) {
+				
 				baseType = Types.TypeTable.voidType;
-				break;
-			default:
+				
+			} else {
+				// should'nt really get here
 				System.out.println("Unexpected primitive type in TypeAdapter!");
 				return null;
 			}
+
 			return handleDimension(baseType, pType.getDimension());
 		} else if (astNode instanceof IC.AST.Method) {
 			IC.AST.Method method = (IC.AST.Method) astNode;

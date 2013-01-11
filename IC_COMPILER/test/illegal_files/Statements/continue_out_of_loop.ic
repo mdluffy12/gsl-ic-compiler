@@ -8,7 +8,7 @@ For integers and booleans, the assignment copies the integer or boolean value.
    enclosing loop in the current method.
 
 output: (2nd rule violation)
-25: Semantic error: continue cannot be used outside of a loop
+semantic error at line 20: continue cannot be used outside of a loop
 */
 
 class A
@@ -17,7 +17,7 @@ class A
   static void main (string [] args){
     
     if(1 > 2){
-      
+      continue;
       while(true){
        break;
       }

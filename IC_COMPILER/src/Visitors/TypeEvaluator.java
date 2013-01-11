@@ -313,7 +313,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 	}
 
 	@Override
-	public Object visit(Length length) throws SemanticError {
+	public Object visit(Length length) throws SemanticError {	
 		Type arrType = this.evaluateAndCheckExpressionType(length.getArray());
 		if(!(arrType instanceof ArrayType))
 			throw new SemanticError("the type " + arrType + " does not have a field length" ,length);

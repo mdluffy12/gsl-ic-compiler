@@ -20,7 +20,7 @@ program termination.
 5. unary operators: sign change - for integers and logical negation ! for booleans
 
 output: (4th rule violation)
-38: Semantic error: the operator || is undefined for the argument types boolean and int
+semantic error at line 38: the operator || is undefined for the argument types boolean and int
 */
 
 class A

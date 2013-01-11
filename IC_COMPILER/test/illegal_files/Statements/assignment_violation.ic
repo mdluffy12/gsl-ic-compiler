@@ -8,7 +8,7 @@ For integers and booleans, the assignment copies the integer or boolean value.
    enclosing loop in the current method.
 
 output: (first rule violation)
-27: Semantic error: the operator + is undefined for the argument types int and boolean
+semantic error at line 27: the operator + is undefined for the argument types int and boolean
 */
 
 class A

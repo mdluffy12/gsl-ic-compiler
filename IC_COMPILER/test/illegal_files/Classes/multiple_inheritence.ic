@@ -26,8 +26,7 @@
    
    
 output: (second rule violation)
-49: Syntax error: unexpected COMMA
-
+50: Syntax error: unexpected COMMA
 */
 
 class A

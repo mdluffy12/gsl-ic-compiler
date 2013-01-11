@@ -47,13 +47,14 @@ public class SemanticError extends Exception {
 	public String getMessage() {
 		StringBuilder sb = new StringBuilder();
 
+		sb.append("semantic error ");
 		if (this.error_line > 0) {
-			sb.append(this.error_line + ": Semantic error: ");
+			sb.append("at line " + this.error_line);
 
 		}
 
 		if (this.err_msg.length() > 0)
-			sb.append(this.err_msg);
+			sb.append(": " + this.err_msg);
 
 		return sb.toString();
 	}

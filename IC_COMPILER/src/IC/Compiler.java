@@ -39,7 +39,8 @@ public class Compiler {
 	public static GenParser parser = null;
 	public static GenParser libParser = null;
 	public static boolean printAST = false;
-
+	public static boolean dumpSymTable = false;
+	
 	/* this is the main function of our compiler */
 	public static void main(String[] args) {
 
@@ -63,6 +64,11 @@ public class Compiler {
 					if (arg.equals("-print-ast")) {
 						printAST = true;
 					}
+					
+					if (arg.equals("-dump-symtab")) {
+						dumpSymTable = true;
+					}
+					
 				}
 
 				// get library path from input libraryPath
@@ -195,22 +201,21 @@ public class Compiler {
 			p.accept(typeChecks);
 			p.accept(semanticChecks);
 
-			SymTableUtils.printTable(globalTable);
+			if(dumpSymTable){
+			  SymTableUtils.printTable(globalTable);
+			  String typeTableStr = TypeTable.asString();
+				System.out.print(typeTableStr.substring(0, typeTableStr.length()-1));
+			}
 			
 			
-			String typeTableStr = TypeTable.asString();
-			System.out.print(typeTableStr.substring(0, typeTableStr.length()-1));
 
 		} catch (SemanticError e) {
 			System.out.println(e);
-			//TODO: erase following line before handing in
-			//e.printStackTrace();
 			return false;
 		} catch (RuntimeException e){
-		    System.out.println("Compiler runtime exception: " + e + "\nTrace: ");
-		    e.printStackTrace();
+		    System.out.println("compiler runtime exception: " + e + "\nTrace: ");
 		} catch(Exception e){
-			System.out.println("Unexpected exception: " + e);
+			System.out.println("unexpected exception: " + e);
 		}
 
 		return true;

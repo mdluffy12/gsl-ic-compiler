@@ -5,7 +5,7 @@
 does not compare string contents).
 
 output: (first rule violation)
-29: Semantic error: type mismatch: cannot resolve int as string
+semantic error at line 29: type mismatch: cannot resolve int as string
 */
 
 class A 

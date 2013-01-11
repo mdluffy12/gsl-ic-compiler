@@ -5,7 +5,7 @@
 does not compare string contents).
 
 output: (second rule violation)
-29: Semantic error: the operator - is undefined for strings (expected plus)
+semantic error at line 29: the operator - is undefined for strings (expected plus)
 */
 
 class A 

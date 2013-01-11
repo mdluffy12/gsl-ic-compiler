@@ -26,8 +26,7 @@
    
    
 output: (third rule violation)
-40: Semantic error: super class C is undefined
-
+semantic error at line 40: super class C is undefined
 */
 
 class A

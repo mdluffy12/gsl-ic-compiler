@@ -1,0 +1,36 @@
+/* The language supports arrays with arbitrary element types: 
+1. array elements can be arrays themselves,
+   allowing programmers to build multidimensional arrays.
+
+2. if x.length invoked then x has to be of type array
+
+output:  
+semantic error at line 27: the type int does not have a field length
+*/
+
+class A
+{ 
+  static void main (string [] args){
+     
+     int [] a = new int [3];
+     string [] b= new string [3];
+     A [] c= new A [3];
+     
+     int [][] a2= new int [][3];
+     string [][] b2= new string [][3];
+     A [][] c2= new A [][3];
+     
+     int not_arr = 3;
+     
+     
+     int y = a.length + b.length  + c.length + a2.length + b2.length
+             + c2.length + not_arr.length;
+     
+     
+  }
+}
+
+ 
+
+ 
+ 

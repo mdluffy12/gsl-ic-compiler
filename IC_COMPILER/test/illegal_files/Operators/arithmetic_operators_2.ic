@@ -20,7 +20,7 @@ program termination.
 5. unary operators: sign change - for integers and logical negation ! for booleans
 
 output: (first rule violation)
-42: Semantic error: the operator * is undefined for strings (expected plus)
+semantic error at line 41: the operator * is undefined for strings (expected plus)
 */
 
 class A
