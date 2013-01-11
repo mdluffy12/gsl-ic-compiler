@@ -11,8 +11,10 @@ import IC.LiteralTypes;
 import IC.AST.ArrayLocation;
 import IC.AST.Assignment;
 import IC.AST.Break;
+import IC.AST.Call;
 import IC.AST.CallStatement;
 import IC.AST.Continue;
+import IC.AST.Expression;
 import IC.AST.ExpressionBlock;
 import IC.AST.Field;
 import IC.AST.Formal;
@@ -318,36 +320,115 @@ public class SemanticChecks implements Visitor {
 
 	}
 
-	/*
-	 * -------------------------------------------------------------------
-	 * ------- passive AST nodes (no actions when accept invoked) --------
-	 * -------------------------------------------------------------------
-	 */
+	@Override
+	public Object visit(VariableLocation varLocation) throws SemanticError {
 
+		SymbolTable varScope = varLocation.getEnclosingScope();
+		
+		if(varLocation.isExternal()){
+			// checking only external variable location here
+			return null;
+		}
+		 
+		if (varScope == null) {
+			// should'nt happen
+			return null;
+		}
+
+		Symbol varSymbol = varScope.lookup(varLocation.getName(), varLocation);
+
+		if (varSymbol == null) {
+			// already checked, should'nt happen
+			return null;
+		}
+
+		Symbol methodSymbol = varScope.getMethodParent();
+
+		// if variable location is defined within a static method
+		if (!methodSymbol.isVirtualMethod()) {
+
+			/*
+			 * check if variable location is referring to a field, and since all
+			 * fields are non-static, than we need to throw exception
+			 */
+
+			if (varSymbol.isField()) {
+				throw new SemanticError(
+						"cannot make a static reference to the non-static field "
+								+ varSymbol.getIdName(), varLocation);
+			}
+
+		}
+
+		return null;
+	}
+	
 	@Override
 	public Object visit(LocalVariable localVariable) throws SemanticError {
+		if(localVariable.hasInitValue()){
+		  localVariable.getInitValue().accept(this);
+		}
 		return null;
 	}
 
-	@Override
-	public Object visit(VariableLocation location) throws SemanticError {
-		return null;
-	}
-
-	@Override
-	public Object visit(ArrayLocation location) throws SemanticError {
+	private Object handleCall(Call call) throws SemanticError {
+		for(Expression arg: call.getArguments()){
+			arg.accept(this);
+		}
 		return null;
 	}
 
 	@Override
 	public Object visit(StaticCall call) throws SemanticError {
-		return null;
+		return handleCall(call);
 	}
 
 	@Override
 	public Object visit(VirtualCall call) throws SemanticError {
+		return handleCall(call);
+	}
+
+	
+	@Override
+	public Object visit(ArrayLocation location) throws SemanticError {
+		location.getArray().accept(this);
+		location.getIndex().accept(this);
 		return null;
 	}
+	
+	@Override
+	public Object visit(Length length) throws SemanticError {
+		length.getArray().accept(this);
+		return null;
+	}
+	
+	@Override
+	public Object visit(Assignment assignment) throws SemanticError {
+		assignment.getAssignment().accept(this);
+		assignment.getVariable().accept(this);
+		return null;
+	}
+
+	@Override
+	public Object visit(CallStatement callStatement) throws SemanticError {
+		callStatement.getCall().accept(this);
+		return null;
+	}
+
+	@Override
+	public Object visit(Return returnStatement) throws SemanticError {
+		if(returnStatement.hasValue()){
+			returnStatement.getValue().accept(this);
+		}
+		return null;
+	}
+	
+	
+	/*
+	 * -------------------------------------------------------------------
+	 * ------- passive AST nodes (no actions when accept invoked) --------
+	 * -------------------------------------------------------------------
+	 */
 
 	@Override
 	public Object visit(This thisExpression) throws SemanticError {
@@ -365,27 +446,28 @@ public class SemanticChecks implements Visitor {
 	}
 
 	@Override
-	public Object visit(Length length) throws SemanticError {
-		return null;
-	}
-
-	@Override
 	public Object visit(MathBinaryOp binaryOp) throws SemanticError {
+		binaryOp.getFirstOperand().accept(this);
+		binaryOp.getSecondOperand().accept(this);
 		return null;
 	}
 
 	@Override
 	public Object visit(LogicalBinaryOp binaryOp) throws SemanticError {
+		binaryOp.getFirstOperand().accept(this);
+		binaryOp.getSecondOperand().accept(this);
 		return null;
 	}
 
 	@Override
 	public Object visit(MathUnaryOp unaryOp) throws SemanticError {
+		unaryOp.getOperand().accept(this);
 		return null;
 	}
 
 	@Override
 	public Object visit(LogicalUnaryOp unaryOp) throws SemanticError {
+		unaryOp.getOperand().accept(this);
 		return null;
 	}
 
@@ -411,21 +493,6 @@ public class SemanticChecks implements Visitor {
 
 	@Override
 	public Object visit(UserType type) throws SemanticError {
-		return null;
-	}
-
-	@Override
-	public Object visit(Assignment assignment) throws SemanticError {
-		return null;
-	}
-
-	@Override
-	public Object visit(CallStatement callStatement) throws SemanticError {
-		return null;
-	}
-
-	@Override
-	public Object visit(Return returnStatement) throws SemanticError {
 		return null;
 	}
 

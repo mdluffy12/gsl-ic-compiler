@@ -78,7 +78,9 @@ class MatrixMult {
 	    Library.println("Invalid value for parameter `p'");
 	    Library.exit(1);
 	}
-
+	int [][] a;
+	int [][] b;
+	int [][] c;
 	a = new int[][m];
 	i = 0;
 	while(i < m){

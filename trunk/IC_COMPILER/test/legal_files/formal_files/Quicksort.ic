@@ -1,7 +1,7 @@
 class Quicksort {
     int[] a;
     
-    static int partition(int low, int high) {
+     int partition(int low, int high) {
 	int pivot = a[low];
 	int i = low; 
 	int j = high;
@@ -23,7 +23,7 @@ class Quicksort {
 	return j;
     }
 
-    static void quicksort(int low, int high) {
+     void quicksort(int low, int high) {
 	if (low < high) {
 	    int mid = partition(low, high);
 	    quicksort(low, mid);
@@ -31,7 +31,7 @@ class Quicksort {
 	}
     }
 
-    static void initArray() {
+     void initArray() {
 	int i = 0;
 	while(i < a.length) {
 	    a[i] =  Library.random(a.length*2);
@@ -39,7 +39,7 @@ class Quicksort {
 	}
     }
 
-    static void printArray() {
+     void printArray() {
 	int i = 0;
 
 	Library.print("Array elements: ");
@@ -52,6 +52,10 @@ class Quicksort {
     }
 
     static void main(string[] args) {
+	  (new Quicksort()).execute(args);
+    }
+	
+	void execute(string[] args){
 	int n;
 
 	if (args.length != 1) {
@@ -70,5 +74,5 @@ class Quicksort {
 	printArray();
 	quicksort(0, n-1);
 	printArray();
-    }
+	}
 }

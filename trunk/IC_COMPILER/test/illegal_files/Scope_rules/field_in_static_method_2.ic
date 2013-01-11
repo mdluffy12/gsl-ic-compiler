@@ -1,0 +1,67 @@
+ /* For each program, there is a hierarchy of scopes consisting of: the global scope, class scopes,
+method scopes, and local scopes for blocks within each method, rules:
+
+1. When resolving an identifier at a certain point in the program, the enclosing scopes are
+   searched for that identifier.
+
+   
+2.Each class has a static scope and an instance scope. The instance scope is the set of all fields and methods of that class; 
+
+3. the static scope is the set of static methods only.
+
+output: (3rd rule violation)
+semantic error at line 49: cannot make a static reference to the non-static field b
+*/
+ 
+
+
+class A{
+ int a;
+ int [] b;
+  
+ static void main (string [] ars){
+ 
+   
+  
+ }
+ 
+ 
+  int foo(int a,int [] b){
+  
+  int y = a;
+  int [] y_arr = b;
+  
+  y = a;
+  
+  y_arr = b;
+  
+  foo(a,b);
+  
+  int k = b[3];
+  
+  return a;
+ 
+ }
+ 
+  static int sfoo(int aa,int [] bb){
+  
+  int y = 2;
+  int [] y_arr = b;
+  
+  y = a;
+  
+  y_arr = b;
+  
+  sfoo(a,b);
+  
+  int k = b[3];
+  
+  return a;
+ 
+ }
+ 
+ 
+
+ 
+ 
+}
