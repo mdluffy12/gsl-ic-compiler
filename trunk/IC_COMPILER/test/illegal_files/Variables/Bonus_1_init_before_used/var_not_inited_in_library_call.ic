@@ -1,0 +1,31 @@
+/* Initialization: The program does not initialize variables with default values at declaration
+points. Instead, the compiler statically checks that each variable is assigned before it is used.
+Violations of this rule will cause compilation errors.  
+
+output:
+semantic error at line 22: the local variable args may not have been initialized
+*/
+
+class A {
+   
+   static void main(string [] args) {
+   
+    int a;
+    int b;
+    int c;
+   }
+   
+   int[] foo(){
+   
+     string [] args;
+     
+     int[] arr = Library.stoa(args[4]);
+     
+     return arr;
+     
+   }
+   
+   void func (string [] args){
+   
+   }
+}

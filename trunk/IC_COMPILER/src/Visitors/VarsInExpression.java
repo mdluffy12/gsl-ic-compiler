@@ -24,7 +24,6 @@ import IC.AST.LogicalBinaryOp;
 import IC.AST.LogicalUnaryOp;
 import IC.AST.MathBinaryOp;
 import IC.AST.MathUnaryOp;
-import IC.AST.Method;
 import IC.AST.NewArray;
 import IC.AST.NewClass;
 import IC.AST.PrimitiveType;
@@ -45,138 +44,24 @@ import IC.Parser.SemanticError;
 import SymbolTable.Symbol;
 
 public class VarsInExpression implements Visitor {
-	
+
 	/**
-	 * Created By Micha Sherman,Tzvika Geft and Roni Lichtman 
-	 * Compilation course, University of Tel Aviv 2012 ©   
-	 * @throws SemanticError 
+	 * Created By Micha Sherman,Tzvika Geft and Roni Lichtman Compilation
+	 * course, University of Tel Aviv 2012 ©
+	 * 
+	 * @throws SemanticError
 	 */
-	
-	public Set<Symbol> findVarsInExpression(Expression e) throws SemanticError
-	{
-		return (Set<Symbol>)e.accept(this);
-	}
-	
-	@Override
-	public Object visit(Program program) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	@Override
-	public Object visit(ICClass icClass) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(Field field) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(VirtualMethod method) throws SemanticError {
-		// TODO Auto-generated method stub
-		handleMethod(method);
-		return null;
-	}
-
-	@Override
-	public Object visit(StaticMethod method) throws SemanticError {
-		// TODO Auto-generated method stub
-		handleMethod(method);
-		return null;
-	}
-
-	private void handleMethod(Method method) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public Object visit(LibraryMethod method) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(Formal formal) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(PrimitiveType type) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(UserType type) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(Assignment assignment) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(CallStatement callStatement) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(Return returnStatement) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(If ifStatement) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(While whileStatement) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(Break breakStatement) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(Continue continueStatement) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(StatementsBlock statementsBlock) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(LocalVariable localVariable) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
+	public Set<Symbol> findVarsInExpression(Expression e) throws SemanticError {
+		return (Set<Symbol>) e.accept(this);
 	}
 
 	@Override
 	public Object visit(VariableLocation location) throws SemanticError {
 		Set<Symbol> result = new HashSet<Symbol>();
-		Symbol varSym = location.getEnclosingScope().lookup(location.getName(), location);
-		if(varSym.isVariable())
+		Symbol varSym = location.getEnclosingScope().lookup(location.getName(),
+				location);
+		if (varSym.isVariable())
 			result.add(varSym);
 		return result;
 	}
@@ -184,8 +69,8 @@ public class VarsInExpression implements Visitor {
 	@Override
 	public Object visit(ArrayLocation location) throws SemanticError {
 		Set<Symbol> result = new HashSet<Symbol>();
-		result.addAll(((Set<Symbol>)location.getArray().accept(this)));
-		result.addAll(((Set<Symbol>)location.getIndex().accept(this)));
+		result.addAll(((Set<Symbol>) location.getArray().accept(this)));
+		result.addAll(((Set<Symbol>) location.getIndex().accept(this)));
 		return result;
 	}
 
@@ -198,12 +83,11 @@ public class VarsInExpression implements Visitor {
 	public Object visit(VirtualCall call) throws SemanticError {
 		return handleCall(call);
 	}
-	
-	private Object handleCall(Call call) throws SemanticError
-	{
+
+	private Object handleCall(Call call) throws SemanticError {
 		Set<Symbol> result = new HashSet<Symbol>();
-		for(Expression e : call.getArguments())
-			result.addAll(((Set<Symbol>)e.accept(this)));
+		for (Expression e : call.getArguments())
+			result.addAll(((Set<Symbol>) e.accept(this)));
 		return result;
 	}
 
@@ -219,7 +103,7 @@ public class VarsInExpression implements Visitor {
 
 	@Override
 	public Object visit(NewArray newArray) throws SemanticError {
-		
+
 		return newArray.getSize().accept(this);
 	}
 
@@ -237,11 +121,11 @@ public class VarsInExpression implements Visitor {
 	public Object visit(LogicalBinaryOp binaryOp) throws SemanticError {
 		return handleBinaryOp(binaryOp);
 	}
-	
+
 	private Object handleBinaryOp(BinaryOp binaryOp) throws SemanticError {
 		Set<Symbol> result = new HashSet<Symbol>();
-		result.addAll(((Set<Symbol>)binaryOp.getFirstOperand().accept(this)));
-		result.addAll(((Set<Symbol>)binaryOp.getSecondOperand().accept(this)));
+		result.addAll(((Set<Symbol>) binaryOp.getFirstOperand().accept(this)));
+		result.addAll(((Set<Symbol>) binaryOp.getSecondOperand().accept(this)));
 		return result;
 	}
 
@@ -254,7 +138,7 @@ public class VarsInExpression implements Visitor {
 	public Object visit(LogicalUnaryOp unaryOp) throws SemanticError {
 		return handleUnaryOp(unaryOp);
 	}
-	
+
 	private Object handleUnaryOp(UnaryOp unaryOp) throws SemanticError {
 		return unaryOp.getOperand().accept(this);
 	}
@@ -269,6 +153,100 @@ public class VarsInExpression implements Visitor {
 		return expressionBlock.getExpression().accept(this);
 	}
 
-	
-	
+	/*
+	 * -------------------------------------------------------------------
+	 * ------- passive AST nodes (no actions when accept invoked) --------
+	 * -------------------------------------------------------------------
+	 */
+
+	@Override
+	public Object visit(LibraryMethod method) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(Formal formal) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(PrimitiveType type) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(UserType type) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(Assignment assignment) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(CallStatement callStatement) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(Return returnStatement) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(If ifStatement) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(While whileStatement) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(Break breakStatement) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(Continue continueStatement) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(StatementsBlock statementsBlock) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(LocalVariable localVariable) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(Program program) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(ICClass icClass) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(Field field) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(VirtualMethod method) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(StaticMethod method) throws SemanticError {
+		return null;
+	}
+
 }

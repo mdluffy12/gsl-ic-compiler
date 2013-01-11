@@ -2,9 +2,10 @@
 1. array elements can be arrays themselves,
    allowing programmers to build multidimensional arrays.
 
+2. if x.length invoked then x has to be of type array
 
 output:  
-36: Semantic error: the operator + is undefined for the argument types B[] and int
+semantic error at line 37: the operator + is undefined for the argument types B[] and int
 */
 
 class A
@@ -33,7 +34,7 @@ class B extends A
 
     int[] array = new int [100];
  
-    array[5] = arr[size] + 4;
+    array[5] = arr.length + array.length + arr[size] + 4;
      
   
   }

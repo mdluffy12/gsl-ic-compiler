@@ -14,7 +14,7 @@ the body of the method cannot return values.
 
 
 output: (first rule violation)
-17: Semantic error: the method foo in the type B is not applicable for 1 argument(s) 
+semantic error at line 27: the method foo in the type B is not applicable for 1 argument(s) 
 */
 
 class A
@@ -26,8 +26,6 @@ class A
    B b = new B();
    b.foo(2);
   }
-  
- 
  
 }
 

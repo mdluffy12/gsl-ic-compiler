@@ -1,0 +1,48 @@
+/* Initialization: The program does not initialize variables with default values at declaration
+points. Instead, the compiler statically checks that each variable is assigned before it is used.
+Violations of this rule will cause compilation errors.  
+
+output:
+semantic error at line 33: the local variable a may not have been initialized
+*/
+
+class A {
+   
+   int f1;
+   
+   static void main(string [] args) {
+   
+    int a;
+    int b;
+    int c;
+    
+    if(true){
+     b = 1;
+     c = 1;
+    } 
+    
+    int y = (f(b) * g(c));
+    
+    if(false){
+     b = 1;
+     a = 1;
+    }else{
+     b = 1;
+    } 
+    
+    y = (f(b) * g(a));
+     
+   }
+   
+   static int f(int a){
+      return a;
+   }
+   
+   static int g(int b){
+     return b;
+   }
+   
+ 
+   
+   
+}

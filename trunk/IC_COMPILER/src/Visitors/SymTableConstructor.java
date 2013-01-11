@@ -69,7 +69,7 @@ import SymbolTable.SymbolTable.TableType;
  * 3) class does not extends itself
  * 
  * 4) program consists of exactly one main method, and the main method is not
- * defined in the Library class
+ *    defined in the Library class
  * 
  * 5) no field-method name collisions (method overloading is not allowed)
  * 
@@ -164,24 +164,6 @@ public class SymTableConstructor implements Visitor {
 	@Override
 	public Object visit(Program program) throws SemanticError {
 
-		/*
-		 * TODO remove when done
-		 * 
-		 * 1) A program must have exactly ONE method main (this can be done
-		 * after iterating ALL program classes)
-		 * 
-		 * 2) Classes can only extend previously defined classes. In other
-		 * words, a class CANNOT extend itself or another class defined LATER in
-		 * the program.
-		 * 
-		 * 3) Class names, fields, and methods can be used before the program
-		 * declares them. However, the program must eventually declare them.
-		 * 
-		 * 4) if A extends B, then B symbol table should be parent of A symbol
-		 * table? in another words, do we need to support field/method
-		 * inheritance
-		 */
-
 		Symbol super_class_symbol = null;
 		ClassSymbol classSymbol = null;
 
@@ -193,7 +175,7 @@ public class SymTableConstructor implements Visitor {
 
 			// resolve class type
 			Types.Type classType = SymTableUtils.getNodeType(icClass);
-			
+
 			// check if class is defined twice
 			if (SymTableUtils.isClassDefined(icClass, global_table)) {
 
@@ -248,8 +230,8 @@ public class SymTableConstructor implements Visitor {
 				// set class symbol table parent to be the class parent symbol
 				// table in case it inherits a class
 				classSymTable
-				.setParentSymbolTable(((ClassSymbol) super_class_symbol)
-						.getClassTable());
+						.setParentSymbolTable(((ClassSymbol) super_class_symbol)
+								.getClassTable());
 
 			} else {
 				// set class symbol table parent to be the global parent
@@ -276,24 +258,6 @@ public class SymTableConstructor implements Visitor {
 	 */
 	@Override
 	public Object visit(ICClass icClass) throws SemanticError {
-
-		/*
-		 * TODO remove when done
-		 * 
-		 * 1) class cannot extend itself (check here or in types??) or another
-		 * class defined later in the program
-		 * 
-		 * 2) class cannot have multiple methods with the same name, EVEN if the
-		 * methods have different number of types of arguments, or different
-		 * return types (NO method overloading allowed!)
-		 * 
-		 * 3) Hidden fields are not permitted.
-		 * 
-		 * 4) All of the newly defined fields in a subclass must have different
-		 * names than those in the super classes.
-		 * 
-		 * 5) methods CAN be overridden in subclasses
-		 */
 
 		int mainCounterDiff = 0;
 
@@ -328,7 +292,7 @@ public class SymTableConstructor implements Visitor {
 
 			// resolve method type
 			Types.Type methodType = SymTableUtils.getNodeType(method);
-			
+
 			// set method scope as its class's scope
 			method.setEnclosingScope(class_symbol_table);
 
@@ -346,8 +310,7 @@ public class SymTableConstructor implements Visitor {
 
 			// add class symbol table as parent for current method symbol table
 			method_symbol_table.setParentSymbolTable(class_symbol_table);
-			
-			
+
 			// add method symbol to class symbol table
 			class_symbol_table.addSymbol(new Symbol(method.getName(),
 					getMethodKind(), methodType, method));
@@ -366,7 +329,6 @@ public class SymTableConstructor implements Visitor {
 		SymbolTable method_symbol_table = new SymbolTable(method.getName(),
 				TableType._method);
 
-		// set method, TODO check if needed
 		method.setEnclosingScope(method_symbol_table);
 
 		// check single main
@@ -385,8 +347,7 @@ public class SymTableConstructor implements Visitor {
 			if (SymTableUtils.isParameterDefinedInScope(param,
 					method_symbol_table)) {
 				String err_msg = "duplicated parameter " + param.getName()
-						+ " in method "
-						+ method.getName();
+						+ " in method " + method.getName();
 				HandleError(err_msg, method);
 			}
 
@@ -415,7 +376,7 @@ public class SymTableConstructor implements Visitor {
 				// parent symbol table
 				SymbolTable stmt_block_symbol_table = (SymbolTable) stmtRet;
 				stmt_block_symbol_table
-				.setParentSymbolTable(method_symbol_table);
+						.setParentSymbolTable(method_symbol_table);
 			}
 		}
 
@@ -443,7 +404,7 @@ public class SymTableConstructor implements Visitor {
 
 	@Override
 	public Object visit(StatementsBlock statementsBlock) throws SemanticError {
- 
+
 		// create block id
 		String blockID = "statement block";
 
@@ -463,7 +424,7 @@ public class SymTableConstructor implements Visitor {
 				// in case of nested blocks, set the nested block parent to be
 				// the current block symbol table
 				((SymbolTable) stmtSymTable)
-				.setParentSymbolTable(block_symbol_table);
+						.setParentSymbolTable(block_symbol_table);
 			}
 		}
 		return block_symbol_table;
@@ -477,7 +438,8 @@ public class SymTableConstructor implements Visitor {
 
 		if (SymTableUtils
 				.isVariableDefinedInScope(localVariable, localVarScope)) {
-			String err_msg = "duplicated local variable " + localVariable.getName();
+			String err_msg = "duplicated local variable "
+					+ localVariable.getName();
 			HandleError(err_msg, localVariable);
 			return null;
 		}
@@ -757,14 +719,14 @@ public class SymTableConstructor implements Visitor {
 
 	@Override
 	public Object visit(ExpressionBlock expressionBlock) throws SemanticError {
-		
+
 		Expression expression = expressionBlock.getExpression();
-		
+
 		expression.setEnclosingScope(expressionBlock.getEnclosingScope());
-      
-        return expression.accept(this);
+
+		return expression.accept(this);
 	}
-	
+
 	private Object HandleBinaryOp(BinaryOp binaryOp) throws SemanticError {
 
 		// handle first operand
@@ -862,7 +824,5 @@ public class SymTableConstructor implements Visitor {
 	public Object visit(Literal literal) {
 		return null;
 	}
-
-
 
 }

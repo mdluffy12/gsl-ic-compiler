@@ -55,8 +55,7 @@ import Types.TypeTable;
  * SemanticChecks is responsible for all the semantic checks that could not be
  * performed while constructing the table (for efficiency or technical reasons)
  * 
- * @authors Micha,Roni,Grisha (although Grisha is sitting home doing nothing
- *          right now)
+ * @authors Micha,Roni,Grisha
  */
 
 public class SemanticChecks implements Visitor {
@@ -65,12 +64,12 @@ public class SemanticChecks implements Visitor {
 	 * counts the depth of while at runtime
 	 */
 	private int loopCount = 0;
-    private final VarInitChecker varInitChecker;
-	
-    public SemanticChecks(){
-    	varInitChecker = new VarInitChecker();
-    }
-    
+	private final VarInitChecker varInitChecker;
+
+	public SemanticChecks() {
+		varInitChecker = new VarInitChecker();
+	}
+
 	@Override
 	public Object visit(Program program) throws SemanticError {
 		for (ICClass icClass : program.getClasses())
@@ -86,7 +85,7 @@ public class SemanticChecks implements Visitor {
 		for (Method method : icClass.getMethods()) {
 			loopCount = 0;
 			method.accept(this);
-			
+
 			method.accept(varInitChecker);
 		}
 		return null;
@@ -144,7 +143,7 @@ public class SemanticChecks implements Visitor {
 			throws SemanticError {
 
 		MethodType methodType = (MethodType) TypeAdapter.adaptType(method);
-		
+
 		// check if method legally overrides superclass method
 		ISymbolTable methodSymTable = method.getEnclosingScope();
 
@@ -163,19 +162,22 @@ public class SemanticChecks implements Visitor {
 			// in case method name is not found in parent, disregard override
 			// check
 			if (superMethodSym != null) {
-				
+
 				// check illegal override
-				if (!methodType.equals(
-						superMethodSym.getIdType())) {
+				if (!methodType.equals(superMethodSym.getIdType())) {
 					throw new SemanticError("method " + method.getName()
 							+ " in type " + classSymTable.getId()
-							+ " is overridden illegally (type mismatch)", method);
+							+ " is overridden illegally (type mismatch)",
+							method);
 				}
 				if ((isVirtual && superMethodSym.isStaticMethod())
 						|| (!isVirtual && superMethodSym.isVirtualMethod())) {
-					throw new SemanticError("method " + method.getName()
-							+ " in type " + classSymTable.getId()
-							+ " is overridden illegally (virtual/static mismatch)",
+					throw new SemanticError(
+							"method "
+									+ method.getName()
+									+ " in type "
+									+ classSymTable.getId()
+									+ " is overridden illegally (virtual/static mismatch)",
 							method);
 				}
 			}
@@ -184,47 +186,14 @@ public class SemanticChecks implements Visitor {
 		// iterate all statements
 		for (Statement stmt : method.getStatements())
 			stmt.accept(this);
-		
+
 		Types.Type methodRetType = methodType.getReturnType();
-		
-		//Check return paths
-		if(!methodRetType.equals(TypeTable.voidType) && !this.hasReturnOnControlPaths(method.getStatements()))
-			throw new SemanticError("The method must return a result of type " + methodType.getReturnType(), method);
-	}
 
-	@Override
-	public Object visit(LibraryMethod method) throws SemanticError {
-		return null;
-	}
-
-	@Override
-	public Object visit(Formal formal) throws SemanticError {
-		return null;
-	}
-
-	@Override
-	public Object visit(PrimitiveType type) throws SemanticError {
-		return null;
-	}
-
-	@Override
-	public Object visit(UserType type) throws SemanticError {
-		return null;
-	}
-
-	@Override
-	public Object visit(Assignment assignment) throws SemanticError {
-		return null;
-	}
-
-	@Override
-	public Object visit(CallStatement callStatement) throws SemanticError {
-		return null;
-	}
-
-	@Override
-	public Object visit(Return returnStatement) throws SemanticError {
-		return null;
+		// Check return paths
+		if (!methodRetType.equals(TypeTable.voidType)
+				&& !this.hasReturnOnControlPaths(method.getStatements()))
+			throw new SemanticError("The method must return a result of type "
+					+ methodType.getReturnType(), method);
 	}
 
 	@Override
@@ -267,95 +236,11 @@ public class SemanticChecks implements Visitor {
 
 	@Override
 	public Object visit(StatementsBlock statementsBlock) throws SemanticError {
-		
-		for(Statement stmt : statementsBlock.getStatements()){
+
+		for (Statement stmt : statementsBlock.getStatements()) {
 			stmt.accept(this);
 		}
-		
-		return null;
-	}
 
-	@Override
-	public Object visit(LocalVariable localVariable) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(VariableLocation location) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(ArrayLocation location) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(StaticCall call) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(VirtualCall call) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(This thisExpression) throws SemanticError {
-
-		return null;
-	}
-
-	@Override
-	public Object visit(NewClass newClass) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(NewArray newArray) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(Length length) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(MathBinaryOp binaryOp) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(LogicalBinaryOp binaryOp) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(MathUnaryOp unaryOp) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(LogicalUnaryOp unaryOp) throws SemanticError {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(Literal literal) throws SemanticError {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -363,71 +248,185 @@ public class SemanticChecks implements Visitor {
 	public Object visit(ExpressionBlock expressionBlock) throws SemanticError {
 
 		expressionBlock.getExpression().accept(this);
-		
+
 		return null;
 	}
 
-	
-	 public boolean hasReturnOnControlPaths(Statement stmt) throws SemanticError {
-	 List<Statement> stmtList = new LinkedList<Statement>();
-	 stmtList.add(stmt);
-	 return hasReturnOnControlPaths(stmtList);
-	 }
-	
-	 /**
+	public boolean hasReturnOnControlPaths(Statement stmt) throws SemanticError {
+		List<Statement> stmtList = new LinkedList<Statement>();
+		stmtList.add(stmt);
+		return hasReturnOnControlPaths(stmtList);
+	}
+
+	/**
 	 * check if every control path has a return value
-	 * @throws SemanticError 
+	 * 
+	 * @throws SemanticError
 	 */
-	
-	 public boolean hasReturnOnControlPaths(List<Statement> statements) throws SemanticError {
-	
-	 // initialize return value
-	 boolean found = false;
-	
-	 for (Statement stmt : statements) {
-	
-	 if (stmt instanceof Return) {
-	
-	 // in case we found a return statement, set found to true
-	 found = true;
-	 }
-	
-	 if (stmt instanceof StatementsBlock) {
-	
-	 // in case we found a statement block, iterate all statements
-	 found |= hasReturnOnControlPaths(((StatementsBlock) stmt)
-	 .getStatements());
-	 }
-	
-	 if (stmt instanceof If) {
-	
-	 /*
-	 * in case we found an if statement, iterate recursively the
-	 * 'then' statement and the 'else' statement
-	 */
-	 If stmtAsIf = (If) stmt;
-	 
-	 if(stmtAsIf.getCondition() instanceof Literal)
-	 {
-		Literal cond = (Literal) stmtAsIf.getCondition();
-		if(cond.getType() == LiteralTypes.TRUE)
-			found |= hasReturnOnControlPaths(stmtAsIf.getOperation());
-		else if(cond.getType() == LiteralTypes.FALSE)
-		{
-			if(stmtAsIf.hasElse())
-				found |= hasReturnOnControlPaths(((If) stmt).getElseOperation());
+
+	public boolean hasReturnOnControlPaths(List<Statement> statements)
+			throws SemanticError {
+
+		// initialize return value
+		boolean found = false;
+
+		for (Statement stmt : statements) {
+
+			if (stmt instanceof Return) {
+
+				// in case we found a return statement, set found to true
+				found = true;
+			}
+
+			if (stmt instanceof StatementsBlock) {
+
+				// in case we found a statement block, iterate all statements
+				found |= hasReturnOnControlPaths(((StatementsBlock) stmt)
+						.getStatements());
+			}
+
+			if (stmt instanceof If) {
+
+				/*
+				 * in case we found an if statement, iterate recursively the
+				 * 'then' statement and the 'else' statement
+				 */
+				If stmtAsIf = (If) stmt;
+
+				if (stmtAsIf.getCondition() instanceof Literal) {
+					Literal cond = (Literal) stmtAsIf.getCondition();
+					if (cond.getType() == LiteralTypes.TRUE)
+						found |= hasReturnOnControlPaths(stmtAsIf
+								.getOperation());
+					else if (cond.getType() == LiteralTypes.FALSE) {
+						if (stmtAsIf.hasElse())
+							found |= hasReturnOnControlPaths(((If) stmt)
+									.getElseOperation());
+					} else
+						throw new SemanticError(
+								"Unexpected literal in if statement", stmt);
+				}
+
+				found |= (hasReturnOnControlPaths(stmtAsIf.getOperation())
+
+				&& (stmtAsIf.hasElse() ? hasReturnOnControlPaths(stmtAsIf
+						.getElseOperation()) : false));
+			}
 		}
-		else
-			throw new SemanticError("Unexpected literal in if statement", stmt);
-	 }
-		 
-	 found |= (hasReturnOnControlPaths(stmtAsIf.getOperation())
-	
-			 && (stmtAsIf.hasElse() ? hasReturnOnControlPaths(stmtAsIf.getElseOperation()) : false));
-	 }
-	 }
-	
-	 return found;
-	
-	 }
+
+		return found;
+
+	}
+
+	/*
+	 * -------------------------------------------------------------------
+	 * ------- passive AST nodes (no actions when accept invoked) --------
+	 * -------------------------------------------------------------------
+	 */
+
+	@Override
+	public Object visit(LocalVariable localVariable) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(VariableLocation location) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(ArrayLocation location) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(StaticCall call) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(VirtualCall call) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(This thisExpression) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(NewClass newClass) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(NewArray newArray) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(Length length) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(MathBinaryOp binaryOp) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(LogicalBinaryOp binaryOp) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(MathUnaryOp unaryOp) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(LogicalUnaryOp unaryOp) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(Literal literal) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(LibraryMethod method) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(Formal formal) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(PrimitiveType type) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(UserType type) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(Assignment assignment) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(CallStatement callStatement) throws SemanticError {
+		return null;
+	}
+
+	@Override
+	public Object visit(Return returnStatement) throws SemanticError {
+		return null;
+	}
+
 }

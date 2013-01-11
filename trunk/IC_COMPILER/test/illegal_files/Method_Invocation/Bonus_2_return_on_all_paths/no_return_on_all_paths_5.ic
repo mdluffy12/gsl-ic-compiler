@@ -1,0 +1,41 @@
+/* Return on all paths: if the method is declared with a return
+   type T, then all return statements must return values of type T.
+   In this case, the method body is required to have a return
+   statement on each program path.
+output:
+semantic error at line 16: The method must return a result of type int
+*/
+
+class A {
+   
+   int f1;
+   static void main(string [] args) {
+  
+   }
+   
+   int g(){
+ 
+     while(f1 == 2){
+        return 3;
+     }   
+   }
+     
+   int f(){
+ 
+     if(f1 > 3){
+       return 2;
+     }else if(f1 > 3){
+       return 3;
+     }else{
+        if(f1 == 0){
+         return 2;
+        }
+        
+        return 3;
+     }
+   
+   }
+   
+   
+ 
+}

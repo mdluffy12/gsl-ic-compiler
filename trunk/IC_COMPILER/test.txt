@@ -1,11 +1,30 @@
-class Test {
-	static void main(string[] abd)
-		{
-			String blaBla = "gggg";
-			int k = 333556;
-			int x = 213123123;
-			int y = x-123;
-			int maxValue = 2147483647;
-			int maxNegValue = -2147483648;
-		}
+/* Initialization: The program does not initialize variables with default values at declaration
+points. Instead, the compiler statically checks that each variable is assigned before it is used.
+Violations of this rule will cause compilation errors.  
+
+output:
+semantic error at line 27: the local variable a may not have been initialized
+*/
+
+class A {
+   
+   int k;
+   static void main(string [] args) {
+   
+    int a;
+    int b;
+    int c;
+   }
+   
+   int foo(){
+   
+     int a;
+     
+     while(k == 5){
+       a = 2;
+     }
+     
+     return a;
+     
+   }
 }

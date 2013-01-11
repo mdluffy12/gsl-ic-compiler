@@ -5,10 +5,10 @@
 does not compare string contents).
 
 output: (third rule violation)
-28: Semantic error: incompatible operand types string and int for operator ==
+semantic error at line 28: incompatible operand types string and int for operator ==
 */
 
-class A exnends A
+class A
 { 
   static void main (string [] args){
     

@@ -14,7 +14,7 @@ the body of the method cannot return values.
 
 
 output: (4th rule violation)
-45: Semantic error: type mismatch: cannot resolve B as A
+semantic error at line 47: type mismatch: cannot resolve B as A
 */
 
 class A

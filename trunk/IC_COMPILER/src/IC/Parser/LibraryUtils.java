@@ -69,8 +69,7 @@ public class LibraryUtils {
 		try {
 			System.out.println(libroot.accept(printer));
 		} catch (SemanticError e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 
 	}

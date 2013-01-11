@@ -199,9 +199,9 @@ public class SymTableUtils implements ISymbolTableOperations {
 		Types.Type type = null;
 		try {
 			type = TypeAdapter.adaptType(node);
-		}
-		catch(UndefinedClassException e) {
-			throw new SemanticError(e.getClassname() + " cannot be resolved to a type", node);
+		} catch (UndefinedClassException e) {
+			throw new SemanticError(e.getClassname()
+					+ " cannot be resolved to a type", node);
 		}
 		return type;
 	}

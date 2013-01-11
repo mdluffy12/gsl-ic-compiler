@@ -25,8 +25,7 @@
    superclasses.
    
 output: (6th rule violation)
-52: Semantic error: field x appears to be hidden, all of the newly defined fields in a subclass must have different names than those in the superclasses
-
+semantic error at line 49: field x appears to be hidden, all of the newly defined fields in a subclass must have different names than those in the superclasses
 */
 
 class A

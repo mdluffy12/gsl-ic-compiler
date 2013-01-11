@@ -57,10 +57,10 @@ import Types.TypeTable;
 public class TypeChecker implements Visitor {
 
 	private final ITypeEvaluator evaluator;
-	
-	//The return type for the current method
-	private Type methodReturnType; 
-	//The name of the current method
+
+	// The return type for the current method
+	private Type methodReturnType;
+	// The name of the current method
 	private String methodName;
 
 	public TypeChecker(ITypeEvaluator evaluator) {
@@ -191,10 +191,10 @@ public class TypeChecker implements Visitor {
 	}
 
 	private void handleMethod(Method method) throws SemanticError {
-		
+
 		this.methodReturnType = Types.TypeAdapter.adaptType(method.getType());
 		this.methodName = method.getName();
-		
+
 		boolean hasReturn = false;
 
 		for (Statement s : method.getStatements()) {
@@ -249,21 +249,19 @@ public class TypeChecker implements Visitor {
 	public Object visit(Return returnStatement) throws SemanticError {
 		if (returnStatement.hasValue()) {
 			Type actualReturnType = evaluator
-					.evaluateAndCheckExpressionType(returnStatement
-							.getValue());
+					.evaluateAndCheckExpressionType(returnStatement.getValue());
 
 			if (!actualReturnType.subTypeOf(methodReturnType)) {
 
-				throw new SemanticError(
-						"type mismatch: cannot resolve "
-								+ methodReturnType.toString() + " as "
-								+ actualReturnType.toString(),
-								returnStatement);
+				throw new SemanticError("type mismatch: cannot resolve "
+						+ methodReturnType.toString() + " as "
+						+ actualReturnType.toString(), returnStatement);
 			}
-		}else{
-			if(!methodReturnType.equals(TypeTable.voidType)){
-			   throw new SemanticError("the method " + methodName +
-					   " must return a result of type " + methodReturnType.toString(),returnStatement);
+		} else {
+			if (!methodReturnType.equals(TypeTable.voidType)) {
+				throw new SemanticError("the method " + methodName
+						+ " must return a result of type "
+						+ methodReturnType.toString(), returnStatement);
 			}
 		}
 		return null;

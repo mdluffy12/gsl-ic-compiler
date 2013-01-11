@@ -181,7 +181,6 @@ public class Symbol{
 
 	}
 
-	// TODO: finish type handling
 	@Override
 	public String toString() {
 

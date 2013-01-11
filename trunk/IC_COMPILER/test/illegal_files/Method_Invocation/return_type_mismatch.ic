@@ -14,7 +14,7 @@ the body of the method cannot return values.
 
 
 output: (second rule violation)
-20: Semantic error: type mismatch: cannot resolve void as int
+semantic error at line 27: type mismatch: cannot resolve void as int
 */
 
 class A
@@ -27,8 +27,6 @@ class A
    int c = b.foo();
   }
   
- 
- 
 }
 
 class B extends A{

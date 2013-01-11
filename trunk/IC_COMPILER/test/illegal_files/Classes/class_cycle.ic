@@ -26,8 +26,7 @@
    
    
 output: (4th rule violation)
-40: Semantic error: cycle detected: the type B cannot extend itself
-
+semantic error at line 40: cycle detected: the type B cannot extend itself
 */
 
 class A

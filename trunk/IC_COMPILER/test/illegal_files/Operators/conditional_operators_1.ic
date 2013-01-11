@@ -20,7 +20,7 @@ program termination.
 5. unary operators: sign change - for integers and logical negation ! for booleans
 
 output: (4th rule violation)
-36: Semantic error: the operator && is undefined for the argument types A and A
+semantic error at line 36: the operator && is undefined for the argument types A and A
 */
 
 class A

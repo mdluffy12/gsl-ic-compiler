@@ -1,5 +1,6 @@
 class Library {
  static void println(string s); /* prints string s followed by a newline */
+ 
  static void print(string s);   /* prints string s */
  static void printi(int i);     /* prints integer i */
  static void printb(boolean b); /* prints boolean b */
