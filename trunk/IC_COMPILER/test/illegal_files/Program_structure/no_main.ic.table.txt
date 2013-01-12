@@ -1,1 +1,0 @@
-A program must have exactly one method main

@@ -142,6 +142,7 @@ public class SymbolTable implements ISymbolTable {
 		this.entries = entries;
 	}
 
+	@Override
 	public SymbolTable getParentSymbolTable() {
 		return parentSymbolTable;
 	}
@@ -156,6 +157,7 @@ public class SymbolTable implements ISymbolTable {
 
 	}
 
+	@Override
 	public String getId() {
 		return id;
 	}
@@ -268,6 +270,7 @@ public class SymbolTable implements ISymbolTable {
 	/**
 	 * @return true iff table type is class
 	 */
+	@Override
 	public boolean isClassTable() {
 		return this.table_type == TableType._class;
 	}
@@ -406,23 +409,10 @@ public class SymbolTable implements ISymbolTable {
 	 * @return the symbol if found in current table or null otherwise
 	 * 
 	 */
+	@Override
 	public Symbol localLookup(String idName) {
 
 		return entries.get(idName);
-	}
-
-	/**
-	 * lookups symbol in parent
-	 * 
-	 * @return the symbol if found, or null in case not found or parent is root
-	 */
-	private Symbol lookupParent(String idName, ASTNode idNode) {
-
-		// check if parent is root
-		if (isRoot())
-			return null;
-
-		return parentSymbolTable.lookup(idName, idNode);
 	}
 
 	/**
@@ -483,6 +473,7 @@ public class SymbolTable implements ISymbolTable {
 	/**
 	 * @return method symbol of an encapsulated block symbol table
 	 */
+	@Override
 	public Symbol getMethodParent() {
 
 		SymbolTable currentSymbolTable = this;

@@ -37,6 +37,9 @@ class B extends A {
     
     int kkk;
     
+    string virtualS(){
+     return "" + "" + "" + "" + "";
+    }
     
     int j;
 
@@ -215,6 +218,8 @@ class V extends B{
 
 class T extends V{
 
+ static void staticVoo(int a){}
+ 
  static void staticToo()
  {
     int dd = 2;
@@ -235,7 +240,7 @@ class E extends B {
     void goo(string[] args) {
     A[][] a;
     
-    string s = Library.itos(2);
+    string s = Library.itos(2) + virtualS();
      
   }
   

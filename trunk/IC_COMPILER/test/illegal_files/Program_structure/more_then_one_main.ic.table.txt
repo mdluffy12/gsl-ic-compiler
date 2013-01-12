@@ -1,1 +1,0 @@
-14: Semantic error: A program must have exactly one method main
