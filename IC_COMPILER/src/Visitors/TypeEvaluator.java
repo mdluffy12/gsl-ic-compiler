@@ -180,18 +180,11 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 		Symbol methodSymbol = environment.lookup(calledFunctionName, call);
 
+		// in case method not found
 		if (methodSymbol == null) {
 			throw new SemanticError("the method " + calledFunctionName
 					+ " is undefined for the type " + className, call);
 		}
-
-		/*
-		 * ---- > changed if (isVirtualCall) { if
-		 * (!methodSymbol.isVirtualMethod()) { throw new SemanticError(
-		 * "method " + methodSymbol.getIdName() +
-		 * " cannot be resolved as a virtual method for the type " + className,
-		 * call); } }
-		 */
 
 		if (isVirtualCall) {
 			VirtualCall vCall = (VirtualCall) call;
@@ -202,11 +195,6 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 								+ " cannot be resolved as a virtual method for the type "
 								+ className, call);
 			}
-
-			/*
-			 * --- > added check that a virtual call invoked from a static
-			 * method
-			 */
 
 			// get method parent of the virtual call's scope
 			Symbol methodParent = vCall.getEnclosingScope().getMethodParent();
@@ -223,6 +211,53 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 								+ methodSymbol.getIdName()
 								+ " from the static method "
 								+ methodParent.getIdName(), call);
+			}
+
+			Symbol localMethodSymbol = null;
+			ISymbolTable classSymbolTable = null;
+
+			if (methodParent != null) {
+
+				// find class in which the method of which the call is defined
+				Symbol classSymbol = methodParent.getIdNode()
+						.getEnclosingScope().getClassParent();
+
+				// get class scope
+				classSymbolTable = symTableOps.findClassEnvironment(classSymbol
+						.getIdName());
+
+				// look for method in current class scope
+				localMethodSymbol = classSymbolTable.localLookup(vCall
+						.getName());
+			}
+
+			/*
+			 * in case call is not external (location is null) , and it is
+			 * referring a static method which is not locally defined (in the
+			 * class and not in any other super class), throw exception
+			 */
+			if (localMethodSymbol == null && methodSymbol != null
+					&& methodSymbol.isStaticMethod() && !vCall.isExternal()
+					&& classSymbolTable != null) {
+				throw new SemanticError("the method "
+						+ methodSymbol.getIdName()
+						+ " is undefined for the type "
+						+ classSymbolTable.getId(), call);
+			}
+
+		} else if (methodSymbol != null) {
+
+			/*
+			 * check case that the static call is referring a static method
+			 * which is not locally defined
+			 */
+
+			Symbol localMethodSymbol = environment
+					.localLookup(calledFunctionName);
+
+			if (localMethodSymbol == null && methodSymbol.isStaticMethod()) {
+				throw new SemanticError("the method " + calledFunctionName
+						+ " is undefined for the type " + className, call);
 			}
 
 		}
@@ -284,13 +319,11 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(NewClass newClass) throws SemanticError {
-		try
-		{
+		try {
 			return TypeTable.classType(newClass.getName());
-		}
-		catch(UndefinedClassException e)
-		{
-			throw new SemanticError(e.getClassname() + " cannot be resolved to a type", newClass);
+		} catch (UndefinedClassException e) {
+			throw new SemanticError(e.getClassname()
+					+ " cannot be resolved to a type", newClass);
 		}
 	}
 
@@ -302,21 +335,21 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 					"the type of the array index must be an int but it is resolved to "
 							+ type.toString(), newArray);
 		}
-		try
-		{
-			return TypeTable.arrayType(TypeAdapter.adaptType(newArray.getType()));
-		}
-		catch(UndefinedClassException e)
-		{
-			throw new SemanticError(e.getClassname() + " cannot be resolved to a type", newArray);
+		try {
+			return TypeTable
+					.arrayType(TypeAdapter.adaptType(newArray.getType()));
+		} catch (UndefinedClassException e) {
+			throw new SemanticError(e.getClassname()
+					+ " cannot be resolved to a type", newArray);
 		}
 	}
 
 	@Override
-	public Object visit(Length length) throws SemanticError {	
+	public Object visit(Length length) throws SemanticError {
 		Type arrType = this.evaluateAndCheckExpressionType(length.getArray());
-		if(!(arrType instanceof ArrayType))
-			throw new SemanticError("the type " + arrType + " does not have a field length" ,length);
+		if (!(arrType instanceof ArrayType))
+			throw new SemanticError("the type " + arrType
+					+ " does not have a field length", length);
 		return TypeTable.intType;
 	}
 

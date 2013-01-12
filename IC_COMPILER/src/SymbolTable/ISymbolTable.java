@@ -15,8 +15,16 @@ import IC.AST.ASTNode;
  * @authors Micha,Roni
  */
 public interface ISymbolTable {
+	
+	public String getId();
+	
 	public Symbol lookup(String symbolName, ASTNode astNode);
+	
+	public Symbol localLookup(String symbolName);
+	
 	public Symbol getMethodParent();
+	
 	public boolean isClassTable();
+	
 	public SymbolTable getParentSymbolTable();
 }
