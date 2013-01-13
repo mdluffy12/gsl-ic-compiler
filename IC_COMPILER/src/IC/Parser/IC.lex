@@ -31,7 +31,10 @@ LexicalError
 	public boolean isValidInteger(String n_str){
 		 try{
              long n = Long.parseLong(n_str);
-             if(n < Integer.MIN_VALUE | n > Integer.MAX_VALUE)
+             
+             //Integer.MAX_VALUE = 2^31 - 1
+                  
+             if((n-1) > Integer.MAX_VALUE)
                 return false;        
            }catch(java.lang.NumberFormatException e){
                 return false;}
@@ -169,7 +172,7 @@ EndOfLineComment   = "//" {InputCharacter}* {LineTerminator}?
     
   /* handle integer literals */
   {IntegerLiteral} { if(isValidInteger (yytext()))
-  					   	return new Token(sym.INTEGER,yyline,Integer.parseInt(yytext()));
+  					   	return new Token(sym.INTEGER,yyline,Long.parseLong(yytext()));
   					 else 
   					    throw new LexicalError("illegal Integer value "+ yytext() ,yyline);
                                                                      }

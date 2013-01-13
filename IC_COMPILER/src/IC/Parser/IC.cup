@@ -211,7 +211,7 @@ terminal  NULL     ;  // 'null'
 terminal String  ID        ;  // 'identifier'
 terminal String  CLASS_ID  ;  // 'class identifier'
 terminal String  QUOTE     ;  // 'quoted string'
-terminal Integer INTEGER   ;  // 'integer'
+terminal Object INTEGER   ;  // 'integer'
 
 
 

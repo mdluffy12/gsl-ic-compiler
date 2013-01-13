@@ -1,15 +1,7 @@
 class A {
-	static void main(string[] args) {
-		
-	}
-	
-	void func(int i, string s) {
-		
-	}
-}
-
-class B extends A {
-	void func2() {
-		func(3,"mystring");
+	static void main(string[] args) {		
+		int k1 = -2147483648;
+		int k2 = 2147483648;
+		k1 = k1 + 1;
 	}
 }

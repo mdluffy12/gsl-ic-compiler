@@ -52,7 +52,6 @@ public class SemanticTester extends GenTester {
 			String syntaxSuffix,boolean withLib) {
 		super(GenTester.OutputType.file);
 		this.testedFolder = testedFolder;
-		
 		listerFile = new File(testedFolder + File.separator + "Test_Files.txt");
 		SemanticTester.syffix = syntaxSuffix;
 		SemanticTester.mySuffix = mySyntaxSuffix;
