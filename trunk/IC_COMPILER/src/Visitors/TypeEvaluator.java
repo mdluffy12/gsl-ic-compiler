@@ -239,10 +239,13 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 			if (localMethodSymbol == null && methodSymbol != null
 					&& methodSymbol.isStaticMethod() && !vCall.isExternal()
 					&& classSymbolTable != null) {
-				throw new SemanticError("the method "
-						+ methodSymbol.getIdName()
-						+ " is undefined for the type "
-						+ classSymbolTable.getId(), call);
+
+				/*
+				 * --- > decided not to throw exception in this case /* throw
+				 * new SemanticError("the method " + methodSymbol.getIdName() +
+				 * " is undefined for the type " + classSymbolTable.getId(),
+				 * call);
+				 */
 			}
 
 		} else if (methodSymbol != null) {
@@ -255,10 +258,13 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 			Symbol localMethodSymbol = environment
 					.localLookup(calledFunctionName);
 
-			if (localMethodSymbol == null && methodSymbol.isStaticMethod()) {
-				throw new SemanticError("the method " + calledFunctionName
-						+ " is undefined for the type " + className, call);
-			}
+			/*
+			 * --- > decided not to throw exception in this case
+			 * 
+			 *  if (localMethodSymbol == null && methodSymbol.isStaticMethod()) {
+			 * throw new SemanticError("the method " + calledFunctionName +
+			 * " is undefined for the type " + className, call); }
+			 */
 
 		}
 
@@ -489,6 +495,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 	public Object visit(Literal literal) throws SemanticError {
 		switch (literal.getType()) {
 		case INTEGER:
+			checkIntegerBounds(literal.getValue());
 			return TypeTable.intType;
 		case STRING:
 			return TypeTable.stringType;
@@ -502,6 +509,18 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 			throw new SemanticError("unexpected literal "
 					+ literal.getType().toString(), literal);
 		}
+	}
+
+	// TODO: finish for Roni
+	/**
+	 * 
+	 * @param value
+	 * @throws SemanticError
+	 *             in case that integer value x, does not match the condition
+	 *             that -2^31 <= x <= 2^31
+	 */
+	private void checkIntegerBounds(Object value) throws SemanticError {
+
 	}
 
 	@Override
