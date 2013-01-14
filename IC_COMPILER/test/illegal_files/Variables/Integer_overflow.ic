@@ -1,0 +1,29 @@
+/* output:
+semantic error at line 18: The literal 2147483648 of type int is out of range
+*/
+
+class A {
+	static void main(string[] args) {	
+	
+	    // legal	
+		int k1 = -2147483648;
+		
+		// legal
+		int k2 = -2147483647;
+		
+		// legal
+		int k3 = 2147483647;
+		
+		// illegal
+		int k4 = 2147483648;
+ 
+ 
+	}
+	
+	
+	 
+	
+}
+
+ 
+ 

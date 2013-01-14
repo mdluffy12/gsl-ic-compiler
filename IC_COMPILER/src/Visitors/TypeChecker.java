@@ -195,16 +195,10 @@ public class TypeChecker implements Visitor {
 		this.methodReturnType = Types.TypeAdapter.adaptType(method.getType());
 		this.methodName = method.getName();
 
-		boolean hasReturn = false;
-
 		for (Statement s : method.getStatements()) {
 			s.accept(this);
 		}
 
-		// if the method doesn't return when needed, throw exception
-		// if (!(m instanceof LibraryMethod) && (methodReturnType !=
-		// Types.TypeTable.voidType) && !hasReturn)
-		// throw new SemanticError("Method doesn't return");
 	}
 
 	/*

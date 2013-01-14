@@ -82,6 +82,7 @@ public class VarInitChecker implements Visitor {
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	private void checkIfExpVarsInited(Expression e) throws SemanticError {
 		Set<Symbol> vars = (Set<Symbol>) e.accept(this.varsInExp);
 		for (Symbol var : vars)
