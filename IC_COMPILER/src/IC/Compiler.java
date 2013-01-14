@@ -213,6 +213,7 @@ public class Compiler {
 			System.out.println(e);
 			return false;
 		} catch (RuntimeException e){
+			e.printStackTrace();
 		    System.out.println("compiler runtime exception: " + e + "\nTrace: ");
 		} catch(Exception e){
 			System.out.println("unexpected exception: " + e);

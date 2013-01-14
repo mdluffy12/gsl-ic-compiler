@@ -1,7 +1,15 @@
 class A {
-	static void main(string[] args) {		
-		int k1 = -2147483648;
-		int k2 = 2147483648;
-		k1 = k1 + 1;
-	}
+  int i;
+  
+   int f(){return 2;}
+}
+
+class C {
+  static void main(string[] args) {
+    A a;
+	
+	int x = a.i;
+	 
+ 
+  }
 }

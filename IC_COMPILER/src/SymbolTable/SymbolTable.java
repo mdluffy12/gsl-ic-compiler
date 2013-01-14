@@ -354,6 +354,42 @@ public class SymbolTable implements ISymbolTable {
 		return stmtBlockStr.toString();
 	}
 
+	/**
+	 * handles class table string representation
+	 */
+	private String getClassTableRep(SymbolTable symbolTable) {
+		StringBuilder classTableStr = new StringBuilder();
+
+		// add all fields
+		if (this.entries != null && this.entries.values() != null) {
+			for (Symbol symbol : this.entries.values()) {
+				if (symbol.isField()) {
+					classTableStr.append("\n    " + symbol.toString());
+				}
+			}
+		}
+
+		// add all static methods and library methods
+		if (this.entries != null && this.entries.values() != null) {
+			for (Symbol symbol : this.entries.values()) {
+				if (symbol.isStaticMethod() || symbol.isLibraryMethod()) {
+					classTableStr.append("\n    " + symbol.toString());
+				}
+			}
+		}
+
+		// add all virtual methods
+		if (this.entries != null && this.entries.values() != null) {
+			for (Symbol symbol : this.entries.values()) {
+				if (symbol.isVirtualMethod()) {
+					classTableStr.append("\n    " + symbol.toString());
+				}
+			}
+		}
+
+		return classTableStr.toString();
+	}
+
 	@Override
 	public String toString() {
 
@@ -366,9 +402,13 @@ public class SymbolTable implements ISymbolTable {
 					+ this.id.toString());
 		}
 
-		if (this.entries != null && this.entries.values() != null) {
-			for (Symbol symbol : this.entries.values())
-				resStr.append("\n    " + symbol.toString());
+		if (this.isClassTable()) {
+			resStr.append(getClassTableRep(this));
+		} else {
+			if (this.entries != null && this.entries.values() != null) {
+				for (Symbol symbol : this.entries.values())
+					resStr.append("\n    " + symbol.toString());
+			}
 		}
 
 		if (this.childrenTables != null && this.childrenTables.size() > 0) {
