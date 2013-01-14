@@ -67,6 +67,7 @@ import Types.UndefinedClassException;
 public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	private final ISymbolTableOperations symTableOps;
+	private int distanceFromUMinus = 100; //Must start with something different from zero
 
 	public TypeEvaluator(ISymbolTableOperations symTableOps) {
 		this.symTableOps = symTableOps;
@@ -74,6 +75,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(VariableLocation location) throws SemanticError {
+		distanceFromUMinus++;
 		ISymbolTable environment = null;
 
 		if (location.getLocation() == null)
@@ -105,6 +107,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(ArrayLocation location) throws SemanticError {
+		distanceFromUMinus++;
 		Type arrayType = this.evaluateAndCheckExpressionType(location
 				.getArray());
 		Type indexType = this.evaluateAndCheckExpressionType(location
@@ -125,7 +128,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(StaticCall call) throws SemanticError {
-
+		distanceFromUMinus++;
 		String callClassName = call.getClassName();
 		SymbolTable classEnvironment = (SymbolTable) symTableOps
 				.findClassEnvironment(callClassName);
@@ -139,6 +142,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(VirtualCall call) throws SemanticError {
+		distanceFromUMinus++;
 		SymbolTable environment = null;
 
 		Expression callLocation = call.getLocation();
@@ -304,6 +308,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(This thisExpression) throws SemanticError {
+		distanceFromUMinus++;
 		ISymbolTable scope = thisExpression.getEnclosingScope();
 		if (scope == null) {
 			throw new RuntimeException("No scope found for ASTNode");
@@ -325,6 +330,8 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(NewClass newClass) throws SemanticError {
+		distanceFromUMinus++;
+
 		try {
 			return TypeTable.classType(newClass.getName());
 		} catch (UndefinedClassException e) {
@@ -335,6 +342,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(NewArray newArray) throws SemanticError {
+		distanceFromUMinus++;
 		Type type = this.evaluateAndCheckExpressionType(newArray.getSize());
 		if (!(type instanceof IntType)) {
 			throw new SemanticError(
@@ -352,6 +360,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(Length length) throws SemanticError {
+		distanceFromUMinus++;
 		Type arrType = this.evaluateAndCheckExpressionType(length.getArray());
 		if (!(arrType instanceof ArrayType))
 			throw new SemanticError("the type " + arrType
@@ -361,7 +370,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(MathBinaryOp binaryOp) throws SemanticError {
-
+		distanceFromUMinus++;
 		String opRep = binaryOp.getOperator().getOperatorString();
 
 		Type firstOperandType = this.evaluateAndCheckExpressionType(binaryOp
@@ -401,7 +410,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(LogicalBinaryOp binaryOp) throws SemanticError {
-
+		distanceFromUMinus++;
 		String opRep = binaryOp.getOperator().getOperatorString();
 
 		Type firstOperandType = this.evaluateAndCheckExpressionType(binaryOp
@@ -455,7 +464,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(MathUnaryOp unaryOp) throws SemanticError {
-
+		distanceFromUMinus = 0;
 		String opRep = unaryOp.getOperator().getOperatorString();
 
 		Type operandType = this.evaluateAndCheckExpressionType(unaryOp
@@ -474,7 +483,7 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(LogicalUnaryOp unaryOp) throws SemanticError {
-
+		distanceFromUMinus++;
 		String opRep = unaryOp.getOperator().getOperatorString();
 
 		Type operandType = this.evaluateAndCheckExpressionType(unaryOp
@@ -493,9 +502,10 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 
 	@Override
 	public Object visit(Literal literal) throws SemanticError {
+		distanceFromUMinus++;
 		switch (literal.getType()) {
 		case INTEGER:
-			checkIntegerBounds(literal.getValue());
+			checkIntegerBounds(literal,literal.getValue());
 			return TypeTable.intType;
 		case STRING:
 			return TypeTable.stringType;
@@ -511,20 +521,24 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 		}
 	}
 
-	// TODO: finish for Roni
 	/**
-	 * 
 	 * @param value
 	 * @throws SemanticError
 	 *             in case that integer value x, does not match the condition
-	 *             that -2^31 <= x <= 2^31
+	 *             that -2^31 <= x <= 2^31 - 1
 	 */
-	private void checkIntegerBounds(Object value) throws SemanticError {
-
+	private void checkIntegerBounds(Literal literal,Object value) throws SemanticError {
+		if(value instanceof Long && (long)value == 2147483648L) {
+			if(distanceFromUMinus == 1)
+				return;
+			else
+				throw new SemanticError("The literal " + 2147483648L + " of type int is out of range",literal);
+		}
 	}
 
 	@Override
 	public Object visit(ExpressionBlock expressionBlock) throws SemanticError {
+		distanceFromUMinus++;
 		return this.evaluateAndCheckExpressionType(expressionBlock
 				.getExpression());
 	}
@@ -632,3 +646,4 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 	}
 
 }
+ 
