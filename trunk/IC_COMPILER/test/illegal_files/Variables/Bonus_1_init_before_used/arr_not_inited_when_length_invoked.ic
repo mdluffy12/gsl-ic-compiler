@@ -1,0 +1,22 @@
+/* Initialization: The program does not initialize variables with default values at declaration
+points. Instead, the compiler statically checks that each variable is assigned before it is used.
+Violations of this rule will cause compilation errors.  
+
+output:
+semantic error at line 16: the local variable a may not have been initialized
+*/
+
+class A {
+
+   int i;   
+   static void main(string [] args) {
+   
+
+    int [] a;
+    int x = a.length;
+
+  
+   }
+   
+  
+}

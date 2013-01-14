@@ -52,13 +52,29 @@ public class VarsInExpression implements Visitor {
 	 * @throws SemanticError
 	 */
 
+	@SuppressWarnings("unchecked")
 	public Set<Symbol> findVarsInExpression(Expression e) throws SemanticError {
 		return (Set<Symbol>) e.accept(this);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object visit(VariableLocation location) throws SemanticError {
+
 		Set<Symbol> result = new HashSet<Symbol>();
+
+		/*
+		 * check case that location is external (A.i or a.i cases do not
+		 * interest us here because we are looking for variables anyway)
+		 */
+		if (location.isExternal()) {
+			Expression varLoc =  location.getLocation();
+			if(varLoc != null){
+			  result.addAll(((Set<Symbol>)varLoc.accept(this)));
+			}
+			return result;
+		} 
+
 		Symbol varSym = location.getEnclosingScope().lookup(location.getName(),
 				location);
 		if (varSym.isVariable())
@@ -66,6 +82,7 @@ public class VarsInExpression implements Visitor {
 		return result;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object visit(ArrayLocation location) throws SemanticError {
 		Set<Symbol> result = new HashSet<Symbol>();
@@ -84,6 +101,7 @@ public class VarsInExpression implements Visitor {
 		return handleCall(call);
 	}
 
+	@SuppressWarnings("unchecked")
 	private Object handleCall(Call call) throws SemanticError {
 		Set<Symbol> result = new HashSet<Symbol>();
 		for (Expression e : call.getArguments())
@@ -107,9 +125,19 @@ public class VarsInExpression implements Visitor {
 		return newArray.getSize().accept(this);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object visit(Length length) throws SemanticError {
-		return new HashSet<Symbol>();
+		
+		Set<Symbol> result = new HashSet<Symbol>();
+		
+		Expression arrExpression = length.getArray();
+		
+		if(arrExpression != null){
+			result.addAll(((Set<Symbol>)arrExpression.accept(this)));
+		}
+		
+		return result;
 	}
 
 	@Override
@@ -122,6 +150,7 @@ public class VarsInExpression implements Visitor {
 		return handleBinaryOp(binaryOp);
 	}
 
+	@SuppressWarnings("unchecked")
 	private Object handleBinaryOp(BinaryOp binaryOp) throws SemanticError {
 		Set<Symbol> result = new HashSet<Symbol>();
 		result.addAll(((Set<Symbol>) binaryOp.getFirstOperand().accept(this)));
@@ -152,6 +181,8 @@ public class VarsInExpression implements Visitor {
 	public Object visit(ExpressionBlock expressionBlock) throws SemanticError {
 		return expressionBlock.getExpression().accept(this);
 	}
+	
+	
 
 	/*
 	 * -------------------------------------------------------------------
@@ -176,11 +207,6 @@ public class VarsInExpression implements Visitor {
 
 	@Override
 	public Object visit(UserType type) throws SemanticError {
-		return null;
-	}
-
-	@Override
-	public Object visit(Assignment assignment) throws SemanticError {
 		return null;
 	}
 
@@ -246,6 +272,11 @@ public class VarsInExpression implements Visitor {
 
 	@Override
 	public Object visit(StaticMethod method) throws SemanticError {
+		return null;
+	}
+	
+	@Override
+	public Object visit(Assignment assignment) throws SemanticError {
 		return null;
 	}
 

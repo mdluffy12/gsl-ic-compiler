@@ -258,11 +258,11 @@ public class TypeEvaluator implements Types.ITypeEvaluator, Visitor {
 			 * check case that the static call is referring a static method
 			 * which is not locally defined
 			 */
-
+			/*
 			Symbol localMethodSymbol = environment
 					.localLookup(calledFunctionName);
 
-			/*
+			
 			 * --- > decided not to throw exception in this case
 			 * 
 			 *  if (localMethodSymbol == null && methodSymbol.isStaticMethod()) {

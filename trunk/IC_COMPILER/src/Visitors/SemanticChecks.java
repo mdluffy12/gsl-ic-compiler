@@ -212,7 +212,7 @@ public class SemanticChecks implements Visitor {
 		this.loopCount++;
 
 		Statement whileOperation = whileStatement.getOperation();
-		whileStatement.getOperation().accept(this);
+		whileOperation.accept(this);
 
 		this.loopCount--;
 

@@ -8,7 +8,6 @@ import java.io.FileNotFoundException;
 
 import IC.AST.ICClass;
 import IC.AST.Program;
-import IC.Parser.Debugger;
 import IC.Parser.GenLexer;
 import IC.Parser.GenParser;
 import IC.Parser.LibraryUtils;
@@ -33,7 +32,7 @@ import Visitors.TypeEvaluator;
 public class Compiler {
 
 	/* global variables */
-	private static String debugFilePathDirectory = "C:\\filesdd\\";
+	//private static String debugFilePathDirectory = "C:\\filesdd\\";
 	public static GenLexer fileLexer = null;
 	public static GenLexer libLexer = null;
 	public static GenParser parser = null;
@@ -87,14 +86,6 @@ public class Compiler {
 		}
 	}
 
-	/**
-	 * Initializes debug preferences
-	 * 
-	 */
-	private static void initDebugger() {
-		Debugger.initDebugger(true, Debugger.DebugPrintPref.all,
-				debugFilePathDirectory);
-	}
 
 	/**
 	 * Executes Full Lexical Analysis of the file
@@ -213,7 +204,6 @@ public class Compiler {
 			System.out.println(e);
 			return false;
 		} catch (RuntimeException e){
-			e.printStackTrace();
 		    System.out.println("compiler runtime exception: " + e + "\nTrace: ");
 		} catch(Exception e){
 			System.out.println("unexpected exception: " + e);

@@ -1,15 +1,20 @@
-class A {
-  int i;
-  
-   int f(){return 2;}
-}
+/* Initialization: The program does not initialize variables with default values at declaration
+points. Instead, the compiler statically checks that each variable is assigned before it is used.
+Violations of this rule will cause compilation errors.  
 
-class C {
-  static void main(string[] args) {
+output:
+semantic error at line 16: the local variable a may not have been initialized
+*/
+
+class A {
+
+   int i;   
+   static void main(string [] args) {
+   
     A a;
-	
-	int x = a.i;
-	 
- 
-  }
+    a.i = 3;
+   
+   }
+   
+  
 }
